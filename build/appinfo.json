@@ -1,0 +1,577 @@
+{
+    "targetPlatforms": [
+        "aplite", 
+        "basalt", 
+        "chalk", 
+        "diorite"
+    ], 
+    "projectType": "native", 
+    "messageKeys": {
+        "KEY_TEMPERATURE": 0, 
+        "KEY_COLOR_2ND_TEMP_R": 64, 
+        "KEY_TOGGLE_VIBRATION": 37, 
+        "KEY_COLOR_2ND_BACK_B": 63, 
+        "KEY_SELECT_PROVIDER": 112, 
+        "KEY_FORECAST_ICON1": 26, 
+        "KEY_COLOR_RIGHT_B": 41, 
+        "KEY_COLOR_RULER_B": 50, 
+        "KEY_FORECAST_ICON2": 27, 
+        "KEY_COLOR_RULER_G": 49, 
+        "KEY_COLOR_2ND_TEMP_B": 66, 
+        "KEY_ICON": 10, 
+        "KEY_COLOR_2ND_TEMP_G": 65, 
+        "KEY_FORECAST_WIND2": 30, 
+        "KEY_COLOR_RULER_R": 48, 
+        "KEY_GPS": 33, 
+        "KEY_TOGGLE_BW_ICONS": 38, 
+        "KEY_DESCRIPTION": 2, 
+        "KEY_COLOR_HOURS_B": 47, 
+        "KEY_TMAX": 9, 
+        "KEY_SELECT_UTC": 35, 
+        "KEY_COLOR_RIGHT_G": 40, 
+        "KEY_SELECT_SCREEN": 60, 
+        "KEY_HUMIDITY": 5, 
+        "KEY_TOGGLE_GRADIANT": 59, 
+        "KEY_FORECAST_RAIN4": 24, 
+        "KEY_COLOR_HOURS_G": 46, 
+        "KEY_SUNRISE": 6, 
+        "KEY_FORECAST_RAIN5": 25, 
+        "KEY_FORECAST_RAIN2": 22, 
+        "KEY_FORECAST_RAIN3": 23, 
+        "KEY_FORECAST_RAIN1": 21, 
+        "KEY_SUNSET": 7, 
+        "KEY_PHONE_BAT": 105, 
+        "KEY_COLOR_HOURS_R": 45, 
+        "KEY_COLOR_RIGHT_R": 39, 
+        "KEY_FORECAST_ICON3": 28, 
+        "KEY_COLOR_2ND_BACK_G": 62, 
+        "KEY_COLOR_LEFT_R": 42, 
+        "KEY_FORECAST_TEMP5": 15, 
+        "KEY_WIND_SPEED": 3, 
+        "KEY_FORECAST_WIND3": 31, 
+        "MESSAGE_KEY": 101, 
+        "KEY_FORECAST_WIND1": 29, 
+        "KEY_TMIN": 8, 
+        "KEY_SELECT_FONTS": 102, 
+        "KEY_FORECAST_TEMP4": 14, 
+        "KEY_TOGGLE_RULER_LARGE": 67, 
+        "KEY_FORECAST_TEMP2": 12, 
+        "KEY_SELECT_GOAL": 69, 
+        "KEY_TOGGLE_80": 108, 
+        "KEY_FORECAST_TEMP3": 13, 
+        "STATUS_KEY": 100, 
+        "KEY_PHONE_CHARGE": 106, 
+        "KEY_LAST_REFRESH": 55, 
+        "KEY_COLOR_LEFT_G": 43, 
+        "KEY_TOGGLE_100": 107, 
+        "KEY_TOGGLE_BT": 103, 
+        "KEY_FORECAST_TEMP1": 11, 
+        "KEY_INPUT_CITY": 34, 
+        "KEY_FORECAST_H3": 18, 
+        "KEY_FORECAST_H2": 17, 
+        "KEY_TOGGLE_CENTERED": 68, 
+        "KEY_COLOR_LEFT_B": 44, 
+        "KEY_TOGGLE_MONTH": 104, 
+        "KEY_RADIO_REFRESH": 54, 
+        "KEY_TOGGLE_PC": 111, 
+        "KEY_CLOUDS": 4, 
+        "KEY_COLOR_LINE_R": 56, 
+        "KEY_COLOR_TEMPERATURES_G": 52, 
+        "KEY_TOGGLE_INV": 109, 
+        "KEY_COLOR_TEMPERATURES_B": 53, 
+        "KEY_COLOR_2ND_BACK_R": 61, 
+        "KEY_COLOR_LINE_G": 57, 
+        "KEY_LOCATION": 32, 
+        "KEY_COLOR_LINE_B": 58, 
+        "KEY_RADIO_UNITS": 36, 
+        "KEY_CONDITIONS": 1, 
+        "KEY_FORECAST_H1": 16, 
+        "KEY_TOGGLE_TG": 110, 
+        "KEY_COLOR_TEMPERATURES_R": 51
+    }, 
+    "companyName": "CJ", 
+    "enableMultiJS": false, 
+    "versionLabel": "1.14", 
+    "longName": "Din Clean", 
+    "shortName": "Din Clean", 
+    "name": "din_clean", 
+    "sdkVersion": "3", 
+    "displayName": "Din Clean", 
+    "uuid": "9040763a-6b35-49d1-82ac-13ce02e31137", 
+    "appKeys": {
+        "KEY_TEMPERATURE": 0, 
+        "KEY_COLOR_2ND_TEMP_R": 64, 
+        "KEY_TOGGLE_VIBRATION": 37, 
+        "KEY_COLOR_2ND_BACK_B": 63, 
+        "KEY_SELECT_PROVIDER": 112, 
+        "KEY_FORECAST_ICON1": 26, 
+        "KEY_COLOR_RIGHT_B": 41, 
+        "KEY_COLOR_RULER_B": 50, 
+        "KEY_FORECAST_ICON2": 27, 
+        "KEY_COLOR_RULER_G": 49, 
+        "KEY_COLOR_2ND_TEMP_B": 66, 
+        "KEY_ICON": 10, 
+        "KEY_COLOR_2ND_TEMP_G": 65, 
+        "KEY_FORECAST_WIND2": 30, 
+        "KEY_COLOR_RULER_R": 48, 
+        "KEY_GPS": 33, 
+        "KEY_TOGGLE_BW_ICONS": 38, 
+        "KEY_DESCRIPTION": 2, 
+        "KEY_COLOR_HOURS_B": 47, 
+        "KEY_TMAX": 9, 
+        "KEY_SELECT_UTC": 35, 
+        "KEY_COLOR_RIGHT_G": 40, 
+        "KEY_SELECT_SCREEN": 60, 
+        "KEY_HUMIDITY": 5, 
+        "KEY_TOGGLE_GRADIANT": 59, 
+        "KEY_FORECAST_RAIN4": 24, 
+        "KEY_COLOR_HOURS_G": 46, 
+        "KEY_SUNRISE": 6, 
+        "KEY_FORECAST_RAIN5": 25, 
+        "KEY_FORECAST_RAIN2": 22, 
+        "KEY_FORECAST_RAIN3": 23, 
+        "KEY_FORECAST_RAIN1": 21, 
+        "KEY_SUNSET": 7, 
+        "KEY_PHONE_BAT": 105, 
+        "KEY_COLOR_HOURS_R": 45, 
+        "KEY_COLOR_RIGHT_R": 39, 
+        "KEY_FORECAST_ICON3": 28, 
+        "KEY_COLOR_2ND_BACK_G": 62, 
+        "KEY_COLOR_LEFT_R": 42, 
+        "KEY_FORECAST_TEMP5": 15, 
+        "KEY_WIND_SPEED": 3, 
+        "KEY_FORECAST_WIND3": 31, 
+        "MESSAGE_KEY": 101, 
+        "KEY_FORECAST_WIND1": 29, 
+        "KEY_TMIN": 8, 
+        "KEY_SELECT_FONTS": 102, 
+        "KEY_FORECAST_TEMP4": 14, 
+        "KEY_TOGGLE_RULER_LARGE": 67, 
+        "KEY_FORECAST_TEMP2": 12, 
+        "KEY_SELECT_GOAL": 69, 
+        "KEY_TOGGLE_80": 108, 
+        "KEY_FORECAST_TEMP3": 13, 
+        "STATUS_KEY": 100, 
+        "KEY_PHONE_CHARGE": 106, 
+        "KEY_LAST_REFRESH": 55, 
+        "KEY_COLOR_LEFT_G": 43, 
+        "KEY_TOGGLE_100": 107, 
+        "KEY_TOGGLE_BT": 103, 
+        "KEY_FORECAST_TEMP1": 11, 
+        "KEY_INPUT_CITY": 34, 
+        "KEY_FORECAST_H3": 18, 
+        "KEY_FORECAST_H2": 17, 
+        "KEY_TOGGLE_CENTERED": 68, 
+        "KEY_COLOR_LEFT_B": 44, 
+        "KEY_TOGGLE_MONTH": 104, 
+        "KEY_RADIO_REFRESH": 54, 
+        "KEY_TOGGLE_PC": 111, 
+        "KEY_CLOUDS": 4, 
+        "KEY_COLOR_LINE_R": 56, 
+        "KEY_COLOR_TEMPERATURES_G": 52, 
+        "KEY_TOGGLE_INV": 109, 
+        "KEY_COLOR_TEMPERATURES_B": 53, 
+        "KEY_COLOR_2ND_BACK_R": 61, 
+        "KEY_COLOR_LINE_G": 57, 
+        "KEY_LOCATION": 32, 
+        "KEY_COLOR_LINE_B": 58, 
+        "KEY_RADIO_UNITS": 36, 
+        "KEY_CONDITIONS": 1, 
+        "KEY_FORECAST_H1": 16, 
+        "KEY_TOGGLE_TG": 110, 
+        "KEY_COLOR_TEMPERATURES_R": 51
+    }, 
+    "capabilities": [
+        "location", 
+        "configurable"
+    ], 
+    "watchapp": {
+        "watchface": true
+    }, 
+    "resources": {
+        "media": [
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NEIGE_FORTE_W", 
+                "file": "images/NEIGE_FORTE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_AVEC_AVERSES", 
+                "file": "images/NUIT_AVEC_AVERSES"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_AVEC_AVERSES_W", 
+                "file": "images/NUIT_AVEC_AVERSES_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_AVEC_DEVELOPPEMENT_NUAGEUX", 
+                "file": "images/NUIT_AVEC_DEVELOPPEMENT_NUAGEUX"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W", 
+                "file": "images/NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_BIEN_DEGAGEE", 
+                "file": "images/NUIT_BIEN_DEGAGEE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_BIEN_DEGAGEE_W", 
+                "file": "images/NUIT_BIEN_DEGAGEE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_CLAIRE", 
+                "file": "images/NUIT_CLAIRE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_CLAIRE_W", 
+                "file": "images/NUIT_CLAIRE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_NUAGEUSE", 
+                "file": "images/NUIT_NUAGEUSE"
+            }, 
+            {
+                "characterRegex": "[0-9:]", 
+                "targetPlatforms": null, 
+                "type": "font", 
+                "name": "FONT_CLEARVIEW_45", 
+                "file": "fonts/Clearview_45"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "font", 
+                "name": "FONT_SQUARE_13", 
+                "file": "fonts/SQUARE_16"
+            }, 
+            {
+                "characterRegex": "[0-9]", 
+                "targetPlatforms": null, 
+                "type": "font", 
+                "name": "FONT_SQUARE_25", 
+                "file": "fonts/SQUARE_25"
+            }, 
+            {
+                "characterRegex": "[0-9:]", 
+                "targetPlatforms": null, 
+                "type": "font", 
+                "name": "FONT_SQUARE_50", 
+                "file": "fonts/SQUARE_50"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "0", 
+                "file": "images/0"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "1", 
+                "file": "images/1"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "2", 
+                "file": "images/2"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "3", 
+                "file": "images/3"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "4", 
+                "file": "images/4"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "5", 
+                "file": "images/5"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "6", 
+                "file": "images/6"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "7", 
+                "file": "images/7"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "8", 
+                "file": "images/8"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "9", 
+                "file": "images/9"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "AVERSES_DE_PLUIE_FORTE", 
+                "file": "images/AVERSES_DE_PLUIE_FORTE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "AVERSES_DE_PLUIE_FORTE1", 
+                "file": "images/AVERSES_DE_PLUIE_FORTE1"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "AVERSES_DE_PLUIE_FORTE2", 
+                "file": "images/AVERSES_DE_PLUIE_FORTE2"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "AVERSES_DE_PLUIE_FORTE_W", 
+                "file": "images/AVERSES_DE_PLUIE_FORTE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "AVERSES_DE_PLUIE_FORTE_W1", 
+                "file": "images/AVERSES_DE_PLUIE_FORTE_W1"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "AVERSES_DE_PLUIE_FORTE_W2", 
+                "file": "images/AVERSES_DE_PLUIE_FORTE_W2"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "BROUILLARD", 
+                "file": "images/BROUILLARD"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "BROUILLARD_W", 
+                "file": "images/BROUILLARD_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "BT", 
+                "file": "images/BT"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "BT_DISCONECT", 
+                "file": "images/BT_DISCONECT"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "COUVERT_AVEC_AVERSES", 
+                "file": "images/COUVERT_AVEC_AVERSES"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "COUVERT_AVEC_AVERSES_W", 
+                "file": "images/COUVERT_AVEC_AVERSES_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "DEVELOPPEMENT_NUAGEUX", 
+                "file": "images/DEVELOPPEMENT_NUAGEUX"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "DEVELOPPEMENT_NUAGEUX_W", 
+                "file": "images/DEVELOPPEMENT_NUAGEUX_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "ENSOLEILLE", 
+                "file": "images/ENSOLEILLE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "ENSOLEILLE_W", 
+                "file": "images/ENSOLEILLE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "FAIBLES_PASSAGES_NUAGEUX", 
+                "file": "images/FAIBLES_PASSAGES_NUAGEUX"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "FAIBLES_PASSAGES_NUAGEUX_W", 
+                "file": "images/FAIBLES_PASSAGES_NUAGEUX_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "FORTEMENT_NUAGEUX", 
+                "file": "images/FORTEMENT_NUAGEUX"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "FORTEMENT_NUAGEUX_W", 
+                "file": "images/FORTEMENT_NUAGEUX_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "FORTEMENT_ORAGEUX", 
+                "file": "images/FORTEMENT_ORAGEUX"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "FORTEMENT_ORAGEUX_W", 
+                "file": "images/FORTEMENT_ORAGEUX_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "GRADIANT", 
+                "file": "images/GRADIANT"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NEIGE_FORTE", 
+                "file": "images/NEIGE_FORTE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "NUIT_NUAGEUSE_W", 
+                "file": "images/NUIT_NUAGEUSE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "PLUIE_FORTE", 
+                "file": "images/PLUIE_FORTE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "PLUIE_FORTE_W", 
+                "file": "images/PLUIE_FORTE_W"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "POURTOUR", 
+                "file": "images/POURTOUR"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "POURTOUR2", 
+                "file": "images/POURTOUR2"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "POURTOURW1", 
+                "file": "images/POURTOURW1"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "POURTOURW2", 
+                "file": "images/POURTOURW2"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "POURTOURW3", 
+                "file": "images/POURTOURW3"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "POURTOURW4", 
+                "file": "images/POURTOURW4"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "TABLE", 
+                "file": "images/TABLE"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "TABLE_OG", 
+                "file": "images/TABLE_OG"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "WIND", 
+                "file": "images/WIND"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "WIND_S", 
+                "file": "images/WIND_S"
+            }, 
+            {
+                "menuIcon": true, 
+                "type": "bitmap", 
+                "targetPlatforms": null, 
+                "file": "images/ruler_icon.png", 
+                "name": "IMAGE_MENU_ICON"
+            }, 
+            {
+                "targetPlatforms": null, 
+                "type": "bitmap", 
+                "name": "SILENT", 
+                "file": "images/SILENT"
+            }
+        ]
+    }
+}
