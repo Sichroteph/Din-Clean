@@ -1436,7 +1436,7 @@ LOAD /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/
  .note.gnu.build-id
                 0x0000000000000084       0x24 linker stubs
 
-.text           0x00000000000000a8     0x3137
+.text           0x00000000000000a8     0x30e7
  *(.text)
  .text          0x00000000000000a8       0x14 /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
  *(.text.*)
@@ -1463,442 +1463,442 @@ LOAD /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/
  .text.build_icon
                 0x000000000000130c      0x2ac src/c/Ruler_Weather.c.34.o
  .text.update_proc
-                0x00000000000015b8      0x9f8 src/c/Ruler_Weather.c.34.o
+                0x00000000000015b8      0x9a8 src/c/Ruler_Weather.c.34.o
  .text.startup.main
-                0x0000000000001fb0      0xc7c src/c/Ruler_Weather.c.34.o
-                0x0000000000001fb0                main
+                0x0000000000001f60      0xc7c src/c/Ruler_Weather.c.34.o
+                0x0000000000001f60                main
  .text.app_event_loop
-                0x0000000000002c2c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c2c                app_event_loop
+                0x0000000000002bdc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002bdc                app_event_loop
  .text.app_message_deregister_callbacks
-                0x0000000000002c38        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c38                app_message_deregister_callbacks
+                0x0000000000002be8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002be8                app_message_deregister_callbacks
  .text.app_message_open
-                0x0000000000002c44        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c44                app_message_open
- .text.atoi     0x0000000000002c50        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c50                atoi
+                0x0000000000002bf4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002bf4                app_message_open
+ .text.atoi     0x0000000000002c00        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c00                atoi
  .text.battery_state_service_peek
-                0x0000000000002c5c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c5c                battery_state_service_peek
+                0x0000000000002c0c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c0c                battery_state_service_peek
  .text.bluetooth_connection_service_subscribe
-                0x0000000000002c68        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c68                bluetooth_connection_service_subscribe
+                0x0000000000002c18        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c18                bluetooth_connection_service_subscribe
  .text.bluetooth_connection_service_unsubscribe
-                0x0000000000002c74        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c74                bluetooth_connection_service_unsubscribe
+                0x0000000000002c24        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c24                bluetooth_connection_service_unsubscribe
  .text.clock_is_24h_style
-                0x0000000000002c80        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c80                clock_is_24h_style
+                0x0000000000002c30        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c30                clock_is_24h_style
  .text.dict_find
-                0x0000000000002c8c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c8c                dict_find
+                0x0000000000002c3c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c3c                dict_find
  .text.dict_write_uint8
-                0x0000000000002c98        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002c98                dict_write_uint8
+                0x0000000000002c48        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c48                dict_write_uint8
  .text.fonts_get_system_font
-                0x0000000000002ca4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ca4                fonts_get_system_font
+                0x0000000000002c54        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c54                fonts_get_system_font
  .text.fonts_load_custom_font
-                0x0000000000002cb0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002cb0                fonts_load_custom_font
+                0x0000000000002c60        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c60                fonts_load_custom_font
  .text.gbitmap_create_with_resource
-                0x0000000000002cbc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002cbc                gbitmap_create_with_resource
+                0x0000000000002c6c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c6c                gbitmap_create_with_resource
  .text.gbitmap_destroy
-                0x0000000000002cc8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002cc8                gbitmap_destroy
+                0x0000000000002c78        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c78                gbitmap_destroy
  .text.graphics_context_set_compositing_mode
-                0x0000000000002cd4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002cd4                graphics_context_set_compositing_mode
+                0x0000000000002c84        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c84                graphics_context_set_compositing_mode
  .text.graphics_draw_bitmap_in_rect
-                0x0000000000002ce0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ce0                graphics_draw_bitmap_in_rect
+                0x0000000000002c90        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c90                graphics_draw_bitmap_in_rect
  .text.graphics_fill_rect
-                0x0000000000002cec        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002cec                graphics_fill_rect
+                0x0000000000002c9c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002c9c                graphics_fill_rect
  .text.layer_add_child
-                0x0000000000002cf8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002cf8                layer_add_child
+                0x0000000000002ca8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002ca8                layer_add_child
  .text.layer_create
-                0x0000000000002d04        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d04                layer_create
+                0x0000000000002cb4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002cb4                layer_create
  .text.layer_destroy
-                0x0000000000002d10        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d10                layer_destroy
+                0x0000000000002cc0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002cc0                layer_destroy
  .text.layer_get_bounds
-                0x0000000000002d1c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d1c                layer_get_bounds
+                0x0000000000002ccc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002ccc                layer_get_bounds
  .text.layer_mark_dirty
-                0x0000000000002d28        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d28                layer_mark_dirty
+                0x0000000000002cd8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002cd8                layer_mark_dirty
  .text.layer_set_hidden
-                0x0000000000002d34        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d34                layer_set_hidden
+                0x0000000000002ce4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002ce4                layer_set_hidden
  .text.layer_set_update_proc
-                0x0000000000002d40        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d40                layer_set_update_proc
- .text.memset   0x0000000000002d4c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d4c                memset
+                0x0000000000002cf0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002cf0                layer_set_update_proc
+ .text.memset   0x0000000000002cfc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002cfc                memset
  .text.persist_exists
-                0x0000000000002d58        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d58                persist_exists
+                0x0000000000002d08        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d08                persist_exists
  .text.persist_read_bool
-                0x0000000000002d64        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d64                persist_read_bool
+                0x0000000000002d14        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d14                persist_read_bool
  .text.persist_read_int
-                0x0000000000002d70        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d70                persist_read_int
+                0x0000000000002d20        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d20                persist_read_int
  .text.persist_write_bool
-                0x0000000000002d7c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d7c                persist_write_bool
+                0x0000000000002d2c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d2c                persist_write_bool
  .text.persist_write_int
-                0x0000000000002d88        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d88                persist_write_int
+                0x0000000000002d38        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d38                persist_write_int
  .text.persist_write_string
-                0x0000000000002d94        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002d94                persist_write_string
+                0x0000000000002d44        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d44                persist_write_string
  .text.resource_get_handle
-                0x0000000000002da0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002da0                resource_get_handle
+                0x0000000000002d50        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d50                resource_get_handle
  .text.snprintf
-                0x0000000000002dac        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002dac                snprintf
- .text.strcmp   0x0000000000002db8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002db8                strcmp
- .text.strcpy   0x0000000000002dc4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002dc4                strcpy
+                0x0000000000002d5c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d5c                snprintf
+ .text.strcmp   0x0000000000002d68        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d68                strcmp
+ .text.strcpy   0x0000000000002d74        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d74                strcpy
  .text.strftime
-                0x0000000000002dd0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002dd0                strftime
+                0x0000000000002d80        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d80                strftime
  .text.tick_timer_service_subscribe
-                0x0000000000002ddc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ddc                tick_timer_service_subscribe
+                0x0000000000002d8c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d8c                tick_timer_service_subscribe
  .text.tick_timer_service_unsubscribe
-                0x0000000000002de8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002de8                tick_timer_service_unsubscribe
+                0x0000000000002d98        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002d98                tick_timer_service_unsubscribe
  .text.vibes_double_pulse
-                0x0000000000002df4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002df4                vibes_double_pulse
+                0x0000000000002da4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002da4                vibes_double_pulse
  .text.vibes_long_pulse
-                0x0000000000002e00        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e00                vibes_long_pulse
+                0x0000000000002db0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002db0                vibes_long_pulse
  .text.window_create
-                0x0000000000002e0c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e0c                window_create
+                0x0000000000002dbc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002dbc                window_create
  .text.window_destroy
-                0x0000000000002e18        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e18                window_destroy
+                0x0000000000002dc8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002dc8                window_destroy
  .text.window_get_root_layer
-                0x0000000000002e24        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e24                window_get_root_layer
+                0x0000000000002dd4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002dd4                window_get_root_layer
  .text.window_stack_push
-                0x0000000000002e30        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e30                window_stack_push
+                0x0000000000002de0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002de0                window_stack_push
  .text.app_message_outbox_begin
-                0x0000000000002e3c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e3c                app_message_outbox_begin
+                0x0000000000002dec        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002dec                app_message_outbox_begin
  .text.app_message_outbox_send
-                0x0000000000002e48        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e48                app_message_outbox_send
+                0x0000000000002df8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002df8                app_message_outbox_send
  .text.app_message_register_inbox_received
-                0x0000000000002e54        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e54                app_message_register_inbox_received
+                0x0000000000002e04        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e04                app_message_register_inbox_received
  .text.app_message_register_outbox_failed
-                0x0000000000002e60        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e60                app_message_register_outbox_failed
+                0x0000000000002e10        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e10                app_message_register_outbox_failed
  .text.app_message_register_outbox_sent
-                0x0000000000002e6c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e6c                app_message_register_outbox_sent
+                0x0000000000002e1c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e1c                app_message_register_outbox_sent
  .text.graphics_draw_text
-                0x0000000000002e78        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e78                graphics_draw_text
+                0x0000000000002e28        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e28                graphics_draw_text
  .text.persist_read_string
-                0x0000000000002e84        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e84                persist_read_string
+                0x0000000000002e34        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e34                persist_read_string
  .text.i18n_get_system_locale
-                0x0000000000002e90        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e90                i18n_get_system_locale
- .text.mktime   0x0000000000002e9c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002e9c                mktime
+                0x0000000000002e40        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e40                i18n_get_system_locale
+ .text.mktime   0x0000000000002e4c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e4c                mktime
  .text.graphics_context_set_fill_color
-                0x0000000000002ea8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ea8                graphics_context_set_fill_color
+                0x0000000000002e58        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e58                graphics_context_set_fill_color
  .text.graphics_context_set_text_color
-                0x0000000000002eb4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002eb4                graphics_context_set_text_color
+                0x0000000000002e64        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e64                graphics_context_set_text_color
  .text.localtime
-                0x0000000000002ec0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ec0                localtime
- .text.time     0x0000000000002ecc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ecc                time
+                0x0000000000002e70        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e70                localtime
+ .text.time     0x0000000000002e7c        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e7c                time
  .text.app_focus_service_subscribe_handlers
-                0x0000000000002ed8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ed8                app_focus_service_subscribe_handlers
+                0x0000000000002e88        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e88                app_focus_service_subscribe_handlers
  .text.connection_service_peek_pebble_app_connection
-                0x0000000000002ee4        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ee4                connection_service_peek_pebble_app_connection
+                0x0000000000002e94        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002e94                connection_service_peek_pebble_app_connection
  .text.health_service_metric_accessible
-                0x0000000000002ef0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002ef0                health_service_metric_accessible
+                0x0000000000002ea0        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002ea0                health_service_metric_accessible
  .text.health_service_sum_today
-                0x0000000000002efc        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002efc                health_service_sum_today
+                0x0000000000002eac        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002eac                health_service_sum_today
  .text.time_start_of_today
-                0x0000000000002f08        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
-                0x0000000000002f08                time_start_of_today
+                0x0000000000002eb8        0xc /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+                0x0000000000002eb8                time_start_of_today
  *(.rodata)
- .rodata        0x0000000000002f14       0x18 src/c/Ruler_Weather.c.34.o
+ .rodata        0x0000000000002ec4       0x18 src/c/Ruler_Weather.c.34.o
  *(.rodata*)
  .rodata.labels_12h
-                0x0000000000002f2c       0x70 src/c/Ruler_Weather.c.34.o
+                0x0000000000002edc       0x70 src/c/Ruler_Weather.c.34.o
  .rodata.str1.1
-                0x0000000000002f9c      0x243 src/c/Ruler_Weather.c.34.o
+                0x0000000000002f4c      0x243 src/c/Ruler_Weather.c.34.o
                                         0x246 (size before relaxing)
 
-.glue_7         0x00000000000031e0        0x0
+.glue_7         0x0000000000003190        0x0
  .glue_7        0x0000000000000000        0x0 linker stubs
 
-.glue_7t        0x00000000000031e0        0x0
+.glue_7t        0x0000000000003190        0x0
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x00000000000031e0        0x0
+.vfp11_veneer   0x0000000000003190        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x00000000000031e0        0x0
+.v4_bx          0x0000000000003190        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x00000000000031e0        0x0
+.iplt           0x0000000000003190        0x0
  .iplt          0x0000000000000000        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtbegin.o
 
-.rel.dyn        0x00000000000031e0        0x0
+.rel.dyn        0x0000000000003190        0x0
  .rel.iplt      0x0000000000000000        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtbegin.o
 
-.data           0x00000000000031e0      0x338
+.data           0x0000000000003190      0x338
  *(.data)
- .data          0x00000000000031e0        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crti.o
- .data          0x00000000000031e0        0x4 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtbegin.o
-                0x00000000000031e0                __dso_handle
- .data          0x00000000000031e4        0x8 src/c/Ruler_Weather.c.34.o
- .data          0x00000000000031ec        0x0 aplite/appinfo.auto.c.34.o
- .data          0x00000000000031ec        0x0 aplite/src/resource_ids.auto.c.34.o
- .data          0x00000000000031ec        0x0 src/message_keys.auto.c.34.o
- .data          0x00000000000031ec        0x0 /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
- .data          0x00000000000031ec        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_addsubsf3.o)
- .data          0x00000000000031ec        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
- .data          0x00000000000031ec        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
- .data          0x00000000000031ec        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtend.o
- .data          0x00000000000031ec        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtn.o
+ .data          0x0000000000003190        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crti.o
+ .data          0x0000000000003190        0x4 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtbegin.o
+                0x0000000000003190                __dso_handle
+ .data          0x0000000000003194        0x8 src/c/Ruler_Weather.c.34.o
+ .data          0x000000000000319c        0x0 aplite/appinfo.auto.c.34.o
+ .data          0x000000000000319c        0x0 aplite/src/resource_ids.auto.c.34.o
+ .data          0x000000000000319c        0x0 src/message_keys.auto.c.34.o
+ .data          0x000000000000319c        0x0 /home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/aplite/lib/libpebble.a(tmp7jpKUopebble.o)
+ .data          0x000000000000319c        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_addsubsf3.o)
+ .data          0x000000000000319c        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
+ .data          0x000000000000319c        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
+ .data          0x000000000000319c        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtend.o
+ .data          0x000000000000319c        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtn.o
  *(.data.*)
- .data.h1       0x00000000000031ec       0x14 src/c/Ruler_Weather.c.34.o
- .data.h2       0x0000000000003200       0x14 src/c/Ruler_Weather.c.34.o
- .data.h3       0x0000000000003214       0x14 src/c/Ruler_Weather.c.34.o
+ .data.h1       0x000000000000319c       0x14 src/c/Ruler_Weather.c.34.o
+ .data.h2       0x00000000000031b0       0x14 src/c/Ruler_Weather.c.34.o
+ .data.h3       0x00000000000031c4       0x14 src/c/Ruler_Weather.c.34.o
  .data.rel.ro.local.weekdayLangFr
-                0x0000000000003228       0x1c src/c/Ruler_Weather.c.34.o
+                0x00000000000031d8       0x1c src/c/Ruler_Weather.c.34.o
  .data.segment_thickness
-                0x0000000000003244        0x4 src/c/Ruler_Weather.c.34.o
-                0x0000000000003244                segment_thickness
- .data.is_30mn  0x0000000000003248        0x1 src/c/Ruler_Weather.c.34.o
- .data.is_inv   0x0000000000003249        0x1 src/c/Ruler_Weather.c.34.o
- .data.month    0x000000000000324a        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000031f4        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000031f4                segment_thickness
+ .data.is_30mn  0x00000000000031f8        0x1 src/c/Ruler_Weather.c.34.o
+ .data.is_inv   0x00000000000031f9        0x1 src/c/Ruler_Weather.c.34.o
+ .data.month    0x00000000000031fa        0x4 src/c/Ruler_Weather.c.34.o
  .data.weather_temp_char
-                0x000000000000324e        0xa src/c/Ruler_Weather.c.34.o
+                0x00000000000031fe        0xa src/c/Ruler_Weather.c.34.o
  .data.rel.ro.local.MonthLangGe
-                0x0000000000003258       0x30 src/c/Ruler_Weather.c.34.o
+                0x0000000000003208       0x30 src/c/Ruler_Weather.c.34.o
  .data.is_ruler_large
-                0x0000000000003288        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003289        0x3 
+                0x0000000000003238        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003239        0x3 
  .data.rel.ro.local.weekdayLangGe
-                0x000000000000328c       0x1c src/c/Ruler_Weather.c.34.o
- .data.utc      0x00000000000032a8        0x4 src/c/Ruler_Weather.c.34.o
- .data.tmax     0x00000000000032ac        0xa src/c/Ruler_Weather.c.34.o
- .data.icon     0x00000000000032b6       0x14 src/c/Ruler_Weather.c.34.o
+                0x000000000000323c       0x1c src/c/Ruler_Weather.c.34.o
+ .data.utc      0x0000000000003258        0x4 src/c/Ruler_Weather.c.34.o
+ .data.tmax     0x000000000000325c        0xa src/c/Ruler_Weather.c.34.o
+ .data.icon     0x0000000000003266       0x14 src/c/Ruler_Weather.c.34.o
  .data.is_bw_icon
-                0x00000000000032ca        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000032cb        0x1 
- .data.labels   0x00000000000032cc       0x70 src/c/Ruler_Weather.c.34.o
+                0x000000000000327a        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x000000000000327b        0x1 
+ .data.labels   0x000000000000327c       0x70 src/c/Ruler_Weather.c.34.o
  .data.line_interval
-                0x000000000000333c        0x4 src/c/Ruler_Weather.c.34.o
-                0x000000000000333c                line_interval
+                0x00000000000032ec        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000032ec                line_interval
  .data.rel.ro.local.weekdayLangSp
-                0x0000000000003340       0x1c src/c/Ruler_Weather.c.34.o
- .data.city     0x000000000000335c       0x32 src/c/Ruler_Weather.c.34.o
- *fill*         0x000000000000338e        0x2 
+                0x00000000000032f0       0x1c src/c/Ruler_Weather.c.34.o
+ .data.city     0x000000000000330c       0x32 src/c/Ruler_Weather.c.34.o
+ *fill*         0x000000000000333e        0x2 
  .data.select_screen
-                0x0000000000003390        0x4 src/c/Ruler_Weather.c.34.o
- .data.mday     0x0000000000003394        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003340        0x4 src/c/Ruler_Weather.c.34.o
+ .data.mday     0x0000000000003344        0x4 src/c/Ruler_Weather.c.34.o
  .data.is_metric
-                0x0000000000003398        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003399        0x3 
+                0x0000000000003348        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003349        0x3 
  .data.rel.ro.local.MonthLangEn
-                0x000000000000339c       0x30 src/c/Ruler_Weather.c.34.o
- .data.icon1    0x00000000000033cc       0x14 src/c/Ruler_Weather.c.34.o
- .data.icon2    0x00000000000033e0       0x14 src/c/Ruler_Weather.c.34.o
- .data.icon3    0x00000000000033f4       0x14 src/c/Ruler_Weather.c.34.o
+                0x000000000000334c       0x30 src/c/Ruler_Weather.c.34.o
+ .data.icon1    0x000000000000337c       0x14 src/c/Ruler_Weather.c.34.o
+ .data.icon2    0x0000000000003390       0x14 src/c/Ruler_Weather.c.34.o
+ .data.icon3    0x00000000000033a4       0x14 src/c/Ruler_Weather.c.34.o
  .data.rel.ro.local.weekdayLangEn
-                0x0000000000003408       0x1c src/c/Ruler_Weather.c.34.o
+                0x00000000000033b8       0x1c src/c/Ruler_Weather.c.34.o
  .data.week_day
-                0x0000000000003424        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000033d4        0x4 src/c/Ruler_Weather.c.34.o
  .data.duration
-                0x0000000000003428        0x4 src/c/Ruler_Weather.c.34.o
-                0x0000000000003428                duration
+                0x00000000000033d8        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000033d8                duration
  .data.rel.ro.local.MonthLangSp
-                0x000000000000342c       0x30 src/c/Ruler_Weather.c.34.o
+                0x00000000000033dc       0x30 src/c/Ruler_Weather.c.34.o
  .data.line1_p1
-                0x000000000000345c        0x4 src/c/Ruler_Weather.c.34.o
+                0x000000000000340c        0x4 src/c/Ruler_Weather.c.34.o
  .data.line1_p2
-                0x0000000000003460        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003410        0x4 src/c/Ruler_Weather.c.34.o
  .data.pebble_Lang
-                0x0000000000003464       0x14 src/c/Ruler_Weather.c.34.o
- .data.tmin     0x0000000000003478        0xa src/c/Ruler_Weather.c.34.o
+                0x0000000000003414       0x14 src/c/Ruler_Weather.c.34.o
+ .data.tmin     0x0000000000003428        0xa src/c/Ruler_Weather.c.34.o
  .data.location
-                0x0000000000003482       0x64 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000034e6        0x2 
+                0x0000000000003432       0x64 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003496        0x2 
  .data.rel.ro.local.MonthLangFr
-                0x00000000000034e8       0x30 src/c/Ruler_Weather.c.34.o
+                0x0000000000003498       0x30 src/c/Ruler_Weather.c.34.o
 
-.igot.plt       0x0000000000003518        0x0
+.igot.plt       0x00000000000034c8        0x0
  .igot.plt      0x0000000000000000        0x0 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtbegin.o
 
-.bss            0x0000000000003518      0x10e
+.bss            0x00000000000034c8      0x10e
  *(.bss)
  *(.bss.*)
  .bss.s_canvas_layer
-                0x0000000000003518        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034c8        0x4 src/c/Ruler_Weather.c.34.o
  .bss.select_fonts
-                0x000000000000351c        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034cc        0x4 src/c/Ruler_Weather.c.34.o
  .bss.last_refresh
-                0x0000000000003520        0x4 src/c/Ruler_Weather.c.34.o
-                0x0000000000003520                last_refresh
- .bss.is_bt     0x0000000000003524        0x1 src/c/Ruler_Weather.c.34.o
+                0x00000000000034d0        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034d0                last_refresh
+ .bss.is_bt     0x00000000000034d4        0x1 src/c/Ruler_Weather.c.34.o
  .bss.is_phone_100
-                0x0000000000003525        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003526        0x2 
- .bss.t         0x0000000000003528        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034d5        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000034d6        0x2 
+ .bss.t         0x00000000000034d8        0x4 src/c/Ruler_Weather.c.34.o
  .bss.color_line
-                0x000000000000352c        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x000000000000352d        0x3 
+                0x00000000000034dc        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000034dd        0x3 
  .bss.phone_bat
-                0x0000000000003530        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034e0        0x4 src/c/Ruler_Weather.c.34.o
  .bss.color_right
-                0x0000000000003534        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003535        0x3 
+                0x00000000000034e4        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000034e5        0x3 
  .bss.wind_speed_val
-                0x0000000000003538        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034e8        0x4 src/c/Ruler_Weather.c.34.o
  .bss.rain3_val
-                0x000000000000353c        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034ec        0x4 src/c/Ruler_Weather.c.34.o
  .bss.is_gradiant
-                0x0000000000003540        0x1 src/c/Ruler_Weather.c.34.o
+                0x00000000000034f0        0x1 src/c/Ruler_Weather.c.34.o
  .bss.color_ruler
-                0x0000000000003541        0x1 src/c/Ruler_Weather.c.34.o
+                0x00000000000034f1        0x1 src/c/Ruler_Weather.c.34.o
  .bss.heure.7727
-                0x0000000000003542        0xa src/c/Ruler_Weather.c.34.o
- .bss.layer     0x000000000000354c        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000034f2        0xa src/c/Ruler_Weather.c.34.o
+ .bss.layer     0x00000000000034fc        0x4 src/c/Ruler_Weather.c.34.o
  .bss.is_phone_80
-                0x0000000000003550        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003551        0x3 
+                0x0000000000003500        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003501        0x3 
  .bss.wind1_val
-                0x0000000000003554        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003504        0x4 src/c/Ruler_Weather.c.34.o
  .bss.weather_temp
-                0x0000000000003558        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003508        0x4 src/c/Ruler_Weather.c.34.o
  .bss.is_charging
-                0x000000000000355c        0x1 src/c/Ruler_Weather.c.34.o
-                0x000000000000355c                is_charging
- *fill*         0x000000000000355d        0x3 
+                0x000000000000350c        0x1 src/c/Ruler_Weather.c.34.o
+                0x000000000000350c                is_charging
+ *fill*         0x000000000000350d        0x3 
  .bss.s_main_window
-                0x0000000000003560        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003510        0x4 src/c/Ruler_Weather.c.34.o
  .bss.fontsmallbold
-                0x0000000000003564        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003514        0x4 src/c/Ruler_Weather.c.34.o
  .bss.color_temp
-                0x0000000000003568        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003569        0x3 
+                0x0000000000003518        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003519        0x3 
  .bss.select_provider
-                0x000000000000356c        0x4 src/c/Ruler_Weather.c.34.o
+                0x000000000000351c        0x4 src/c/Ruler_Weather.c.34.o
  .bss.rain1_val
-                0x0000000000003570        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003520        0x4 src/c/Ruler_Weather.c.34.o
  .bss.hour_offset_y
-                0x0000000000003574        0x4 src/c/Ruler_Weather.c.34.o
- .bss.now       0x0000000000003578       0x30 src/c/Ruler_Weather.c.34.o
+                0x0000000000003524        0x4 src/c/Ruler_Weather.c.34.o
+ .bss.now       0x0000000000003528       0x30 src/c/Ruler_Weather.c.34.o
  .bss.color_left
-                0x00000000000035a8        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035a9        0x3 
+                0x0000000000003558        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003559        0x3 
  .bss.rain4_val
-                0x00000000000035ac        0x4 src/c/Ruler_Weather.c.34.o
+                0x000000000000355c        0x4 src/c/Ruler_Weather.c.34.o
  .bss.wind2_val
-                0x00000000000035b0        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003560        0x4 src/c/Ruler_Weather.c.34.o
  .bss.status_offset_y
-                0x00000000000035b4        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003564        0x4 src/c/Ruler_Weather.c.34.o
  .bss.temp1_val
-                0x00000000000035b8        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003568        0x4 src/c/Ruler_Weather.c.34.o
  .bss.color_hours
-                0x00000000000035bc        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035bd        0x3 
+                0x000000000000356c        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x000000000000356d        0x3 
  .bss.temp4_val
-                0x00000000000035c0        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003570        0x4 src/c/Ruler_Weather.c.34.o
  .bss.is_connected
-                0x00000000000035c4        0x1 src/c/Ruler_Weather.c.34.o
-                0x00000000000035c4                is_connected
- *fill*         0x00000000000035c5        0x3 
+                0x0000000000003574        0x1 src/c/Ruler_Weather.c.34.o
+                0x0000000000003574                is_connected
+ *fill*         0x0000000000003575        0x3 
  .bss.fontsmall
-                0x00000000000035c8        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003578        0x4 src/c/Ruler_Weather.c.34.o
  .bss.rain_ico_val
-                0x00000000000035cc        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035cd        0x3 
+                0x000000000000357c        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x000000000000357d        0x3 
  .bss.hour_offset_x
-                0x00000000000035d0        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003580        0x4 src/c/Ruler_Weather.c.34.o
  .bss.select_goal
-                0x00000000000035d4        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003584        0x4 src/c/Ruler_Weather.c.34.o
  .bss.battery_level
-                0x00000000000035d8        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035d9        0x3 
- .bss.tmin_val  0x00000000000035dc        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003588        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003589        0x3 
+ .bss.tmin_val  0x000000000000358c        0x4 src/c/Ruler_Weather.c.34.o
  .bss.fontmedium
-                0x00000000000035e0        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003590        0x4 src/c/Ruler_Weather.c.34.o
  .bss.is_vibration
-                0x00000000000035e4        0x1 src/c/Ruler_Weather.c.34.o
+                0x0000000000003594        0x1 src/c/Ruler_Weather.c.34.o
  .bss.is_phone_charging
-                0x00000000000035e5        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035e6        0x2 
- .bss.tmax_val  0x00000000000035e8        0x4 src/c/Ruler_Weather.c.34.o
+                0x0000000000003595        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x0000000000003596        0x2 
+ .bss.tmax_val  0x0000000000003598        0x4 src/c/Ruler_Weather.c.34.o
  .bss.is_centered
-                0x00000000000035ec        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035ed        0x3 
+                0x000000000000359c        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x000000000000359d        0x3 
  .bss.rain2_val
-                0x00000000000035f0        0x4 src/c/Ruler_Weather.c.34.o
- .bss.is_tg     0x00000000000035f4        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035f5        0x1 
- .bss.line2_p1  0x00000000000035f6        0x4 src/c/Ruler_Weather.c.34.o
- .bss.line2_p2  0x00000000000035fa        0x4 src/c/Ruler_Weather.c.34.o
- *fill*         0x00000000000035fe        0x2 
- .bss.fontbig   0x0000000000003600        0x4 src/c/Ruler_Weather.c.34.o
- .bss.is_gps    0x0000000000003604        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x0000000000003605        0x3 
+                0x00000000000035a0        0x4 src/c/Ruler_Weather.c.34.o
+ .bss.is_tg     0x00000000000035a4        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000035a5        0x1 
+ .bss.line2_p1  0x00000000000035a6        0x4 src/c/Ruler_Weather.c.34.o
+ .bss.line2_p2  0x00000000000035aa        0x4 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000035ae        0x2 
+ .bss.fontbig   0x00000000000035b0        0x4 src/c/Ruler_Weather.c.34.o
+ .bss.is_gps    0x00000000000035b4        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000035b5        0x3 
  .bss.wind3_val
-                0x0000000000003608        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000035b8        0x4 src/c/Ruler_Weather.c.34.o
  .bss.color_2nd_temp
-                0x000000000000360c        0x1 src/c/Ruler_Weather.c.34.o
- .bss.is_pc     0x000000000000360d        0x1 src/c/Ruler_Weather.c.34.o
- *fill*         0x000000000000360e        0x2 
+                0x00000000000035bc        0x1 src/c/Ruler_Weather.c.34.o
+ .bss.is_pc     0x00000000000035bd        0x1 src/c/Ruler_Weather.c.34.o
+ *fill*         0x00000000000035be        0x2 
  .bss.status_offset_x
-                0x0000000000003610        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000035c0        0x4 src/c/Ruler_Weather.c.34.o
  .bss.temp2_val
-                0x0000000000003614        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000035c4        0x4 src/c/Ruler_Weather.c.34.o
  .bss.temp3_val
-                0x0000000000003618        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000035c8        0x4 src/c/Ruler_Weather.c.34.o
  .bss.temp5_val
-                0x000000000000361c        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000035cc        0x4 src/c/Ruler_Weather.c.34.o
  .bss.hour_part_size
-                0x0000000000003620        0x4 src/c/Ruler_Weather.c.34.o
+                0x00000000000035d0        0x4 src/c/Ruler_Weather.c.34.o
  .bss.color_2nd_back
-                0x0000000000003624        0x1 src/c/Ruler_Weather.c.34.o
- .bss.is_month  0x0000000000003625        0x1 src/c/Ruler_Weather.c.34.o
+                0x00000000000035d4        0x1 src/c/Ruler_Weather.c.34.o
+ .bss.is_month  0x00000000000035d5        0x1 src/c/Ruler_Weather.c.34.o
 
 DISCARD
  libc.a(*)
  libm.a(*)
  libgcc.a(*)
  *(.eh_frame)
-OUTPUT(/home/pebble/pebble-projects/din_ersatz/build/aplite/pebble-app.elf elf32-littlearm)
+OUTPUT(/home/pebble/pebble-projects/Din-Clean/build/aplite/pebble-app.elf elf32-littlearm)
 
 .ARM.attributes
                 0x0000000000000000       0x27
@@ -1936,14 +1936,14 @@ OUTPUT(/home/pebble/pebble-projects/din_ersatz/build/aplite/pebble-app.elf elf32
  .comment       0x0000000000000000       0x4f src/message_keys.auto.c.34.o
  .comment       0x0000000000000000       0x4f /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/crtend.o
 
-.debug_info     0x0000000000000000     0x5b86
- .debug_info    0x0000000000000000     0x4b49 src/c/Ruler_Weather.c.34.o
- .debug_info    0x0000000000004b49      0x31a aplite/appinfo.auto.c.34.o
- .debug_info    0x0000000000004e63      0x4dd aplite/src/resource_ids.auto.c.34.o
- .debug_info    0x0000000000005340      0x621 src/message_keys.auto.c.34.o
- .debug_info    0x0000000000005961       0xb7 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_addsubsf3.o)
- .debug_info    0x0000000000005a18       0xb7 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
- .debug_info    0x0000000000005acf       0xb7 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
+.debug_info     0x0000000000000000     0x5b73
+ .debug_info    0x0000000000000000     0x4b36 src/c/Ruler_Weather.c.34.o
+ .debug_info    0x0000000000004b36      0x31a aplite/appinfo.auto.c.34.o
+ .debug_info    0x0000000000004e50      0x4dd aplite/src/resource_ids.auto.c.34.o
+ .debug_info    0x000000000000532d      0x621 src/message_keys.auto.c.34.o
+ .debug_info    0x000000000000594e       0xb7 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_addsubsf3.o)
+ .debug_info    0x0000000000005a05       0xb7 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
+ .debug_info    0x0000000000005abc       0xb7 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
 
 .debug_abbrev   0x0000000000000000      0x625
  .debug_abbrev  0x0000000000000000      0x4c3 src/c/Ruler_Weather.c.34.o
@@ -1954,8 +1954,8 @@ OUTPUT(/home/pebble/pebble-projects/din_ersatz/build/aplite/pebble-app.elf elf32
  .debug_abbrev  0x00000000000005fd       0x14 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
  .debug_abbrev  0x0000000000000611       0x14 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
 
-.debug_loc      0x0000000000000000     0x1521
- .debug_loc     0x0000000000000000     0x1521 src/c/Ruler_Weather.c.34.o
+.debug_loc      0x0000000000000000     0x151d
+ .debug_loc     0x0000000000000000     0x151d src/c/Ruler_Weather.c.34.o
 
 .debug_aranges  0x0000000000000000      0x130
  .debug_aranges
@@ -1976,24 +1976,24 @@ OUTPUT(/home/pebble/pebble-projects/din_ersatz/build/aplite/pebble-app.elf elf32
 .debug_ranges   0x0000000000000000      0x150
  .debug_ranges  0x0000000000000000      0x150 src/c/Ruler_Weather.c.34.o
 
-.debug_line     0x0000000000000000      0xed4
- .debug_line    0x0000000000000000      0x8b1 src/c/Ruler_Weather.c.34.o
- .debug_line    0x00000000000008b1      0x121 aplite/appinfo.auto.c.34.o
- .debug_line    0x00000000000009d2       0xcc aplite/src/resource_ids.auto.c.34.o
- .debug_line    0x0000000000000a9e       0xc5 src/message_keys.auto.c.34.o
- .debug_line    0x0000000000000b63      0x128 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_addsubsf3.o)
- .debug_line    0x0000000000000c8b      0x149 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
- .debug_line    0x0000000000000dd4      0x100 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
+.debug_line     0x0000000000000000      0xed7
+ .debug_line    0x0000000000000000      0x8b4 src/c/Ruler_Weather.c.34.o
+ .debug_line    0x00000000000008b4      0x121 aplite/appinfo.auto.c.34.o
+ .debug_line    0x00000000000009d5       0xcc aplite/src/resource_ids.auto.c.34.o
+ .debug_line    0x0000000000000aa1       0xc5 src/message_keys.auto.c.34.o
+ .debug_line    0x0000000000000b66      0x128 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_addsubsf3.o)
+ .debug_line    0x0000000000000c8e      0x149 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_muldivsf3.o)
+ .debug_line    0x0000000000000dd7      0x100 /home/pebble/pebble-dev/pebble-sdk-4.5-linux64/arm-cs-tools/bin/../lib/gcc/arm-none-eabi/4.7.2/thumb2/libgcc.a(_arm_cmpsf2.o)
 
-.debug_str      0x0000000000000000     0x2b78
- .debug_str     0x0000000000000000     0x1972 src/c/Ruler_Weather.c.34.o
-                                       0x1a83 (size before relaxing)
- .debug_str     0x0000000000001972      0x22f aplite/appinfo.auto.c.34.o
-                                        0x31c (size before relaxing)
- .debug_str     0x0000000000001ba1      0x688 aplite/src/resource_ids.auto.c.34.o
-                                        0x74f (size before relaxing)
- .debug_str     0x0000000000002229      0x94f src/message_keys.auto.c.34.o
-                                        0xa16 (size before relaxing)
+.debug_str      0x0000000000000000     0x2b77
+ .debug_str     0x0000000000000000     0x1971 src/c/Ruler_Weather.c.34.o
+                                       0x1a82 (size before relaxing)
+ .debug_str     0x0000000000001971      0x22f aplite/appinfo.auto.c.34.o
+                                        0x31b (size before relaxing)
+ .debug_str     0x0000000000001ba0      0x688 aplite/src/resource_ids.auto.c.34.o
+                                        0x74e (size before relaxing)
+ .debug_str     0x0000000000002228      0x94f src/message_keys.auto.c.34.o
+                                        0xa15 (size before relaxing)
 
 .debug_frame    0x0000000000000000      0x174
  .debug_frame   0x0000000000000000      0x174 src/c/Ruler_Weather.c.34.o

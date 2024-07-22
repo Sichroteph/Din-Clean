@@ -910,6 +910,7 @@ static void update_proc(Layer *layer, GContext *ctx)
       }
     }
 
+    /*
     if (steps > 300)
     {
       graphics_draw_text(ctx, steps_buffer, fontsmallbold, rect_sleep, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
@@ -918,7 +919,8 @@ static void update_proc(Layer *layer, GContext *ctx)
     {
       graphics_draw_text(ctx, sleep_buffer, fontsmallbold, rect_sleep, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
     }
-
+    */
+   
     if (!quiet_time_is_active())
     {
 
