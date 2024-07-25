@@ -214,13 +214,14 @@
 
 #define TEXT_TEMP_OFFSET_Y 133
 
-#define TEXT_TMIN_OFFSET_X 0
-#define TEXT_TMIN_OFFSET_Y 91
-#define TEXT_TMAX_OFFSET_X -6
-#define TEXT_TMAX_OFFSET_Y 91
+#define TEXT_TMIN_OFFSET_X -36
+#define TEXT_TMIN_OFFSET_Y 93
+
+#define TEXT_TMAX_OFFSET_X 19
+#define TEXT_TMAX_OFFSET_Y 93
 
 #define ICON6_X 0
-#define ICON6_Y 98
+#define ICON6_Y 101
 
 #define ICONW_X 3
 #define ICONW_Y 77
@@ -621,7 +622,7 @@ static void update_proc(Layer *layer, GContext *ctx)
   GRect rect_text_dayw = {{TEXT_DAYW_STATUS_OFFSET_X + status_offset_x, TEXT_DAYW_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_text_month = {{TEXT_MONTH_STATUS_OFFSET_X + status_offset_x, TEXT_MONTH_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_temp = {{TEXT_TEMP_OFFSET_X + status_offset_x, TEXT_TEMP_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
-  GRect rect_tmin = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y}, {100, 150}};
+  GRect rect_tmin = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y}, {50, 50}};
   GRect rect_tmax = {{TEXT_TMAX_OFFSET_X + status_offset_x, TEXT_TMAX_OFFSET_Y + status_offset_y}, {40, 150}};
 
   GRect rect_sleep = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y + 38}, {100, 150}};
@@ -965,15 +966,17 @@ static void update_proc(Layer *layer, GContext *ctx)
   graphics_draw_text(ctx, mday, fontmedium, rect_text_day, GTextOverflowModeWordWrap,
                      GTextAlignmentCenter, NULL);
 
+
+
   // APP_LOG(APP_LOG_LEVEL_INFO, "7");
   if ((mktime(&now) - last_refresh) < duration + 600)
   {
     graphics_draw_text(ctx, weather_temp_char, fontmedium, rect_temp, GTextOverflowModeWordWrap,
                        GTextAlignmentCenter, NULL);
     graphics_draw_text(ctx, tmin, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
-                       GTextAlignmentLeft, NULL);
-    graphics_draw_text(ctx, tmax, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
                        GTextAlignmentRight, NULL);
+    graphics_draw_text(ctx, tmax, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
+                       GTextAlignmentLeft, NULL);
   }
 #endif
 
