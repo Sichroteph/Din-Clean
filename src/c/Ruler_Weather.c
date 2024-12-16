@@ -271,13 +271,14 @@ static char weather_hum_char[10] = " ";
 // WEATHER
 
 static int weather_temp = 0;
-static int humidity = 0;
+
 static time_t t;
 static struct tm now;
 
 static int tmin_val = 0;
 static int tmax_val = 0;
 static int wind_speed_val = 0;
+static int humidity = 0;
 static int wind1_val = 0;
 static int wind2_val = 0;
 static int wind3_val = 0;
@@ -1261,13 +1262,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     snprintf(icon, sizeof(icon), "%s", icon_tuple->value->cstring);
 
     weather_temp = (int)temp_tuple->value->int32;
-    humidity = (int)humidity_tuple->value->int32;
+
     APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
     tmin_val = (int)tmin_tuple->value->int32;
     tmax_val = (int)tmax_tuple->value->int32;
 
     wind_speed_val = (int)wind_speed_tuple->value->int32;
-
+    humidity = (int)humidity_tuple->value->int32;
     // APP_LOG(APP_LOG_LEVEL_DEBUG, "wind now: %d", wind_speed_val);
 
     last_refresh = mktime(&now);
@@ -1285,6 +1286,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     persist_write_int(KEY_LAST_REFRESH, last_refresh);
     persist_write_int(KEY_TEMPERATURE, weather_temp);
     persist_write_int(KEY_WIND_SPEED, wind_speed_val);
+    persist_write_int(KEY_HUMIDITY, humidity);
     persist_write_int(KEY_TMIN, tmin_val);
     persist_write_int(KEY_TMAX, tmax_val);
 
@@ -1672,6 +1674,8 @@ static void init_var()
       last_refresh = 0;
 
     wind_speed_val = persist_read_int(KEY_WIND_SPEED);
+    humidity = persist_read_int(KEY_HUMIDITY);
+    
     tmin_val = persist_read_int(KEY_TMIN);
     tmax_val = persist_read_int(KEY_TMAX);
     wind1_val = persist_read_int(KEY_FORECAST_WIND1);
@@ -1702,6 +1706,7 @@ static void init_var()
     last_refresh = 0;
     wind_speed_val = 0;
     tmin_val = 0;
+    humidity = 0;
     tmax_val = 0;
     wind1_val = 0;
     wind2_val = 0;
