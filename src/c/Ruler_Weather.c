@@ -1,8 +1,8 @@
 #include <pebble.h>
 // pour afficher les segments
 #define FORCE_REFRESH false
-
 #define IS_HOUR_FICTIVE false
+
 #define FICTIVE_HOUR 12
 #define FICTIVE_MINUTE 50
 
@@ -216,7 +216,7 @@
 #define ICON_X 0
 #define ICON_Y 123
 
-#define TEXT_TEMP_OFFSET_X 2
+#define TEXT_TEMP_OFFSET_X 4
 #define TEXT_TEMP_OFFSET_Y 52
 
 #define TEXT_HUM_OFFSET_X 2
@@ -268,6 +268,7 @@ static char tmin[10] = " ";
 static char tmax[10] = " ";
 static char weather_temp_char[10] = " ";
 static char weather_hum_char[10] = " ";
+static char minMax[120] = " ";
 // WEATHER
 
 static int weather_temp = 0;
@@ -601,10 +602,10 @@ static void update_proc(Layer *layer, GContext *ctx)
   GRect rect_text_day = {{TEXT_DAY_STATUS_OFFSET_X + status_offset_x, TEXT_DAY_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_text_dayw = {{TEXT_DAYW_STATUS_OFFSET_X + status_offset_x, TEXT_DAYW_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_text_month = {{TEXT_MONTH_STATUS_OFFSET_X + status_offset_x, TEXT_MONTH_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
-  GRect rect_temp = {{TEXT_TEMP_OFFSET_X + status_offset_x, TEXT_TEMP_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
+  GRect rect_temp = {{TEXT_TEMP_OFFSET_X + status_offset_x, TEXT_TEMP_OFFSET_Y + status_offset_y}, {RULER_XOFFSET+60, 150}};
   GRect rect_hum = {{TEXT_HUM_OFFSET_X + status_offset_x, TEXT_HUM_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 50}};
 
-  GRect rect_tmin = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y}, {50, 50}};
+  GRect rect_tmin = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y}, {500, 4000}};
   GRect rect_tmax = {{TEXT_TMAX_OFFSET_X + status_offset_x, TEXT_TMAX_OFFSET_Y + status_offset_y}, {40, 150}};
 
   GRect rect_sleep = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y + 38}, {100, 150}};
@@ -752,11 +753,12 @@ static void update_proc(Layer *layer, GContext *ctx)
     }
   }
 
-  snprintf(tmin, sizeof(tmin), "%i", tmin_val);
-  snprintf(tmax, sizeof(tmax), "%i", tmax_val);
   snprintf(weather_temp_char, sizeof(weather_temp_char), "%i°", weather_temp);
   snprintf(weather_hum_char, sizeof(weather_hum_char), "%i%%", humidity);
-
+  
+  snprintf(minMax, sizeof(minMax), "%i %i", tmin_val, tmax_val);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "minMax: %s", minMax);
+  
   // Batterie
   // APP_LOG(APP_LOG_LEVEL_INFO, "5");
   //
@@ -949,17 +951,17 @@ static void update_proc(Layer *layer, GContext *ctx)
   graphics_draw_text(ctx, mday, fontmedium, rect_text_day, GTextOverflowModeWordWrap,
                      GTextAlignmentCenter, NULL);
 
-  // APP_LOG(APP_LOG_LEVEL_INFO, "7");
   if ((mktime(&now) - last_refresh) < duration + 600)
   {
     graphics_draw_text(ctx, weather_temp_char, fontmedium, rect_temp, GTextOverflowModeWordWrap,
-                       GTextAlignmentCenter, NULL);
+                       GTextAlignmentLeft, NULL);
+   
     graphics_draw_text(ctx, weather_hum_char, fontsmallbold, rect_hum, GTextOverflowModeWordWrap,
-                       GTextAlignmentCenter, NULL);
-    graphics_draw_text(ctx, tmin, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
                        GTextAlignmentLeft, NULL);
-    graphics_draw_text(ctx, tmax, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
+  
+    graphics_draw_text(ctx, minMax, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
                        GTextAlignmentLeft, NULL);
+
   }
 #endif
 
@@ -1263,13 +1265,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
     weather_temp = (int)temp_tuple->value->int32;
 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
     tmin_val = (int)tmin_tuple->value->int32;
     tmax_val = (int)tmax_tuple->value->int32;
 
     wind_speed_val = (int)wind_speed_tuple->value->int32;
     humidity = (int)humidity_tuple->value->int32;
-    // APP_LOG(APP_LOG_LEVEL_DEBUG, "wind now: %d", wind_speed_val);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "tmin_val now: %d", tmin_val);
 
     last_refresh = mktime(&now);
 

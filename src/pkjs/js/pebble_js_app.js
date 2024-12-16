@@ -166,7 +166,6 @@ function getForecast() {
       tmax = Math.round(tmax);
       tmin = Math.round(tmin);
       var temperature = Math.round(rTemperature);
-
       var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
       if (units == 1) {
         // mph convertion
@@ -175,9 +174,9 @@ function getForecast() {
 
       if (bFakeData == 1){
         wind = 666;
-        tmin = 1;
-        tmax = 666
-
+        tmin = -20;
+        tmax = -10;
+        temperature = -28;
       }
 
 
