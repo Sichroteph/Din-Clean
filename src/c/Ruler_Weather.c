@@ -1,6 +1,7 @@
 #include <pebble.h>
 // pour afficher les segments
-#define IS_DEBUG_VERSION false
+#define FORCE_REFRESH false
+
 #define IS_HOUR_FICTIVE false
 #define FICTIVE_HOUR 12
 #define FICTIVE_MINUTE 50
@@ -162,6 +163,9 @@
 #define TEXT_TEMP_OFFSET_X 8
 #define TEXT_TEMP_OFFSET_Y 105
 
+#define TEXT_HUM_OFFSET_X 19
+#define TEXT_HUM_OFFSET_Y 73
+
 #define BAT_STATUS_OFFSET_X 25
 #define BAT_STATUS_OFFSET_Y 140
 
@@ -204,27 +208,28 @@
 #define BAT_STATUS_OFFSET_X 7
 
 #define BAT_STATUS_OFFSET_Y 127
-
+#define ICONW_X 3
+#define ICONW_Y 77
 #define BAT_PHONE_STATUS_OFFSET_X 0
 #define BAT_PHONE_STATUS_OFFSET_Y 57
 
 #define ICON_X 0
-#define ICON_Y 53
+#define ICON_Y 123
+
 #define TEXT_TEMP_OFFSET_X 2
+#define TEXT_TEMP_OFFSET_Y 52
 
-#define TEXT_TEMP_OFFSET_Y 133
+#define TEXT_HUM_OFFSET_X 2
+#define TEXT_HUM_OFFSET_Y 77
 
-#define TEXT_TMIN_OFFSET_X -36
-#define TEXT_TMIN_OFFSET_Y 93
-
+#define TEXT_TMIN_OFFSET_X 1
+#define TEXT_TMIN_OFFSET_Y 111
 #define TEXT_TMAX_OFFSET_X 19
-#define TEXT_TMAX_OFFSET_Y 93
+#define TEXT_TMAX_OFFSET_Y 111
 
 #define ICON6_X 0
 #define ICON6_Y 101
 
-#define ICONW_X 3
-#define ICONW_Y 77
 #define TEXT_WIND_OFFSET_X 10
 #define TEXT_WIND_OFFSET_Y 80
 
@@ -262,11 +267,11 @@ static char mday[4] = " ";
 static char tmin[10] = " ";
 static char tmax[10] = " ";
 static char weather_temp_char[10] = " ";
-
+static char weather_hum_char[10] = " ";
 // WEATHER
 
 static int weather_temp = 0;
-
+static int humidity = 0;
 static time_t t;
 static struct tm now;
 
@@ -408,97 +413,72 @@ static void app_focus_changing(bool focusing)
 
 static int build_icon(char *text_icon)
 {
-  if ((strcmp(text_icon, "01d") == 0) || (strcmp(text_icon, "clear-day") == 0))
+  // APP_LOG(APP_LOG_LEVEL_INFO, "texte ICONE  %s", text_icon);
+  if ((strcmp(text_icon, "clearsky_day") == 0))
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_ENSOLEILLE_W;
     else
       return RESOURCE_ID_ENSOLEILLE;
   }
-  if ((strcmp(text_icon, "01n") == 0) || (strcmp(text_icon, "clear-night") == 0))
+  if ((strcmp(text_icon, "clearsky_night") == 0))
   {
-
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_NUIT_CLAIRE_W;
     else
       return RESOURCE_ID_NUIT_CLAIRE;
   }
-  if (strcmp(text_icon, "02d") == 0)
+  if ((strcmp(text_icon, "fair_day") == 0) || (strcmp(text_icon, "fair_polartwilight") == 0))
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX_W;
     else
       return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX;
   }
-  if (strcmp(text_icon, "02n") == 0)
+  if (strcmp(text_icon, "fair_night") == 0)
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_NUIT_BIEN_DEGAGEE_W;
     else
       return RESOURCE_ID_NUIT_BIEN_DEGAGEE;
   }
-  if (strcmp(text_icon, "03d") == 0 || strcmp(text_icon, "partly-cloudy-day") == 0)
+  if (strcmp(text_icon, "wind") == 0)
+  {
+    if ((is_bw_icon) || (!IS_COLOR))
+      return RESOURCE_ID_WIND;
+    else
+      return RESOURCE_ID_WIND;
+  }
+  if ((strcmp(text_icon, "partlycloudy_day") == 0) || (strcmp(text_icon, "partlycloudy_polartwilight") == 0))
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX_W;
     else
       return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX;
   }
-  if ((strcmp(text_icon, "03n") == 0) || (strcmp(text_icon, "partly-cloudy-night") == 0))
+  if ((strcmp(text_icon, "partlycloudy_night") == 0))
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W;
     else
       return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX;
   }
-  if (strcmp(text_icon, "wind") == 0)
-  {
-    return RESOURCE_ID_WIND;
-  }
-
-  if ((strcmp(text_icon, "04d") == 0) || (strcmp(text_icon, "cloudy") == 0))
+  if ((strcmp(text_icon, "cloudy") == 0))
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_FORTEMENT_NUAGEUX_W;
     else
       return RESOURCE_ID_FORTEMENT_NUAGEUX;
   }
-  if (strcmp(text_icon, "04n") == 0)
-  {
-    if ((is_bw_icon) || (!IS_COLOR))
-      return RESOURCE_ID_NUIT_NUAGEUSE_W;
-    else
-      return RESOURCE_ID_NUIT_NUAGEUSE;
-  }
-  if (strcmp(text_icon, "09d") == 0 || strcmp(text_icon, "09n") == 0)
-  {
-    if ((is_bw_icon) || (!IS_COLOR))
-      return RESOURCE_ID_COUVERT_AVEC_AVERSES_W;
-    else
-      return RESOURCE_ID_COUVERT_AVEC_AVERSES;
-  }
 
-  if ((strcmp(text_icon, "10d") == 0) || (strcmp(text_icon, "rain") == 0))
+  if (strstr(text_icon, "rain") != NULL)
   {
-    int max_rain = MAXRAIN;
-    int rain_pixel = (int)(30 * rain_ico_val / max_rain);
     if ((is_bw_icon) || (!IS_COLOR))
-    {
-      if (rain_pixel < 10)
-        return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W1;
-      if (rain_pixel < 20)
-        return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W2;
-
       return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W;
-    }
-    else if (rain_pixel < 10)
-      return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE1;
-    if (rain_pixel < 20)
-      return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE2;
-
-    return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE;
+    else
+      return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE;
   }
-  if (strcmp(text_icon, "10n") == 0)
+  if (strcmp(text_icon, "rainshowers_night") == 0)
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_NUIT_AVEC_AVERSES_W;
@@ -506,7 +486,7 @@ static int build_icon(char *text_icon)
       return RESOURCE_ID_NUIT_AVEC_AVERSES;
   }
 
-  if (strcmp(text_icon, "11d") == 0 || strcmp(text_icon, "11n") == 0 || strcmp(text_icon, "thunderstorm") == 0 || strcmp(text_icon, "tornado") == 0)
+  if (strstr(text_icon, "thunder") != NULL)
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_FORTEMENT_ORAGEUX_W;
@@ -514,15 +494,14 @@ static int build_icon(char *text_icon)
       return RESOURCE_ID_FORTEMENT_ORAGEUX;
   }
 
-  if (strcmp(text_icon, "13d") == 0 || strcmp(text_icon, "13n") == 0 || strcmp(text_icon, "snow") == 0 || strcmp(text_icon, "sleet") == 0)
+  if (strstr(text_icon, "snow") || (strstr(text_icon, "sleet")) != NULL)
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_NEIGE_FORTE_W;
     else
       return RESOURCE_ID_NEIGE_FORTE;
   }
-
-  if (strcmp(text_icon, "50d") == 0 || strcmp(text_icon, "50n") == 0 || strcmp(text_icon, "fog") == 0 || strcmp(text_icon, "hail") == 0)
+  if (strcmp(text_icon, "fog") == 0)
   {
     if ((is_bw_icon) || (!IS_COLOR))
       return RESOURCE_ID_BROUILLARD_W;
@@ -622,6 +601,8 @@ static void update_proc(Layer *layer, GContext *ctx)
   GRect rect_text_dayw = {{TEXT_DAYW_STATUS_OFFSET_X + status_offset_x, TEXT_DAYW_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_text_month = {{TEXT_MONTH_STATUS_OFFSET_X + status_offset_x, TEXT_MONTH_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_temp = {{TEXT_TEMP_OFFSET_X + status_offset_x, TEXT_TEMP_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
+  GRect rect_hum = {{TEXT_HUM_OFFSET_X + status_offset_x, TEXT_HUM_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 50}};
+
   GRect rect_tmin = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y}, {50, 50}};
   GRect rect_tmax = {{TEXT_TMAX_OFFSET_X + status_offset_x, TEXT_TMAX_OFFSET_Y + status_offset_y}, {40, 150}};
 
@@ -773,6 +754,7 @@ static void update_proc(Layer *layer, GContext *ctx)
   snprintf(tmin, sizeof(tmin), "%i", tmin_val);
   snprintf(tmax, sizeof(tmax), "%i", tmax_val);
   snprintf(weather_temp_char, sizeof(weather_temp_char), "%i°", weather_temp);
+  snprintf(weather_hum_char, sizeof(weather_hum_char), "%i%%", humidity);
 
   // Batterie
   // APP_LOG(APP_LOG_LEVEL_INFO, "5");
@@ -840,14 +822,14 @@ static void update_proc(Layer *layer, GContext *ctx)
   //
   //   }
 
- // int bat = (int)battery_level * 2 / 10;
- // int invbat = 20 - bat;
- // graphics_context_set_fill_color(ctx, color_temp);
- // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y + bat_gradiant_offset, bat, 2), 0, GCornerNone);
+  // int bat = (int)battery_level * 2 / 10;
+  // int invbat = 20 - bat;
+  // graphics_context_set_fill_color(ctx, color_temp);
+  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y + bat_gradiant_offset, bat, 2), 0, GCornerNone);
 
- // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
- // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X + 10, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
- // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X + 20, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
+  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
+  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X + 10, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
+  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X + 20, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
 
 #if defined(PBL_ROUND)
   if ((mktime(&now) - last_refresh) < duration + 600)
@@ -921,7 +903,7 @@ static void update_proc(Layer *layer, GContext *ctx)
       graphics_draw_text(ctx, sleep_buffer, fontsmallbold, rect_sleep, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
     }
     */
-   
+
     if (!quiet_time_is_active())
     {
 
@@ -966,15 +948,15 @@ static void update_proc(Layer *layer, GContext *ctx)
   graphics_draw_text(ctx, mday, fontmedium, rect_text_day, GTextOverflowModeWordWrap,
                      GTextAlignmentCenter, NULL);
 
-
-
   // APP_LOG(APP_LOG_LEVEL_INFO, "7");
   if ((mktime(&now) - last_refresh) < duration + 600)
   {
     graphics_draw_text(ctx, weather_temp_char, fontmedium, rect_temp, GTextOverflowModeWordWrap,
                        GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, weather_hum_char, fontsmallbold, rect_hum, GTextOverflowModeWordWrap,
+                       GTextAlignmentCenter, NULL);
     graphics_draw_text(ctx, tmin, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
-                       GTextAlignmentRight, NULL);
+                       GTextAlignmentLeft, NULL);
     graphics_draw_text(ctx, tmax, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
                        GTextAlignmentLeft, NULL);
   }
@@ -1090,9 +1072,9 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed)
   // Get weather update every 30 minutes
   if ((is_connected) && (!quiet_time_is_active()))
   {
-    if ((select_provider != 0) && (((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) || ((mktime(&now) - last_refresh) > duration)))
+    if (((select_provider != 0) && (((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) || ((mktime(&now) - last_refresh) > duration))))
     {
-      //     APP_LOG(APP_LOG_LEVEL_INFO, "appel météo");
+
       // Begin dictionary
       DictionaryIterator *iter;
       app_message_outbox_begin(&iter);
@@ -1100,7 +1082,6 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed)
       dict_write_uint8(iter, 0, 0);
       // Send the message!
       app_message_outbox_send();
-      //     APP_LOG(APP_LOG_LEVEL_INFO, "t4");
     }
   }
 
@@ -1242,126 +1223,52 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 {
 
   // Read tuples for data
-  Tuple *phone_bat_tuple = dict_find(iterator, KEY_PHONE_BAT);
-  Tuple *phone_bat_charge_tuple = dict_find(iterator, KEY_PHONE_CHARGE);
-
-  Tuple *tg_tuple = dict_find(iterator, KEY_TOGGLE_TG);
-  Tuple *pc_tuple = dict_find(iterator, KEY_TOGGLE_PC);
-  Tuple *temp_tuple = dict_find(iterator, KEY_TEMPERATURE);
-  Tuple *wind_speed_tuple = dict_find(iterator, KEY_WIND_SPEED);
-  Tuple *tmin_tuple = dict_find(iterator, KEY_TMIN);
-  Tuple *tmax_tuple = dict_find(iterator, KEY_TMAX);
-  Tuple *icon_tuple = dict_find(iterator, KEY_ICON);
-
-  Tuple *h1_tuple = dict_find(iterator, KEY_FORECAST_H1);
-  Tuple *h2_tuple = dict_find(iterator, KEY_FORECAST_H2);
-  Tuple *h3_tuple = dict_find(iterator, KEY_FORECAST_H3);
-  Tuple *wind1_tuple = dict_find(iterator, KEY_FORECAST_WIND1);
-  Tuple *wind2_tuple = dict_find(iterator, KEY_FORECAST_WIND2);
-  Tuple *wind3_tuple = dict_find(iterator, KEY_FORECAST_WIND3);
-  Tuple *temp1_tuple = dict_find(iterator, KEY_FORECAST_TEMP1);
-  Tuple *temp2_tuple = dict_find(iterator, KEY_FORECAST_TEMP2);
-  Tuple *temp3_tuple = dict_find(iterator, KEY_FORECAST_TEMP3);
-  Tuple *temp4_tuple = dict_find(iterator, KEY_FORECAST_TEMP4);
-  Tuple *temp5_tuple = dict_find(iterator, KEY_FORECAST_TEMP5);
-  Tuple *icon1_tuple = dict_find(iterator, KEY_FORECAST_ICON1);
-  Tuple *icon2_tuple = dict_find(iterator, KEY_FORECAST_ICON2);
-  Tuple *icon3_tuple = dict_find(iterator, KEY_FORECAST_ICON3);
-  Tuple *rain1_tuple = dict_find(iterator, KEY_FORECAST_RAIN1);
-  Tuple *rain2_tuple = dict_find(iterator, KEY_FORECAST_RAIN2);
-  Tuple *rain3_tuple = dict_find(iterator, KEY_FORECAST_RAIN3);
-  Tuple *rain4_tuple = dict_find(iterator, KEY_FORECAST_RAIN4);
-
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "receiving tuples");
+  // pour test
   Tuple *gps_tuple = dict_find(iterator, KEY_GPS);
-  Tuple *centered_tuple = dict_find(iterator, KEY_TOGGLE_CENTERED);
-  Tuple *month_tuple = dict_find(iterator, KEY_TOGGLE_MONTH);
-  Tuple *city_tuple = dict_find(iterator, KEY_INPUT_CITY);
-  Tuple *utc_tuple = dict_find(iterator, KEY_SELECT_UTC);
-  Tuple *screen_tuple = dict_find(iterator, KEY_SELECT_SCREEN);
-
-  Tuple *radio_tuple = dict_find(iterator, KEY_RADIO_UNITS);
-  Tuple *refresh_tuple = dict_find(iterator, KEY_RADIO_REFRESH);
-  Tuple *vibration_tuple = dict_find(iterator, KEY_TOGGLE_VIBRATION);
-  Tuple *bw_icon_tuple = dict_find(iterator, KEY_TOGGLE_BW_ICONS);
-  Tuple *gradiant_tuple = dict_find(iterator, KEY_TOGGLE_GRADIANT);
-  Tuple *gradiant_ruler_large_tuple = dict_find(iterator, KEY_TOGGLE_RULER_LARGE);
-
-  Tuple *goal_tuple = dict_find(iterator, KEY_SELECT_GOAL);
-  Tuple *fonts_tuple = dict_find(iterator, KEY_SELECT_FONTS);
-  Tuple *provider_tuple = dict_find(iterator, KEY_SELECT_PROVIDER);
-
-  Tuple *bt_tuple = dict_find(iterator, KEY_TOGGLE_BT);
-  Tuple *inv_tuple = dict_find(iterator, KEY_TOGGLE_INV);
-  Tuple *phone_100_tuple = dict_find(iterator, KEY_TOGGLE_100);
-  Tuple *phone_80_tuple = dict_find(iterator, KEY_TOGGLE_80);
-
-  Tuple *color_right_r_tuple = dict_find(iterator, KEY_COLOR_RIGHT_R);
-  Tuple *color_right_g_tuple = dict_find(iterator, KEY_COLOR_RIGHT_G);
-  Tuple *color_right_b_tuple = dict_find(iterator, KEY_COLOR_RIGHT_B);
-
-  Tuple *color_left_r_tuple = dict_find(iterator, KEY_COLOR_LEFT_R);
-  Tuple *color_left_g_tuple = dict_find(iterator, KEY_COLOR_LEFT_G);
-  Tuple *color_left_b_tuple = dict_find(iterator, KEY_COLOR_LEFT_B);
-
-  Tuple *color_hours_r_tuple = dict_find(iterator, KEY_COLOR_HOURS_R);
-  Tuple *color_hours_g_tuple = dict_find(iterator, KEY_COLOR_HOURS_G);
-  Tuple *color_hours_b_tuple = dict_find(iterator, KEY_COLOR_HOURS_B);
-
-  Tuple *color_ruler_r_tuple = dict_find(iterator, KEY_COLOR_RULER_R);
-  Tuple *color_ruler_g_tuple = dict_find(iterator, KEY_COLOR_RULER_G);
-  Tuple *color_ruler_b_tuple = dict_find(iterator, KEY_COLOR_RULER_B);
-
-  Tuple *color_temp_r_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_R);
-  Tuple *color_temp_g_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_G);
-  Tuple *color_temp_b_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_B);
-
-  Tuple *color_line_r_tuple = dict_find(iterator, KEY_COLOR_LINE_R);
-  Tuple *color_line_g_tuple = dict_find(iterator, KEY_COLOR_LINE_G);
-  Tuple *color_line_b_tuple = dict_find(iterator, KEY_COLOR_LINE_B);
-
-  Tuple *color_2nd_back_r_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_R);
-  Tuple *color_2nd_back_g_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_G);
-  Tuple *color_2nd_back_b_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_B);
-
-  Tuple *color_2nd_temp_r_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_R);
-  Tuple *color_2nd_temp_g_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_G);
-  Tuple *color_2nd_temp_b_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_B);
-
-  int red;
-  int green;
-  int blue;
+  Tuple *temp_tuple = dict_find(iterator, KEY_TEMPERATURE);
 
   // If all data is available, use it
-  if (temp_tuple && wind_speed_tuple && icon_tuple && wind_speed_tuple && tmin_tuple && tmax_tuple && h1_tuple && h2_tuple && h3_tuple && wind1_tuple && wind2_tuple && wind3_tuple
-
-      && temp1_tuple && temp1_tuple && temp2_tuple && temp3_tuple && temp4_tuple && temp5_tuple && icon1_tuple && icon2_tuple && icon3_tuple && rain1_tuple && rain2_tuple && rain3_tuple && rain4_tuple)
+  if (temp_tuple)
   {
 
     // vibes_double_pulse();
+    Tuple *wind_speed_tuple = dict_find(iterator, KEY_WIND_SPEED);
+    Tuple *humidity_tuple = dict_find(iterator, KEY_HUMIDITY);
+    Tuple *tmin_tuple = dict_find(iterator, KEY_TMIN);
+    Tuple *tmax_tuple = dict_find(iterator, KEY_TMAX);
+    Tuple *icon_tuple = dict_find(iterator, KEY_ICON);
 
-    snprintf(h1, sizeof(h1), "%s", h1_tuple->value->cstring);
-    snprintf(h2, sizeof(h2), "%s", h2_tuple->value->cstring);
-    snprintf(h3, sizeof(h3), "%s", h3_tuple->value->cstring);
+    Tuple *h1_tuple = dict_find(iterator, KEY_FORECAST_H1);
+    Tuple *h2_tuple = dict_find(iterator, KEY_FORECAST_H2);
+    Tuple *h3_tuple = dict_find(iterator, KEY_FORECAST_H3);
+    Tuple *wind1_tuple = dict_find(iterator, KEY_FORECAST_WIND1);
+    Tuple *wind2_tuple = dict_find(iterator, KEY_FORECAST_WIND2);
+    Tuple *wind3_tuple = dict_find(iterator, KEY_FORECAST_WIND3);
+    Tuple *temp1_tuple = dict_find(iterator, KEY_FORECAST_TEMP1);
+    Tuple *temp2_tuple = dict_find(iterator, KEY_FORECAST_TEMP2);
+    Tuple *temp3_tuple = dict_find(iterator, KEY_FORECAST_TEMP3);
+    Tuple *temp4_tuple = dict_find(iterator, KEY_FORECAST_TEMP4);
+    Tuple *temp5_tuple = dict_find(iterator, KEY_FORECAST_TEMP5);
+    Tuple *icon1_tuple = dict_find(iterator, KEY_FORECAST_ICON1);
+    Tuple *icon2_tuple = dict_find(iterator, KEY_FORECAST_ICON2);
+    Tuple *icon3_tuple = dict_find(iterator, KEY_FORECAST_ICON3);
+    Tuple *rain1_tuple = dict_find(iterator, KEY_FORECAST_RAIN1);
+    Tuple *rain2_tuple = dict_find(iterator, KEY_FORECAST_RAIN2);
+    Tuple *rain3_tuple = dict_find(iterator, KEY_FORECAST_RAIN3);
+    Tuple *rain4_tuple = dict_find(iterator, KEY_FORECAST_RAIN4);
+
     snprintf(icon, sizeof(icon), "%s", icon_tuple->value->cstring);
-    snprintf(icon1, sizeof(icon1), "%s", icon1_tuple->value->cstring);
-    snprintf(icon2, sizeof(icon2), "%s", icon2_tuple->value->cstring);
-    snprintf(icon3, sizeof(icon3), "%s", icon3_tuple->value->cstring);
+
     weather_temp = (int)temp_tuple->value->int32;
-    rain1_val = (int)rain1_tuple->value->int32;
-    rain2_val = (int)rain2_tuple->value->int32;
-    rain3_val = (int)rain3_tuple->value->int32;
-    rain4_val = (int)rain4_tuple->value->int32;
+    humidity = (int)humidity_tuple->value->int32;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
     tmin_val = (int)tmin_tuple->value->int32;
     tmax_val = (int)tmax_tuple->value->int32;
-    wind1_val = (int)wind1_tuple->value->int32;
-    wind2_val = (int)wind2_tuple->value->int32;
-    wind3_val = (int)wind3_tuple->value->int32;
-    temp1_val = (int)temp1_tuple->value->int32;
-    temp2_val = (int)temp2_tuple->value->int32;
-    temp3_val = (int)temp3_tuple->value->int32;
-    temp4_val = (int)temp4_tuple->value->int32;
-    temp5_val = (int)temp5_tuple->value->int32;
+
     wind_speed_val = (int)wind_speed_tuple->value->int32;
+
+    // APP_LOG(APP_LOG_LEVEL_DEBUG, "wind now: %d", wind_speed_val);
 
     last_refresh = mktime(&now);
 
@@ -1400,49 +1307,69 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     layer_mark_dirty(layer);
   }
 
-  if ((phone_bat_tuple) && (phone_bat_charge_tuple))
+  if (gps_tuple)
   {
 
-    // 80 20
-    if (is_phone_charging && (phone_bat < 80) && ((int)phone_bat_tuple->value->int32 >= 80) && is_phone_80)
-      if (!quiet_time_is_active())
-      {
-        vibes_long_pulse();
-        vibes_double_pulse();
-      }
+    Tuple *tg_tuple = dict_find(iterator, KEY_TOGGLE_TG);
+    Tuple *pc_tuple = dict_find(iterator, KEY_TOGGLE_PC);
 
-    if (!is_phone_charging && (phone_bat > 30) && ((int)phone_bat_tuple->value->int32 <= 30) && is_phone_80)
-      if (!quiet_time_is_active())
-      {
-        vibes_long_pulse();
-        vibes_double_pulse();
-      }
-    // 100
-    if (is_phone_charging && ((int)phone_bat_tuple->value->int32 == 100) && is_phone_100)
-      if (!quiet_time_is_active())
-      {
-        vibes_long_pulse();
-        vibes_double_pulse();
-      }
+    Tuple *centered_tuple = dict_find(iterator, KEY_TOGGLE_CENTERED);
+    Tuple *month_tuple = dict_find(iterator, KEY_TOGGLE_MONTH);
+    Tuple *city_tuple = dict_find(iterator, KEY_INPUT_CITY);
+    Tuple *utc_tuple = dict_find(iterator, KEY_SELECT_UTC);
+    Tuple *screen_tuple = dict_find(iterator, KEY_SELECT_SCREEN);
 
-    if (!is_phone_charging && phone_bat_charge_tuple->value->int32 && is_pc)
-      if (!quiet_time_is_active())
-      {
-        vibes_long_pulse();
-        vibes_double_pulse();
-      }
+    Tuple *radio_tuple = dict_find(iterator, KEY_RADIO_UNITS);
+    Tuple *refresh_tuple = dict_find(iterator, KEY_RADIO_REFRESH);
+    Tuple *vibration_tuple = dict_find(iterator, KEY_TOGGLE_VIBRATION);
+    Tuple *bw_icon_tuple = dict_find(iterator, KEY_TOGGLE_BW_ICONS);
+    Tuple *gradiant_tuple = dict_find(iterator, KEY_TOGGLE_GRADIANT);
+    Tuple *gradiant_ruler_large_tuple = dict_find(iterator, KEY_TOGGLE_RULER_LARGE);
 
-    phone_bat = (int)phone_bat_tuple->value->int32;
-    is_phone_charging = phone_bat_charge_tuple->value->int32;
+    Tuple *goal_tuple = dict_find(iterator, KEY_SELECT_GOAL);
+    Tuple *fonts_tuple = dict_find(iterator, KEY_SELECT_FONTS);
+    Tuple *provider_tuple = dict_find(iterator, KEY_SELECT_PROVIDER);
 
-    // APP_LOG(APP_LOG_LEVEL_DEBUG, "phone bat %d", phone_bat);
-    persist_write_int(KEY_PHONE_BAT, phone_bat);
-    layer_mark_dirty(layer);
-  }
+    Tuple *bt_tuple = dict_find(iterator, KEY_TOGGLE_BT);
+    Tuple *inv_tuple = dict_find(iterator, KEY_TOGGLE_INV);
+    Tuple *phone_100_tuple = dict_find(iterator, KEY_TOGGLE_100);
+    Tuple *phone_80_tuple = dict_find(iterator, KEY_TOGGLE_80);
 
-  if (gps_tuple && city_tuple && utc_tuple && radio_tuple && vibration_tuple && bw_icon_tuple && color_right_r_tuple && color_right_g_tuple && color_right_b_tuple && color_left_r_tuple && color_left_g_tuple && color_left_b_tuple && color_hours_r_tuple && color_hours_g_tuple && color_hours_b_tuple && color_ruler_r_tuple && color_ruler_g_tuple && color_ruler_b_tuple && color_temp_r_tuple && color_temp_g_tuple && color_temp_b_tuple && refresh_tuple && color_line_r_tuple &&
-      color_line_g_tuple && color_line_b_tuple && gradiant_tuple && screen_tuple && color_2nd_back_r_tuple && color_2nd_back_g_tuple && color_2nd_back_b_tuple && color_2nd_temp_r_tuple && color_2nd_temp_g_tuple && color_2nd_temp_b_tuple && gradiant_ruler_large_tuple && centered_tuple && month_tuple && goal_tuple && fonts_tuple && provider_tuple && bt_tuple && inv_tuple && phone_100_tuple && phone_80_tuple && tg_tuple && pc_tuple)
-  {
+    Tuple *color_right_r_tuple = dict_find(iterator, KEY_COLOR_RIGHT_R);
+    Tuple *color_right_g_tuple = dict_find(iterator, KEY_COLOR_RIGHT_G);
+    Tuple *color_right_b_tuple = dict_find(iterator, KEY_COLOR_RIGHT_B);
+
+    Tuple *color_left_r_tuple = dict_find(iterator, KEY_COLOR_LEFT_R);
+    Tuple *color_left_g_tuple = dict_find(iterator, KEY_COLOR_LEFT_G);
+    Tuple *color_left_b_tuple = dict_find(iterator, KEY_COLOR_LEFT_B);
+
+    Tuple *color_hours_r_tuple = dict_find(iterator, KEY_COLOR_HOURS_R);
+    Tuple *color_hours_g_tuple = dict_find(iterator, KEY_COLOR_HOURS_G);
+    Tuple *color_hours_b_tuple = dict_find(iterator, KEY_COLOR_HOURS_B);
+
+    Tuple *color_ruler_r_tuple = dict_find(iterator, KEY_COLOR_RULER_R);
+    Tuple *color_ruler_g_tuple = dict_find(iterator, KEY_COLOR_RULER_G);
+    Tuple *color_ruler_b_tuple = dict_find(iterator, KEY_COLOR_RULER_B);
+
+    Tuple *color_temp_r_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_R);
+    Tuple *color_temp_g_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_G);
+    Tuple *color_temp_b_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_B);
+
+    Tuple *color_line_r_tuple = dict_find(iterator, KEY_COLOR_LINE_R);
+    Tuple *color_line_g_tuple = dict_find(iterator, KEY_COLOR_LINE_G);
+    Tuple *color_line_b_tuple = dict_find(iterator, KEY_COLOR_LINE_B);
+
+    Tuple *color_2nd_back_r_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_R);
+    Tuple *color_2nd_back_g_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_G);
+    Tuple *color_2nd_back_b_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_B);
+
+    Tuple *color_2nd_temp_r_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_R);
+    Tuple *color_2nd_temp_g_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_G);
+    Tuple *color_2nd_temp_b_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_B);
+
+    int red;
+    int green;
+    int blue;
 
     is_gps = gps_tuple->value->int32;
     is_centered = centered_tuple->value->int32;
@@ -1740,6 +1667,10 @@ static void init_var()
   {
 
     last_refresh = persist_read_int(KEY_LAST_REFRESH);
+
+    if (FORCE_REFRESH == 1)
+      last_refresh = 0;
+
     wind_speed_val = persist_read_int(KEY_WIND_SPEED);
     tmin_val = persist_read_int(KEY_TMIN);
     tmax_val = persist_read_int(KEY_TMAX);
@@ -1864,7 +1795,7 @@ static void init()
   layer_add_child(s_canvas_layer, layer);
 
   tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
- // battery_state_service_subscribe(handle_battery);
+  // battery_state_service_subscribe(handle_battery);
   bluetooth_connection_service_subscribe(bt_handler);
 
   // JS Messages
@@ -1889,7 +1820,7 @@ static void deinit()
 {
 
   tick_timer_service_unsubscribe();
-  //battery_state_service_unsubscribe();
+  // battery_state_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   app_message_deregister_callbacks();
 

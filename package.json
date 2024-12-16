@@ -92,6 +92,7 @@
             "KEY_WIND_SPEED": 3,
             "MESSAGE_KEY": 101,
             "STATUS_KEY": 100
+            
         },
         "projectType": "native",
         "resources": {
@@ -492,5 +493,5 @@
             "watchface": true
         }
     },
-    "version": "1.16.0"
+    "version": "1.17.0"
 }

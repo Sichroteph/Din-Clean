@@ -1,10 +1,34 @@
 // force la météo sur l'émulateur
-var m_b_Debug = false;
-
+var b_force_internet = false;
+var bFakeData = 0;
+var bFakePosition = 0;
 
 var myGoogleAPIKey = '';
 
 var phone_bat = 100;
+
+var KEY_CONFIG = 157;
+var KEY_LAST_UPDATE = 158;
+
+var bIsImperial;
+
+var currentCity;
+var current_Latitude;
+var current_Longitude;
+var current_Last_update;
+var current_dictionary;
+
+var current_page = 0;
+var cityIndex = 0;
+
+function convertMpsToMph(mps) {
+  const conversionFactor = 2.23694;
+  return Math.round(mps * conversionFactor);
+}
+
+function celsiusToFahrenheit(celsius) {
+  return Math.round((celsius * 9 / 5) + 32);
+}
 
 
 function windBearing(wind) {
@@ -29,16 +53,38 @@ function windBearing(wind) {
 }
 
 
+function SendStatus(status) {
+  var dictionary = {
+    "KEY_STATUS": status,
+  };
+
+  // Send to watchapp
+  Pebble.sendAppMessage(dictionary, function () {
+    //console.log("sendAppMessage");
+    //console.log('Send successful: ' + JSON.stringify(dictionary));
+  }, function () {
+    //console.log('Send failed!');
+  });
+}
+
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
+
   xhr.onload = function () {
     callback(this.responseText);
   };
+
   xhr.open(type, url);
+  xhr.setRequestHeader('user-Agent', 'Pebble Weather Graph - Christophe.Jeannette@gmail.com');
   xhr.send();
 };
 
-function getForecast_owm(url, url2) {
+function getForecast() {
+
+  console.log("getForecast");
+
+  var userAgent2 = "Pebble Weather Graph - Christophe.Jeannette@gmail.com";
+
   var tmax;
   var tmin;
   var temp1;
@@ -66,458 +112,82 @@ function getForecast_owm(url, url2) {
   var wind2;
   var wind3;
 
-  // Forecasting data
+  if (bFakeData == 1) {
+    urlWeatherRequest = "https://jsonplaceholder.typicode.com/posts";
+  }
+  else {
+    var coordinates = 'lat=' + current_Latitude + '&lon=' + current_Longitude;
+    urlWeatherRequest = 'https://api.met.no/weatherapi/locationforecast/2.0/complete?' + coordinates;
+  }
 
+  console.log(urlWeatherRequest);
 
-  // console.log("owm mode " + url2);
-
-
-  // Send request to OpenWeatherMap
-
-
-
-  xhrRequest(url2, 'GET',
+  xhrRequest(urlWeatherRequest, 'GET',
     function (responseText) {
+      if (bFakeData == 1) {
+        responseText = '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.7,43.1,0]},"properties":{"meta":{"updated_at":"2024-12-16T09:18:24Z","units":{"air_pressure_at_sea_level":"hPa","air_temperature":"celsius","air_temperature_max":"celsius","air_temperature_min":"celsius","cloud_area_fraction":"%","cloud_area_fraction_high":"%","cloud_area_fraction_low":"%","cloud_area_fraction_medium":"%","dew_point_temperature":"celsius","fog_area_fraction":"%","precipitation_amount":"mm","relative_humidity":"%","ultraviolet_index_clear_sky":"1","wind_from_direction":"degrees","wind_speed":"m/s"}},"timeseries":[{"time":"2024-12-16T09:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.7,"air_temperature":12.7,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":4.3,"fog_area_fraction":0.0,"relative_humidity":56.3,"ultraviolet_index_clear_sky":0.6,"wind_from_direction":93.9,"wind_speed":1.8}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":14.0,"air_temperature_min":12.0,"precipitation_amount":0.0}}}},{"time":"2024-12-16T10:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1037.1,"air_temperature":14.0,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":4.5,"fog_area_fraction":0.0,"relative_humidity":55.5,"ultraviolet_index_clear_sky":1.1,"wind_from_direction":142.7,"wind_speed":2.8}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":13.9,"air_temperature_min":11.6,"precipitation_amount":0.0}}}},{"time":"2024-12-16T11:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1037.0,"air_temperature":13.9,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":6.2,"fog_area_fraction":0.0,"relative_humidity":63.4,"ultraviolet_index_clear_sky":1.4,"wind_from_direction":149.1,"wind_speed":3.3}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":13.8,"air_temperature_min":11.6,"precipitation_amount":0.0}}}},{"time":"2024-12-16T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.3,"air_temperature":13.8,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.1,"fog_area_fraction":0.0,"relative_humidity":69.2,"ultraviolet_index_clear_sky":1.3,"wind_from_direction":163.3,"wind_speed":3.7}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":13.2,"air_temperature_min":11.4,"precipitation_amount":0.0}}}},{"time":"2024-12-16T13:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.3,"air_temperature":13.2,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.6,"fog_area_fraction":0.0,"relative_humidity":73.3,"ultraviolet_index_clear_sky":1.0,"wind_from_direction":202.8,"wind_speed":3.9}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":12.6,"air_temperature_min":11.4,"precipitation_amount":0.0}}}},{"time":"2024-12-16T14:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.2,"air_temperature":12.6,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.7,"fog_area_fraction":0.0,"relative_humidity":75.5,"ultraviolet_index_clear_sky":0.5,"wind_from_direction":223.7,"wind_speed":3.4}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":12.0,"air_temperature_min":11.4,"precipitation_amount":0.0}}}},{"time":"2024-12-16T15:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.0,"air_temperature":12.0,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.9,"fog_area_fraction":0.0,"relative_humidity":77.1,"ultraviolet_index_clear_sky":0.2,"wind_from_direction":218.1,"wind_speed":2.8}},"next_12_hours":{"summary":{"symbol_code":"fair_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":11.8,"air_temperature_min":11.4,"precipitation_amount":0.0}}}},{"time":"2024-12-16T16:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.0,"air_temperature":11.6,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":8.1,"fog_area_fraction":0.0,"relative_humidity":78.9,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":239.5,"wind_speed":3.5}},"next_12_hours":{"summary":{"symbol_code":"fair_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":12.0,"air_temperature_min":11.4,"precipitation_amount":0.0}}}},{"time":"2024-12-16T17:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.3,"air_temperature":11.6,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.9,"fog_area_fraction":0.0,"relative_humidity":78.4,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":261.5,"wind_speed":4.2}},"next_12_hours":{"summary":{"symbol_code":"fair_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":12.2,"air_temperature_min":11.4,"precipitation_amount":0.0}}}},{"time":"2024-12-16T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.1,"air_temperature":11.4,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.8,"fog_area_fraction":0.0,"relative_humidity":78.2,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":239.0,"wind_speed":3.7}},"next_12_hours":{"summary":{"symbol_code":"fair_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":12.2,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-16T19:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.1,"air_temperature":11.5,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.6,"fog_area_fraction":0.0,"relative_humidity":76.7,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":257.9,"wind_speed":5.2}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":12.2,"air_temperature_min":11.7,"precipitation_amount":0.0}}}},{"time":"2024-12-16T20:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.3,"air_temperature":11.7,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.5,"fog_area_fraction":0.0,"relative_humidity":75.4,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":279.4,"wind_speed":6.0}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_night"},"details":{"air_temperature_max":12.2,"air_temperature_min":11.6,"precipitation_amount":0.0}}}},{"time":"2024-12-16T21:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.2,"air_temperature":11.8,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.5,"fog_area_fraction":0.0,"relative_humidity":75.1,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":285.3,"wind_speed":5.7}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_night"},"details":{"air_temperature_max":12.2,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-16T22:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.1,"air_temperature":12.0,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.5,"fog_area_fraction":0.0,"relative_humidity":74.2,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":284.4,"wind_speed":5.0}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":12.2,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-16T23:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1036.2,"air_temperature":12.2,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.7,"fog_area_fraction":0.0,"relative_humidity":73.9,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":291.0,"wind_speed":4.5}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":12.8,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-17T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1035.8,"air_temperature":12.1,"cloud_area_fraction":1.6,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":1.6,"cloud_area_fraction_medium":0.0,"dew_point_temperature":8.1,"fog_area_fraction":0.0,"relative_humidity":76.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":316.4,"wind_speed":3.5}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":13.6,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-17T01:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1035.4,"air_temperature":11.9,"cloud_area_fraction":39.1,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":39.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":8.3,"fog_area_fraction":0.0,"relative_humidity":78.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":356.9,"wind_speed":3.6}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.0,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-17T02:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1035.0,"air_temperature":11.6,"cloud_area_fraction":71.1,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":71.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":8.8,"fog_area_fraction":0.0,"relative_humidity":82.9,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":18.2,"wind_speed":3.5}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.2,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-17T03:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1034.3,"air_temperature":11.5,"cloud_area_fraction":78.1,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":78.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":90.8,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":23.3,"wind_speed":4.1}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.4,"air_temperature_min":12.2,"precipitation_amount":0.0}}}},{"time":"2024-12-17T04:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.5,"air_temperature":12.2,"cloud_area_fraction":68.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":68.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":86.9,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":356.2,"wind_speed":6.0}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.6,"air_temperature_min":12.8,"precipitation_amount":0.0}}}},{"time":"2024-12-17T05:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.3,"air_temperature":12.8,"cloud_area_fraction":62.5,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":62.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":83.1,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":258.1,"wind_speed":7.1}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.7,"air_temperature_min":13.6,"precipitation_amount":0.0}}}},{"time":"2024-12-17T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.5,"air_temperature":13.6,"cloud_area_fraction":85.2,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":85.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":79.0,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":257.9,"wind_speed":7.4}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.8,"air_temperature_min":14.0,"precipitation_amount":0.0}}}},{"time":"2024-12-17T07:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.3,"air_temperature":14.0,"cloud_area_fraction":89.1,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":89.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":74.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":246.3,"wind_speed":6.9}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.8,"air_temperature_min":14.2,"precipitation_amount":0.0}}}},{"time":"2024-12-17T08:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.5,"air_temperature":14.2,"cloud_area_fraction":73.4,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":73.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":73.7,"ultraviolet_index_clear_sky":0.2,"wind_from_direction":242.8,"wind_speed":6.8}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.8,"air_temperature_min":14.4,"precipitation_amount":0.0}}}},{"time":"2024-12-17T09:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.5,"air_temperature":14.4,"cloud_area_fraction":60.2,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":60.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.3,"fog_area_fraction":0.0,"relative_humidity":71.3,"ultraviolet_index_clear_sky":0.5,"wind_from_direction":238.8,"wind_speed":6.7}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.8,"air_temperature_min":14.5,"precipitation_amount":0.0}}}},{"time":"2024-12-17T10:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.4,"air_temperature":14.6,"cloud_area_fraction":97.7,"cloud_area_fraction_high":66.4,"cloud_area_fraction_low":94.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.4,"fog_area_fraction":0.0,"relative_humidity":71.1,"ultraviolet_index_clear_sky":0.9,"wind_from_direction":235.0,"wind_speed":6.7}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.8,"air_temperature_min":14.5,"precipitation_amount":0.0}}}},{"time":"2024-12-17T11:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1033.0,"air_temperature":14.7,"cloud_area_fraction":100.0,"cloud_area_fraction_high":100.0,"cloud_area_fraction_low":83.6,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":71.8,"ultraviolet_index_clear_sky":1.2,"wind_from_direction":233.1,"wind_speed":6.8}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.8,"air_temperature_min":14.5,"precipitation_amount":0.1}}}},{"time":"2024-12-17T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1032.3,"air_temperature":14.8,"cloud_area_fraction":100.0,"cloud_area_fraction_high":100.0,"cloud_area_fraction_low":42.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":71.1,"ultraviolet_index_clear_sky":1.2,"wind_from_direction":231.2,"wind_speed":6.7}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.1}}}},{"time":"2024-12-17T13:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1031.7,"air_temperature":14.7,"cloud_area_fraction":99.2,"cloud_area_fraction_high":99.2,"cloud_area_fraction_low":25.8,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.8,"fog_area_fraction":0.0,"relative_humidity":72.2,"ultraviolet_index_clear_sky":0.9,"wind_from_direction":222.8,"wind_speed":6.0}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.2}}}},{"time":"2024-12-17T14:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1031.1,"air_temperature":14.5,"cloud_area_fraction":91.4,"cloud_area_fraction_high":85.2,"cloud_area_fraction_low":28.9,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.3,"fog_area_fraction":0.0,"relative_humidity":75.8,"ultraviolet_index_clear_sky":0.5,"wind_from_direction":216.1,"wind_speed":6.1}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.3}}}},{"time":"2024-12-17T15:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.9,"air_temperature":14.6,"cloud_area_fraction":46.9,"cloud_area_fraction_high":18.7,"cloud_area_fraction_low":33.6,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.9,"fog_area_fraction":0.0,"relative_humidity":73.3,"ultraviolet_index_clear_sky":0.1,"wind_from_direction":218.6,"wind_speed":6.9}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.4}}}},{"time":"2024-12-17T16:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.6,"air_temperature":14.6,"cloud_area_fraction":85.2,"cloud_area_fraction_high":9.4,"cloud_area_fraction_low":84.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.8,"fog_area_fraction":0.0,"relative_humidity":72.8,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":218.8,"wind_speed":7.2}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.4}}}},{"time":"2024-12-17T17:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.4,"air_temperature":14.5,"cloud_area_fraction":89.8,"cloud_area_fraction_high":75.0,"cloud_area_fraction_low":73.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.5,"fog_area_fraction":0.0,"relative_humidity":76.7,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":218.1,"wind_speed":7.6}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.4}}}},{"time":"2024-12-17T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.3,"air_temperature":14.6,"cloud_area_fraction":96.9,"cloud_area_fraction_high":93.7,"cloud_area_fraction_low":60.9,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.4,"fog_area_fraction":0.0,"relative_humidity":75.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":213.5,"wind_speed":8.0}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.5}}}},{"time":"2024-12-17T19:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.2,"air_temperature":14.7,"cloud_area_fraction":99.2,"cloud_area_fraction_high":95.3,"cloud_area_fraction_low":89.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":74.3,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":212.1,"wind_speed":8.2}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"lightrain"},"details":{"precipitation_amount":0.1}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.5}}}},{"time":"2024-12-17T20:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.1,"air_temperature":14.7,"cloud_area_fraction":99.2,"cloud_area_fraction_high":92.2,"cloud_area_fraction_low":90.6,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.3,"fog_area_fraction":0.0,"relative_humidity":74.9,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":213.8,"wind_speed":8.4}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.5,"precipitation_amount":0.4}}}},{"time":"2024-12-17T21:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.2,"air_temperature":14.6,"cloud_area_fraction":100.0,"cloud_area_fraction_high":57.8,"cloud_area_fraction_low":100.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":74.5,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":217.7,"wind_speed":8.6}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.4,"precipitation_amount":0.4}}}},{"time":"2024-12-17T22:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.1,"air_temperature":14.7,"cloud_area_fraction":100.0,"cloud_area_fraction_high":68.0,"cloud_area_fraction_low":99.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.2,"fog_area_fraction":0.0,"relative_humidity":74.7,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":216.7,"wind_speed":8.3}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.6,"air_temperature_min":14.3,"precipitation_amount":0.3}}}},{"time":"2024-12-17T23:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1030.1,"air_temperature":14.5,"cloud_area_fraction":100.0,"cloud_area_fraction_high":99.2,"cloud_area_fraction_low":100.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.9,"fog_area_fraction":0.0,"relative_humidity":73.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":220.2,"wind_speed":8.2}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.6,"air_temperature_min":14.1,"precipitation_amount":0.4}}}},{"time":"2024-12-18T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1029.9,"air_temperature":14.6,"cloud_area_fraction":100.0,"cloud_area_fraction_high":99.2,"cloud_area_fraction_low":100.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.9,"fog_area_fraction":0.0,"relative_humidity":73.5,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":221.0,"wind_speed":7.9}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.6,"air_temperature_min":14.0,"precipitation_amount":0.4}}}},{"time":"2024-12-18T01:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1029.5,"air_temperature":14.6,"cloud_area_fraction":100.0,"cloud_area_fraction_high":100.0,"cloud_area_fraction_low":97.7,"cloud_area_fraction_medium":14.8,"dew_point_temperature":9.9,"fog_area_fraction":0.0,"relative_humidity":73.1,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":222.5,"wind_speed":7.7}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.6,"air_temperature_min":14.0,"precipitation_amount":0.3}}}},{"time":"2024-12-18T02:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1029.1,"air_temperature":14.6,"cloud_area_fraction":100.0,"cloud_area_fraction_high":100.0,"cloud_area_fraction_low":82.8,"cloud_area_fraction_medium":21.1,"dew_point_temperature":10.1,"fog_area_fraction":0.0,"relative_humidity":74.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":226.6,"wind_speed":7.4}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.4,"air_temperature_min":13.9,"precipitation_amount":0.3}}}},{"time":"2024-12-18T03:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.6,"air_temperature":14.4,"cloud_area_fraction":94.5,"cloud_area_fraction_high":90.6,"cloud_area_fraction_low":39.8,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.3,"fog_area_fraction":0.0,"relative_humidity":76.1,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":230.1,"wind_speed":6.7}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":14.3,"air_temperature_min":13.9,"precipitation_amount":0.3}}}},{"time":"2024-12-18T04:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.2,"air_temperature":14.3,"cloud_area_fraction":61.7,"cloud_area_fraction_high":5.5,"cloud_area_fraction_low":59.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.3,"fog_area_fraction":0.0,"relative_humidity":76.7,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":232.1,"wind_speed":6.6}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.9,"precipitation_amount":0.2}}}},{"time":"2024-12-18T05:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.1,"air_temperature":14.1,"cloud_area_fraction":75.0,"cloud_area_fraction_high":51.6,"cloud_area_fraction_low":50.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.5,"fog_area_fraction":0.0,"relative_humidity":79.1,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":234.2,"wind_speed":5.9}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.9,"precipitation_amount":0.2}}}},{"time":"2024-12-18T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.1,"air_temperature":14.0,"cloud_area_fraction":81.2,"cloud_area_fraction_high":57.8,"cloud_area_fraction_low":55.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.6,"fog_area_fraction":0.0,"relative_humidity":80.2,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":238.4,"wind_speed":5.3}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.9,"precipitation_amount":0.1}}}},{"time":"2024-12-18T07:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.1,"air_temperature":14.0,"cloud_area_fraction":81.2,"cloud_area_fraction_high":47.7,"cloud_area_fraction_low":62.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.4,"fog_area_fraction":0.0,"relative_humidity":78.7,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":241.5,"wind_speed":5.2}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.9,"precipitation_amount":0.1}}}},{"time":"2024-12-18T08:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.4,"air_temperature":13.9,"cloud_area_fraction":46.9,"cloud_area_fraction_high":2.3,"cloud_area_fraction_low":45.3,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.5,"fog_area_fraction":0.0,"relative_humidity":79.2,"ultraviolet_index_clear_sky":0.2,"wind_from_direction":246.7,"wind_speed":5.0}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.9,"precipitation_amount":0.0}}}},{"time":"2024-12-18T09:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.7,"air_temperature":14.1,"cloud_area_fraction":50.0,"cloud_area_fraction_high":2.3,"cloud_area_fraction_low":48.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.3,"fog_area_fraction":0.0,"relative_humidity":77.8,"ultraviolet_index_clear_sky":0.6,"wind_from_direction":249.4,"wind_speed":4.8}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.5,"precipitation_amount":0.0}}}},{"time":"2024-12-18T10:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.8,"air_temperature":14.1,"cloud_area_fraction":82.0,"cloud_area_fraction_high":53.1,"cloud_area_fraction_low":60.9,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.1,"fog_area_fraction":0.0,"relative_humidity":76.7,"ultraviolet_index_clear_sky":1.0,"wind_from_direction":249.8,"wind_speed":4.8}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.3,"precipitation_amount":0.0}}}},{"time":"2024-12-18T11:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1028.1,"air_temperature":14.0,"cloud_area_fraction":51.6,"cloud_area_fraction_high":19.5,"cloud_area_fraction_low":39.8,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.0,"fog_area_fraction":0.0,"relative_humidity":76.2,"ultraviolet_index_clear_sky":1.4,"wind_from_direction":240.0,"wind_speed":4.3}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.2,"precipitation_amount":0.0}}}},{"time":"2024-12-18T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1027.3,"air_temperature":14.1,"cloud_area_fraction":48.4,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":48.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.0,"fog_area_fraction":0.0,"relative_humidity":76.5,"ultraviolet_index_clear_sky":1.3,"wind_from_direction":240.0,"wind_speed":4.2}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":14.1,"air_temperature_min":13.1,"precipitation_amount":0.0}}}},{"time":"2024-12-18T13:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1026.6,"air_temperature":14.1,"cloud_area_fraction":34.4,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":34.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.0,"fog_area_fraction":0.0,"relative_humidity":77.0,"ultraviolet_index_clear_sky":1.0,"wind_from_direction":246.2,"wind_speed":3.9}},"next_1_hours":{"summary":{"symbol_code":"fair_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":13.9,"air_temperature_min":13.1,"precipitation_amount":0.0}}}},{"time":"2024-12-18T14:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1026.1,"air_temperature":13.9,"cloud_area_fraction":29.7,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":29.7,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.9,"fog_area_fraction":0.0,"relative_humidity":77.2,"ultraviolet_index_clear_sky":0.5,"wind_from_direction":256.1,"wind_speed":3.4}},"next_1_hours":{"summary":{"symbol_code":"fair_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":13.5,"air_temperature_min":13.0,"precipitation_amount":0.0}}}},{"time":"2024-12-18T15:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.8,"air_temperature":13.5,"cloud_area_fraction":3.1,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":2.3,"cloud_area_fraction_medium":0.8,"dew_point_temperature":9.7,"fog_area_fraction":0.0,"relative_humidity":77.2,"ultraviolet_index_clear_sky":0.2,"wind_from_direction":266.9,"wind_speed":2.7}},"next_1_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"fair_night"},"details":{"air_temperature_max":13.3,"air_temperature_min":12.5,"precipitation_amount":0.0}}}},{"time":"2024-12-18T16:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.6,"air_temperature":13.3,"cloud_area_fraction":5.5,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":5.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":77.8,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":265.3,"wind_speed":2.7}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":13.2,"air_temperature_min":11.9,"precipitation_amount":0.0}}}},{"time":"2024-12-18T17:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.4,"air_temperature":13.2,"cloud_area_fraction":10.2,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":10.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":78.2,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":261.8,"wind_speed":2.9}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":13.1,"air_temperature_min":11.8,"precipitation_amount":0.0}}}},{"time":"2024-12-18T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.6,"air_temperature":13.1,"cloud_area_fraction":10.9,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":10.9,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":78.4,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":267.2,"wind_speed":3.2}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{}},"next_1_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"precipitation_amount":0.0}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":13.1,"air_temperature_min":11.5,"precipitation_amount":0.0}}}},{"time":"2024-12-18T19:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.6,"air_temperature":13.1,"cloud_area_fraction":45.3,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":45.3,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":78.5,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":274.1,"wind_speed":3.3}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}}}},{"time":"2024-12-18T20:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.4,"air_temperature":13.0,"cloud_area_fraction":71.1,"cloud_area_fraction_high":2.3,"cloud_area_fraction_low":71.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.8,"relative_humidity":79.6,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":286.5,"wind_speed":3.2}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}}}},{"time":"2024-12-18T21:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.0,"air_temperature":12.5,"cloud_area_fraction":77.3,"cloud_area_fraction_high":32.8,"cloud_area_fraction_low":65.6,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.6,"fog_area_fraction":0.0,"relative_humidity":81.5,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":316.4,"wind_speed":2.2}},"next_1_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"precipitation_amount":0.0}}}},{"time":"2024-12-18T22:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.6,"air_temperature":11.9,"cloud_area_fraction":96.1,"cloud_area_fraction_high":91.4,"cloud_area_fraction_low":66.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.1,"fog_area_fraction":5.5,"relative_humidity":87.8,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":46.5,"wind_speed":1.3}},"next_1_hours":{"summary":{"symbol_code":"cloudy"},"details":{"precipitation_amount":0.0}}}},{"time":"2024-12-18T23:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.0,"air_temperature":11.8,"cloud_area_fraction":98.4,"cloud_area_fraction_high":94.5,"cloud_area_fraction_low":85.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.6,"fog_area_fraction":64.1,"relative_humidity":91.3,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":85.6,"wind_speed":2.1}},"next_1_hours":{"summary":{"symbol_code":"fog"},"details":{"precipitation_amount":0.0}}}},{"time":"2024-12-19T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1023.3,"air_temperature":11.5,"cloud_area_fraction":97.7,"cloud_area_fraction_high":86.7,"cloud_area_fraction_low":71.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":11.0,"fog_area_fraction":68.0,"relative_humidity":96.0,"ultraviolet_index_clear_sky":0.0,"wind_from_direction":86.0,"wind_speed":3.2}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":13.8,"air_temperature_min":11.6,"precipitation_amount":0.2}}}},{"time":"2024-12-19T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1017.7,"air_temperature":13.8,"cloud_area_fraction":98.4,"cloud_area_fraction_high":96.9,"cloud_area_fraction_low":48.4,"cloud_area_fraction_medium":0.0,"dew_point_temperature":11.6,"relative_humidity":86.8,"wind_from_direction":115.9,"wind_speed":5.4}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.4,"air_temperature_min":13.7,"precipitation_amount":0.3}}}},{"time":"2024-12-19T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1011.4,"air_temperature":14.4,"cloud_area_fraction":89.8,"cloud_area_fraction_high":0.8,"cloud_area_fraction_low":61.7,"cloud_area_fraction_medium":78.1,"dew_point_temperature":12.2,"relative_humidity":87.2,"wind_from_direction":71.9,"wind_speed":7.4}},"next_12_hours":{"summary":{"symbol_code":"lightrainshowers_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.7,"air_temperature_min":14.3,"precipitation_amount":0.2}}}},{"time":"2024-12-19T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1009.1,"air_temperature":14.4,"cloud_area_fraction":80.5,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":11.7,"cloud_area_fraction_medium":79.7,"dew_point_temperature":11.1,"relative_humidity":80.8,"wind_from_direction":281.8,"wind_speed":2.9}},"next_12_hours":{"summary":{"symbol_code":"lightrainshowers_night"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"rainshowers_night"},"details":{"air_temperature_max":14.5,"air_temperature_min":10.8,"precipitation_amount":1.0}}}},{"time":"2024-12-20T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1009.8,"air_temperature":10.8,"cloud_area_fraction":1.6,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.8,"cloud_area_fraction_medium":0.8,"dew_point_temperature":5.4,"relative_humidity":69.2,"wind_from_direction":309.7,"wind_speed":14.9}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":10.8,"air_temperature_min":8.3,"precipitation_amount":0.0}}}},{"time":"2024-12-20T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1010.7,"air_temperature":8.3,"cloud_area_fraction":15.6,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":14.8,"cloud_area_fraction_medium":0.8,"dew_point_temperature":3.3,"relative_humidity":70.6,"wind_from_direction":313.0,"wind_speed":16.8}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":9.0,"air_temperature_min":8.1,"precipitation_amount":0.0}}}},{"time":"2024-12-20T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1011.4,"air_temperature":8.7,"cloud_area_fraction":24.2,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":23.4,"cloud_area_fraction_medium":0.8,"dew_point_temperature":3.3,"relative_humidity":68.7,"wind_from_direction":320.9,"wind_speed":19.1}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":9.2,"air_temperature_min":8.2,"precipitation_amount":0.0}}}},{"time":"2024-12-20T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1017.4,"air_temperature":8.2,"cloud_area_fraction":7.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":7.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":2.7,"relative_humidity":68.5,"wind_from_direction":324.6,"wind_speed":13.8}},"next_12_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":8.2,"air_temperature_min":6.4,"precipitation_amount":0.0}}}},{"time":"2024-12-21T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1020.5,"air_temperature":6.4,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":2.1,"relative_humidity":74.1,"wind_from_direction":327.7,"wind_speed":9.4}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":6.5,"air_temperature_min":6.0,"precipitation_amount":0.0}}}},{"time":"2024-12-21T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1022.1,"air_temperature":6.2,"cloud_area_fraction":3.1,"cloud_area_fraction_high":3.1,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":2.0,"relative_humidity":74.8,"wind_from_direction":339.3,"wind_speed":3.9}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":11.2,"air_temperature_min":6.2,"precipitation_amount":0.0}}}},{"time":"2024-12-21T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.0,"air_temperature":11.2,"cloud_area_fraction":95.3,"cloud_area_fraction_high":95.3,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":1.6,"relative_humidity":56.9,"wind_from_direction":290.1,"wind_speed":3.4}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":11.2,"air_temperature_min":9.1,"precipitation_amount":0.0}}}},{"time":"2024-12-21T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.4,"air_temperature":9.3,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":3.3,"relative_humidity":66.6,"wind_from_direction":339.3,"wind_speed":4.8}},"next_12_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":9.3,"air_temperature_min":7.8,"precipitation_amount":0.0}}}},{"time":"2024-12-22T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1025.2,"air_temperature":7.8,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":2.4,"relative_humidity":68.9,"wind_from_direction":329.6,"wind_speed":5.5}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":7.8,"air_temperature_min":7.4,"precipitation_amount":0.0}}}},{"time":"2024-12-22T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.9,"air_temperature":7.5,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":3.6,"relative_humidity":75.9,"wind_from_direction":316.8,"wind_speed":4.9}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":11.0,"air_temperature_min":7.5,"precipitation_amount":0.0}}}},{"time":"2024-12-22T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.9,"air_temperature":11.0,"cloud_area_fraction":0.0,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":5.4,"relative_humidity":68.9,"wind_from_direction":295.8,"wind_speed":7.6}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":12.1,"air_temperature_min":10.8,"precipitation_amount":0.0}}}},{"time":"2024-12-22T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1023.5,"air_temperature":11.8,"cloud_area_fraction":50.8,"cloud_area_fraction_high":50.0,"cloud_area_fraction_low":0.8,"cloud_area_fraction_medium":0.0,"dew_point_temperature":8.4,"relative_humidity":79.5,"wind_from_direction":305.3,"wind_speed":9.2}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":11.8,"air_temperature_min":10.4,"precipitation_amount":0.0}}}},{"time":"2024-12-23T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1021.9,"air_temperature":11.2,"cloud_area_fraction":60.9,"cloud_area_fraction_high":52.3,"cloud_area_fraction_low":9.4,"cloud_area_fraction_medium":13.3,"dew_point_temperature":7.3,"relative_humidity":77.0,"wind_from_direction":304.9,"wind_speed":10.7}},"next_12_hours":{"summary":{"symbol_code":"fair_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":12.8,"air_temperature_min":11.2,"precipitation_amount":0.0}}}},{"time":"2024-12-23T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1019.6,"air_temperature":11.5,"cloud_area_fraction":16.4,"cloud_area_fraction_high":14.8,"cloud_area_fraction_low":2.3,"cloud_area_fraction_medium":0.8,"dew_point_temperature":6.1,"relative_humidity":69.7,"wind_from_direction":302.5,"wind_speed":12.1}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"fair_day"},"details":{"air_temperature_max":11.5,"air_temperature_min":10.4,"precipitation_amount":0.0}}}},{"time":"2024-12-23T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1020.9,"air_temperature":11.2,"cloud_area_fraction":56.2,"cloud_area_fraction_high":53.9,"cloud_area_fraction_low":5.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":5.7,"relative_humidity":68.3,"wind_from_direction":301.8,"wind_speed":14.4}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":11.5,"air_temperature_min":10.5,"precipitation_amount":0.0}}}},{"time":"2024-12-23T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1022.3,"air_temperature":10.5,"cloud_area_fraction":94.5,"cloud_area_fraction_high":94.5,"cloud_area_fraction_low":0.0,"cloud_area_fraction_medium":0.0,"dew_point_temperature":4.5,"relative_humidity":66.5,"wind_from_direction":308.3,"wind_speed":13.2}},"next_12_hours":{"summary":{"symbol_code":"cloudy"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":10.5,"air_temperature_min":9.5,"precipitation_amount":0.0}}}},{"time":"2024-12-24T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1024.4,"air_temperature":9.6,"cloud_area_fraction":88.3,"cloud_area_fraction_high":88.3,"cloud_area_fraction_low":0.8,"cloud_area_fraction_medium":0.0,"dew_point_temperature":4.8,"relative_humidity":72.1,"wind_from_direction":317.3,"wind_speed":10.9}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":12.1,"air_temperature_min":9.6,"precipitation_amount":0.0}}}},{"time":"2024-12-24T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1022.0,"air_temperature":12.1,"cloud_area_fraction":96.1,"cloud_area_fraction_high":96.1,"cloud_area_fraction_low":12.5,"cloud_area_fraction_medium":0.0,"dew_point_temperature":7.0,"relative_humidity":70.9,"wind_from_direction":315.2,"wind_speed":11.8}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"cloudy"},"details":{"air_temperature_max":14.3,"air_temperature_min":11.8,"precipitation_amount":0.0}}}},{"time":"2024-12-24T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1022.3,"air_temperature":14.3,"cloud_area_fraction":60.9,"cloud_area_fraction_high":57.0,"cloud_area_fraction_low":8.6,"cloud_area_fraction_medium":1.6,"dew_point_temperature":8.8,"relative_humidity":72.8,"wind_from_direction":289.5,"wind_speed":12.1}},"next_12_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_day"},"details":{"air_temperature_max":14.3,"air_temperature_min":13.5,"precipitation_amount":0.0}}}},{"time":"2024-12-24T18:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1022.7,"air_temperature":13.7,"cloud_area_fraction":76.6,"cloud_area_fraction_high":75.0,"cloud_area_fraction_low":6.2,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.3,"relative_humidity":74.8,"wind_from_direction":302.8,"wind_speed":9.8}},"next_12_hours":{"summary":{"symbol_code":"fair_night"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"partlycloudy_night"},"details":{"air_temperature_max":13.7,"air_temperature_min":13.1,"precipitation_amount":0.0}}}},{"time":"2024-12-25T00:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1023.7,"air_temperature":13.1,"cloud_area_fraction":2.3,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":2.3,"cloud_area_fraction_medium":0.0,"dew_point_temperature":9.0,"relative_humidity":76.0,"wind_from_direction":313.1,"wind_speed":6.3}},"next_12_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{}},"next_6_hours":{"summary":{"symbol_code":"clearsky_night"},"details":{"air_temperature_max":13.1,"air_temperature_min":12.5,"precipitation_amount":0.0}}}},{"time":"2024-12-25T06:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1023.9,"air_temperature":12.7,"cloud_area_fraction":1.6,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":1.6,"cloud_area_fraction_medium":0.8,"dew_point_temperature":9.3,"relative_humidity":79.7,"wind_from_direction":332.2,"wind_speed":4.2}},"next_6_hours":{"summary":{"symbol_code":"clearsky_day"},"details":{"air_temperature_max":17.1,"air_temperature_min":12.5,"precipitation_amount":0.0}}}},{"time":"2024-12-25T12:00:00Z","data":{"instant":{"details":{"air_pressure_at_sea_level":1023.4,"air_temperature":17.1,"cloud_area_fraction":3.1,"cloud_area_fraction_high":0.0,"cloud_area_fraction_low":3.1,"cloud_area_fraction_medium":0.0,"dew_point_temperature":10.8,"relative_humidity":71.8,"wind_from_direction":302.1,"wind_speed":11.1}}}}]}}';
 
+      }
       // responseText contains a JSON object with weather info
-      // console.log("5");
+       
       var responseFixed = responseText.replace(/3h/g, "hh");
-      //   console.log("6");
-      var json2 = JSON.parse(responseFixed);
-      // console.log("json2 is " + JSON.stringify(json2));
-
-
-      var t = json2.list[0].main.temp;
-      tmax = t;
-      tmin = t;
-
-      for (var i = 1; i < 12; i++) {
-        if (json2.list[i].main.temp > tmax)
-          tmax = json2.list[i].main.temp;
-        if (json2.list[i].main.temp < tmin)
-          tmin = json2.list[i].main.temp;
-      }
-
-      temp1 = Math.round(json2.list[0].main.temp);
-      //  console.log("temp1 " + temp1);
-      temp2 = Math.round(json2.list[1].main.temp);
-      temp3 = Math.round(json2.list[2].main.temp);
-      temp4 = Math.round(json2.list[3].main.temp);
-      temp5 = Math.round(json2.list[4].main.temp);
-
-
-      h1 = json2.list[1].dt;
-      h2 = json2.list[2].dt;
-      h3 = json2.list[3].dt;
-
-
-      var date1 = new Date(h1 * 1000);
-      var date2 = new Date(h2 * 1000);
-      var date3 = new Date(h3 * 1000);
-
-
-      hour1 = date1.getHours() + "";
-      hour2 = date2.getHours() + "";
-      hour3 = date3.getHours() + "";
-      //  console.log("hour1 " + hour1);
-      icon1 = json2.list[1].weather[0].icon;
-      icon2 = json2.list[2].weather[0].icon;
-      icon3 = json2.list[3].weather[0].icon;
-
-      if (json2.list[0].rain === undefined) {
-        rain1 = 0;
-      }
-      else {
-        rain1 = json2.list[0].rain.hh;
-        if (rain1 > -666)
-          rain1 = Math.round(rain1 * 10);
-        else {
-          rain1 = 0;
-        }
-      }
-
-      if (json2.list[1].rain === undefined) {
-        rain2 = 0;
-      }
-      else {
-        rain2 = json2.list[1].rain.hh;
-        if (rain2 > -666)
-          rain2 = Math.round(rain2 * 10);
-        else {
-
-          rain2 = 0;
-        }
-      }
-      if (json2.list[2].rain === undefined) {
-        rain3 = 0;
-      }
-      else {
-        rain3 = json2.list[2].rain.hh;
-        if (rain3 > -666)
-          rain3 = Math.round(rain3 * 10);
-        else {
-
-          rain3 = 0;
-        }
-      }
-      if (json2.list[3].rain === undefined) {
-        rain4 = 0;
-      }
-      else {
-        rain4 = json2.list[3].rain.hh;
-        if (rain4 > -666)
-          rain4 = Math.round(rain4 * 10);
-        else {
-
-          rain4 = 0;
-        }
-      }
-      if (json2.list[4].rain === undefined) {
-        rain5 = 0;
-      }
-      else {
-        rain5 = json2.list[4].rain.hh;
-        if (rain5 > -666)
-          rain5 = Math.round(rain5 * 10);
-        else {
-
-          rain5 = 0;
-        }
-      }
+      var jsonWeather = JSON.parse(responseFixed);
 
       var units = localStorage.getItem(152);
 
-      if (units == 1) {
-        wind1 = Math.round((json2.list[1].wind.speed) / 2 * 3.6);
-        wind2 = Math.round((json2.list[2].wind.speed) / 2 * 3.6);
-        wind3 = Math.round((json2.list[3].wind.speed) / 2 * 3.6);
+      var tmin = 1000;
+      var tmax = -1000;
+      for (var i = 0; i <= 24; i++) {
 
+        var temp = Math.round(jsonWeather.properties.timeseries[i].data.instant.details.air_temperature);
+
+        if (temp < tmin) {
+          tmin = temp;
+        }
+        if (temp > tmax) {
+          tmax = temp;
+        }
       }
-      else {
-        wind1 = Math.round(json2.list[1].wind.speed * 3.6);
-        wind2 = Math.round(json2.list[2].wind.speed * 3.6);
-        wind3 = Math.round(json2.list[3].wind.speed * 3.6);
 
+
+
+      var rTemperature = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.air_temperature);
+
+      var humidity = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.relative_humidity);
+
+      console.log(humidity);
+
+      if (units == 1) {
+        rTemperature = celsiusToFahrenheit(rTemperature);
+        tmin = celsiusToFahrenheit(tmin);
+        tmax = celsiusToFahrenheit(tmax);
       }
 
       tmax = Math.round(tmax);
       tmin = Math.round(tmin);
-      //console.log("tmax est " + tmax);
+      var temperature = Math.round(rTemperature);
 
-      // console.log("url is " + url);
-      // Send request to OpenWeatherMap
-      xhrRequest(url, 'GET',
-        function (responseText) {
-          // responseText contains a JSON object with weather info
-          var json = JSON.parse(responseText);
-
-          var location = json.name;
-
-          var temperature;
-
-
-          temperature = Math.round(json.main.temp);
-
-
-
-
-
-          var wind = Math.round(json.wind.speed);
-
-
-
-
-          var sunrise = json.sys.sunrise;
-
-          var sunset = json.sys.sunset;
-
-
-          var dsunrise = new Date(sunrise * 1000);
-          var dsunset = new Date(sunset * 1000);
-          var sunrise_hours = dsunrise.getHours();
-          var sunrise_minutes = "0" + dsunrise.getMinutes();
-          var sunset_hours = dsunset.getHours();
-          var sunset_minutes = "0" + dsunset.getMinutes();
-
-
-          var icon = json.weather[0].icon;
-
-          // testenvoi layer
-          // Assemble dictionary using our keys
-          var dictionary = {
-            "KEY_TEMPERATURE": temperature,
-
-            "KEY_WIND_SPEED": wind,
-            "KEY_ICON": icon,
-
-            "KEY_TMIN": tmin,
-            "KEY_TMAX": tmax,
-
-
-            "KEY_FORECAST_H1": hour1,
-            "KEY_FORECAST_H2": hour2,
-            "KEY_FORECAST_H3": hour3,
-            "KEY_FORECAST_WIND1": wind1,
-            "KEY_FORECAST_WIND2": wind2,
-            "KEY_FORECAST_WIND3": wind3,
-
-
-            "KEY_FORECAST_TEMP1": temp1,
-            "KEY_FORECAST_TEMP2": temp2,
-            "KEY_FORECAST_TEMP3": temp3,
-            "KEY_FORECAST_TEMP4": temp4,
-            "KEY_FORECAST_TEMP5": temp5,
-
-            "KEY_FORECAST_RAIN1": rain1,
-            "KEY_FORECAST_RAIN2": rain2,
-            "KEY_FORECAST_RAIN3": rain3,
-            "KEY_FORECAST_RAIN4": rain4,
-
-            "KEY_FORECAST_ICON1": icon1,
-            "KEY_FORECAST_ICON2": icon2,
-            "KEY_FORECAST_ICON3": icon3,
-
-            "KEY_LOCATION": location,
-
-          };
-
-          // Send to Pebble
-          Pebble.sendAppMessage(dictionary,
-            function (e) {
-              //  console.log("Weather info sent to Pebble successfully!");
-            },
-            function (e) {
-              //  console.log("Error sending weather info to Pebble!");
-            }
-          );
-        }
-      );
-    }
-  );
-
-}
-
-function getForecast_wu() {
-
-  var tmax;
-  var tmin;
-  var temp1;
-  var temp2;
-  var temp3;
-  var temp4;
-  var temp5;
-
-  var h1;
-  var h2;
-  var h3;
-
-  var hour1;
-  var hour2;
-  var hour3;
-
-  var rain1;
-  var rain2;
-  var rain3;
-  var rain4;
-  var rain5;
-
-
-  var icon1;
-  var icon2;
-  var icon3;
-
-  var wind1;
-  var wind2;
-  var wind3;
-
-
-  var coordinates = localStorage.getItem(156);
-  var units = localStorage.getItem(152);
-
-  var humidity;
-
-  var units_s;
-  if (units == 1) {
-    units_s = "us";
-  }
-  else {
-    units_s = "ca";
-  }
-  // Send request to forecast
-
-
-
-  var api_key;
-  api_key = '';
-
-
-
-
-  var url = 'https://api.forecast.io/forecast/' + api_key + '/' + coordinates + '?units=' + units_s;
-  // console.log("url forecast.io "+url);
-
-  url = url.replace(/"/g, "");
-  xhrRequest(url, 'GET',
-    function (responseText) {
-      //       console.log("responseText");
-      var units_t;
-      var location = localStorage.getItem(154);
-      var graph = localStorage.getItem(155);
-
-      var json = JSON.parse(responseText);
-
-
-
-      // responseText contains a JSON object with weather info
-
-      tmax = Math.round(json.daily.data[0].temperatureMax);
-      tmin = Math.round(json.daily.data[0].temperatureMin);
-
-      //    console.log("tmax " +tmax);
-
-      //    console.log("tmin  " +tmin);
-
-      temp1 = Math.round(json.hourly.data[0].temperature);
-      temp2 = Math.round(json.hourly.data[3].temperature);
-      temp3 = Math.round(json.hourly.data[6].temperature);
-      temp4 = Math.round(json.hourly.data[9].temperature);
-      temp5 = Math.round(json.hourly.data[12].temperature);
-
-
-
-      h1 = json.hourly.data[3].time;
-      h2 = json.hourly.data[6].time;
-      h3 = json.hourly.data[9].time;
-
-
-
-      a = new Date((h1) * 1000);
-      hour1 = a.getHours() + "";
-
-      a = new Date((h2) * 1000);
-      hour2 = a.getHours() + "";
-
-      a = new Date((h3) * 1000);
-      hour3 = a.getHours() + "";
-
-      //     console.log("hours "+hour1+" "+hour2+" "+hour3+" ");
-
-
+      var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
       if (units == 1) {
-        wind1 = Math.round(json.hourly.data[3].windSpeed * 1.55);
-        wind2 = Math.round(json.hourly.data[6].windSpeed * 1.55);
-        wind3 = Math.round(json.hourly.data[9].windSpeed * 1.55);
-
-      }
-      else {
-
-        wind1 = Math.round(json.hourly.data[3].windSpeed);
-        wind2 = Math.round(json.hourly.data[6].windSpeed);
-        wind3 = Math.round(json.hourly.data[9].windSpeed);
+        // mph convertion
+        wind = convertMpsToMph(wind);
       }
 
-      // console.log("json.hourly.data[9].windBearing "+json.hourly.data[9].windBearing);
-
-
-      icon1 = json.hourly.data[3].icon;
-      icon2 = json.hourly.data[6].icon;
-      icon3 = json.hourly.data[9].icon;
-
-
-      rain1 = json.hourly.data[0].precipIntensity * 20;
-
-      rain2 = json.hourly.data[3].precipIntensity * 20;
-
-      rain3 = json.hourly.data[6].precipIntensity * 20;
-
-      rain4 = json.hourly.data[9].precipIntensity * 20;
-
-      rain5 = json.hourly.data[12].precipIntensity * 20;
-
-
-
-      if (units == 1) {
-        rain1 = Math.round(rain1 * 25.4);
-
-        rain2 = Math.round(rain2 * 25.4);
-
-        rain3 = Math.round(rain3 * 25.4);
-
-        rain4 = Math.round(rain4 * 25.4);
-
-        rain5 = Math.round(rain5 * 25.4);
+      if (bFakeData == 1){
+        wind = 666;
+        tmin = 1;
+        tmax = 666
 
       }
-      // console.log
-
-      var temperature;
 
 
-
-      temperature = Math.round(json.currently.temperature);
-      humidity = Math.round(json.currently.humidity * 100) + "%";
-      //  console.log("json.hourly.data[9].windBearing "+json.hourly.data[9].windBearing);
-
-      var units_w;
-      if (units == 1) {
-        units_w = "M/H";
-      }
-      else {
-        units_w = "KM/H";
-      }
-      var wind = Math.round(json.daily.data[0].windSpeed);
-
-
-
-      var sunrise = json.daily.data[0].sunriseTime;
-      var sunset = json.daily.data[0].sunsetTime;
-
-      var dsunrise = new Date(sunrise * 1000);
-      var dsunset = new Date(sunset * 1000);
-
-      var sunrise_hours = dsunrise.getHours();
-      var sunrise_minutes = "0" + dsunrise.getMinutes();
-      var sunrise_string;
-      var sunset_hours = dsunset.getHours();
-      var sunset_minutes = "0" + dsunset.getMinutes();
-      var sunset_string;
-      if (units == 1) {
-        if (sunrise_hours > 12) {
-          sunrise_hours = sunrise_hours % 12;
-          sunrise_string = sunrise_hours + ":" + sunrise_minutes.substr(-2) + "pm";
-        }
-        else {
-          sunrise_string = sunrise_hours + ":" + sunrise_minutes.substr(-2) + "am";
-        }
-
-      }
-      else {
-        sunrise_string = sunrise_hours + ":" + sunrise_minutes.substr(-2);
-      }
-
-      if (units == 1) {
-        if (sunset_hours > 12) {
-          sunset_hours = sunset_hours % 12;
-          sunset_string = sunset_hours + ":" + sunset_minutes.substr(-2) + "pm";
-        }
-        else {
-          sunset_string = sunset_hours + ":" + sunset_minutes.substr(-2) + "am";
-        }
-      }
-      else {
-        sunset_string = sunset_hours + ":" + sunset_minutes.substr(-2);
-      }
-
-      var icon = json.daily.data[0].icon;
-
-      // force int
-      graph++;
-      graph--;
+      var icon = jsonWeather.properties.timeseries[i].data.next_12_hours.summary.symbol_code;
 
       // testenvoi layer
       // Assemble dictionary using our keys
       var dictionary = {
         "KEY_TEMPERATURE": temperature,
+        "KEY_HUMIDITY": humidity,
 
         "KEY_WIND_SPEED": wind,
         "KEY_ICON": icon,
@@ -549,203 +219,73 @@ function getForecast_wu() {
         "KEY_FORECAST_ICON2": icon2,
         "KEY_FORECAST_ICON3": icon3,
 
-        "KEY_LOCATION": location,
-
+        "KEY_LOCATION": "",
 
       };
-
 
       // Send to Pebble
       Pebble.sendAppMessage(dictionary,
         function (e) {
-          //  console.log("Weather info sent to Pebble successfully!");
+          console.log("Weather info sent to Pebble successfully!");
         },
         function (e) {
-          //  console.log("Error sending weather info to Pebble!");
+          console.log("Error sending weather info to Pebble!");
         }
       );
+
+
     }
   );
-}
-
-
-function getWeatherCoord() {
-  //console.log("getWeatherCoord");
-  var location = " ";
-
-  var coordinates = localStorage.getItem(156);
-  //console.log("1");
-  var urlGoogle = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' + coordinates + '&key=' + myGoogleAPIKey;
-  //console.log("2");
-  //console.log("111");
-  urlGoogle = urlGoogle.replace(/"/g, "");
-  //console.log("3");
-  urlGoogle = urlGoogle.replace(/ /g, "+");
-  // console.log("4");
-  // console.log("222");
-  // console.log('google url: ' + urlGoogle);
-
-  xhrRequest(urlGoogle, 'GET',
-    function (responseText) {
-      //  console.log("xhrRequest(urlGoogle,");
-      var json = JSON.parse(responseText);
-      location = json.results[0].formatted_address;
-      localStorage.setItem(154, JSON.stringify(location));
-      //  console.log('location: ' + location);
-      getForecast_wu();
-    });
 
 }
-
 
 function locationSuccess(pos) {
-  var units = localStorage.getItem(152);
-  var provider = localStorage.getItem(153);
-  provider = 1
-  //console.log('locationSuccess units: ' + units);
-  // console.log('locationSuccess provider: ' + provider);
-  var units_s;
 
-  if (units == 1) {
-    units_s = "imperial";
-  }
-  else {
-    units_s = "metric";
-  }
-  var url1;
-  var url2;
-  if (provider == 1) {
+  current_Latitude = pos.coords.latitude;
+  current_Longitude = pos.coords.longitude;
 
-    var myAPIKey = localStorage.getItem(157);
-    console.log('myAPIKey: ' + myAPIKey);
-
-    url1 = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=' + myAPIKey + '&units=' + units_s;
-
-    url2 = 'http://api.openweathermap.org/data/2.5/forecast?lat=' +
-      pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=' + myAPIKey + '&units=' + units_s;
-    // console.log('locationSuccess url1: ' + url1);
-    //console.log('locationSuccess url2: ' + url2);
-    getForecast_owm(url1, url2);
-  }
-
-  else {
-    //  console.log("locationSuccess");
-    var lat = pos.coords.latitude;
-    var lng = pos.coords.longitude;
-    var coordinates = lat + ',' + lng;
-
-    console.log('forecast.io coordinates: ' + coordinates);
-    localStorage.setItem(156, JSON.stringify(coordinates));
-    getForecast_wu();
-    //    getWeatherCoord();
-  }
+  console.log("location success");
+  getForecast();
 }
+
 
 function locationError(err) {
   // console.log("Error requesting location!");
 }
 
 
+function getPosition() {
 
-function send_url_position() {
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    locationError,
-    { timeout: 15000, maximumAge: 60000 }
-  );
-
-
-}
-
-function getWeatherLocation() {
-  // console.log("getWeatherLocation");
-  var location;
-  if (localStorage.getItem(154) !== null) {
-    location = localStorage.getItem(154);
+  console.log("Get position");
+  if (bFakePosition == 0) {
+    navigator.geolocation.getCurrentPosition(
+      locationSuccess,
+      locationError,
+      { timeout: 15000, maximumAge: 60000 }
+    )
   }
   else {
-    location = "Bandol, France";
-
+    const position = {
+      coords: {
+        latitude: 43.1,        // Remplacez par la latitude réelle
+        longitude: 5.7,        // Remplacez par la longitude réelle
+        altitude: null,              // Peut être null si non disponible
+        accuracy: 10,                // Précision en mètres
+        altitudeAccuracy: null,      // Peut être null si non disponible
+        heading: null,               // Peut être null si l'appareil est stationnaire
+        speed: null                  // Peut être null si non disponible
+      },
+      timestamp: 1692448765123        // Timestamp en millisecondes depuis l'époque Unix
+    };
+    locationSuccess(position);
   }
-  var coordinates;
-  var urlGoogle = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + location + '&key=' + myGoogleAPIKey;
-  //console.log("1111");
-  urlGoogle = urlGoogle.replace(/"/g, "");
-  urlGoogle = urlGoogle.replace(/ /g, "+");
-  // console.log("2222");
-  // console.log('google url: ' + urlGoogle);
-
-
-
-  xhrRequest(urlGoogle, 'GET',
-    function (responseText) {
-      //console.log("urlGoogle");
-
-      var json = JSON.parse(responseText);
-
-      location = json.results[0].formatted_address;
-      // console.log("3");
-      location = location.replace(/"/g, "");
-      //  console.log("4");
-      var lat = json.results[0].geometry.location.lat;
-      var lng = json.results[0].geometry.location.lng;
-
-      coordinates = lat + ',' + lng;
-      // Persist write a key with associated value
-
-
-      localStorage.setItem(156, JSON.stringify(coordinates));
-      localStorage.setItem(154, JSON.stringify(location));
-
-      getForecast_wu();
-    });
 }
-
-function send_url_city() {
-  var city = localStorage.getItem(151);
-  var units = localStorage.getItem(152);
-  var provider = localStorage.getItem(153);
-
-
-  var units_s;
-  if (units == 1) {
-    units_s = "imperial";
-  }
-  else {
-    units_s = "metric";
-  }
-  var url1;
-  var url2;
-  if (provider == 1) {
-    var myAPIKey = localStorage.getItem(157);
-    console.log('myAPIKey: ' + myAPIKey);
-    url1 = 'http://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=' + myAPIKey + '&units=' + units_s;
-    url2 = 'http://api.openweathermap.org/data/2.5/forecast?q=' + city + '&appid=' + myAPIKey + '&units=' + units_s;
-    getForecast_owm(url1, url2);
-  }
-  else {
-    getWeatherLocation();
-  }
-
-}
-
-
-
-
 
 function getWeather() {
-  //console.log("getWeather !!");
+  console.log("getWeather !!");
   var gps = localStorage.getItem(150);
   var city = localStorage.getItem(151);
-  //console.log("gps !!", gps);
-  if ((gps === null || gps == 1 || city == null || city == "undefined")) {
-    send_url_position();
-  }
-  //city string
-  else if (localStorage.getItem(150) !== null) {
-    send_url_city();
-  }
+  getPosition();
 
 }
 
@@ -753,9 +293,9 @@ function getWeather() {
 Pebble.addEventListener('ready',
   function (e) {
     // console.log("avant battery init");
-    Battery_Init();
+    //Battery_Init();
 
-    //console.log("PebbleKit JS ready!");
+    console.log("PebbleKit JS ready!");
   }
 );
 
@@ -763,8 +303,8 @@ Pebble.addEventListener('ready',
 
 Pebble.addEventListener('appmessage',
   function (e) {
-    if ((navigator.onLine) || (m_b_Debug)) {
-      //  console.log("Appel météo !!");
+    if ((navigator.onLine) || (b_force_internet)) {
+      console.log("Appel météo !!");
       getWeather();
     }
   }
@@ -789,8 +329,11 @@ Pebble.addEventListener('webviewclosed', function (e) {
   // console.log('Configuration page returned: ' + JSON.stringify(configData));
 
   var gps = configData['gps'];
+  gps = 1;
   var input_city = configData['input_city'];
+  input_city = ""
   var input_api = configData['input_api'];
+  input_api = ""
   var select_utc = configData['select_utc'];
   var select_goal = configData['select_goal'];
   var select_provider = configData['select_provider'];
