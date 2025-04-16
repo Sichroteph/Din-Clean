@@ -761,199 +761,35 @@ static void update_proc(Layer *layer, GContext *ctx)
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "Min: %s", minTemp);
 
   snprintf(maxTemp, sizeof(maxTemp), "%i°", tmax_val);
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Max: %s", maxTemp);
 
-  // Batterie
-  // APP_LOG(APP_LOG_LEVEL_INFO, "5");
-  //
-  //   if(!IS_ROUND){
-  //
-  //     if(phone_bat==0)
-  //       bat_offset+=2;
-  //
-  //     // phone battery diplay
-  //     int bat;
-  //     int offset;
-  //
-  //     graphics_context_set_fill_color(ctx, color_temp);
-  //     if ((is_connected)||(IS_HOUR_FICTIVE)){
-  //       if (IS_HOUR_FICTIVE){
-  //         phone_bat=30;
-  //       }
-  //       bat = (int)phone_bat*36/100;
-  //       offset=(int)((36-bat)/2);
-  //
-  //        if (!quiet_time_is_active ()){
-  //
-  //       graphics_fill_rect(ctx, GRect(BAT_PHONE_STATUS_OFFSET_X+offset, BAT_PHONE_STATUS_OFFSET_Y+bat_gradiant_offset+bat_offset, (18-offset)*2, 2), 0, GCornerNone);
-  //       if (is_phone_charging){
-  //         graphics_fill_rect(ctx, GRect(BAT_PHONE_STATUS_OFFSET_X+17,BAT_PHONE_STATUS_OFFSET_Y+2+bat_gradiant_offset+bat_offset, 2, 3), 0, GCornerNone);
-  //       }
-  //        }
-  //
-  //     }
-  //
-  //     Batterie chargement
-  //     if (is_charging){
-  //       graphics_context_set_fill_color(ctx, color_temp);
-  //       if (!quiet_time_is_active ()){
-  //       graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+17,BAT_STATUS_OFFSET_Y-3+bat_gradiant_offset+bat_offset, 2, 3), 0, GCornerNone);
-  //     }
-  // }
-  //
-  //     bat = (int)battery_level*36/100;
-  //     offset=(int)((36-bat)/2);
-  //     graphics_context_set_fill_color(ctx, color_temp);
-  //     // APP_LOG(APP_LOG_LEVEL_INFO,"phone bat %d",phone_bat);
-  //
-  //     if ((is_connected)&&(!quiet_time_is_active ()))
-  //       graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+offset, BAT_STATUS_OFFSET_Y+bat_gradiant_offset+bat_offset, (18-offset)*2, 2), 0, GCornerNone);
-  //
-  //
-  //     if ((is_connected)&&(!quiet_time_is_active ())){
-  //       graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+9,BAT_STATUS_OFFSET_Y+2+bat_gradiant_offset+bat_offset, 2, 3), 0, GCornerNone);
-  //       graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+17,BAT_STATUS_OFFSET_Y+2+bat_gradiant_offset+bat_offset, 2, 3), 0, GCornerNone);
-  //       graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+25,BAT_STATUS_OFFSET_Y+2+bat_gradiant_offset+bat_offset, 2, 3), 0, GCornerNone);
-  //     }
-  //
-  //   }
-  //   else{
-  //     int bat = (int)battery_level*2/10;
-  //     int invbat = 20-bat;
-  //     graphics_context_set_fill_color(ctx, color_temp);
-  //     graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y+bat_gradiant_offset, bat, 2), 0, GCornerNone);
-  //
-  //     graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y-3+bat_gradiant_offset, 1, 5), 0, GCornerNone);
-  //     graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+10, BAT_STATUS_OFFSET_Y-3+bat_gradiant_offset, 1, 5), 0, GCornerNone);
-  //     graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X+20, BAT_STATUS_OFFSET_Y-3+bat_gradiant_offset, 1, 5), 0, GCornerNone);
-  //
-  //   }
-
-  // int bat = (int)battery_level * 2 / 10;
-  // int invbat = 20 - bat;
-  // graphics_context_set_fill_color(ctx, color_temp);
-  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y + bat_gradiant_offset, bat, 2), 0, GCornerNone);
-
-  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
-  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X + 10, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
-  // graphics_fill_rect(ctx, GRect(BAT_STATUS_OFFSET_X + 20, BAT_STATUS_OFFSET_Y - 3 + bat_gradiant_offset, 1, 5), 0, GCornerNone);
-
-#if defined(PBL_ROUND)
-  if ((mktime(&now) - last_refresh) < duration + 600)
+  if (!quiet_time_is_active())
   {
-    graphics_draw_text(ctx, weather_temp_char, fontmedium, rect_temp, GTextOverflowModeWordWrap,
-                       GTextAlignmentCenter, NULL);
-    graphics_draw_text(ctx, tmin, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
-                       GTextAlignmentRight, NULL);
-    graphics_draw_text(ctx, tmax, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
-                       GTextAlignmentRight, NULL);
-  }
 
-  graphics_draw_text(ctx, week_day, fontsmallbold, rect_text_dayw, GTextOverflowModeWordWrap,
-                     GTextAlignmentCenter, NULL);
-
-  graphics_draw_text(ctx, mday, fontmedium, rect_text_day, GTextOverflowModeWordWrap,
-                     GTextAlignmentCenter, NULL);
-
-#else
-  if (!IS_ROUND)
-  {
-    // Health
-    HealthMetric metric = HealthMetricStepCount;
-
-    time_t start = time_start_of_today();
-    time_t end = time(NULL);
-    HealthServiceAccessibilityMask mask = health_service_metric_accessible(metric,
-                                                                           start, end);
-
-    char steps_buffer[20] = " ";
-    char sleep_buffer[20] = " ";
-
-    int steps = 0;
-    // int ksteps=0;
-    // int dsteps=0;
-    if (mask & HealthServiceAccessibilityMaskAvailable)
+    if ((is_connected) && (!quiet_time_is_active()))
     {
-      // Data is available!
-
-      steps = (int)health_service_sum_today(metric);
-      // ksteps = (int)steps/1000;
-      // dsteps = (int)(steps - ksteps*1000)/100;
-
-      snprintf(steps_buffer, sizeof(steps_buffer), "%i s.", steps);
-
-      metric = HealthMetricSleepSeconds;
-      mask = health_service_metric_accessible(metric, start, end);
-      if (mask & HealthServiceAccessibilityMaskAvailable)
-      {
-        int seconds = (int)health_service_sum_today(metric);
-        int hours = (int)seconds / 3600;
-        int minutes = ((int)seconds / 60) % 60;
-        if (minutes > 9)
-        {
-          snprintf(sleep_buffer, sizeof(sleep_buffer), "%i:%i", hours, minutes);
-        }
-        else
-        {
-          snprintf(sleep_buffer, sizeof(sleep_buffer), "%i:0%i", hours, minutes);
-        }
-      }
-    }
-
-    /*
-    if (steps > 300)
-    {
-      graphics_draw_text(ctx, steps_buffer, fontsmallbold, rect_sleep, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
-    }
-    else
-    {
-      graphics_draw_text(ctx, sleep_buffer, fontsmallbold, rect_sleep, GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
-    }
-    */
-
-    if (!quiet_time_is_active())
-    {
-
-      if ((is_connected) && (!quiet_time_is_active()))
-      {
-        if (!is_month)
-        {
-          graphics_draw_text(ctx, week_day, fontsmall, rect_text_dayw, GTextOverflowModeWordWrap,
-                             GTextAlignmentCenter, NULL);
-
-          //  graphics_draw_text(ctx, month, fontsmall, rect_text_month, GTextOverflowModeWordWrap,
-          // GTextAlignmentCenter, NULL);
-        }
-        else
-        {
-          graphics_draw_text(ctx, week_day, fontsmall, rect_text_month, GTextOverflowModeWordWrap,
-                             GTextAlignmentCenter, NULL);
-          //  graphics_draw_text(ctx, month, fontsmall, rect_text_dayw, GTextOverflowModeWordWrap,
-          //   GTextAlignmentCenter, NULL);
-        }
-      }
-      else
-      {
-        graphics_draw_text(ctx, week_day, fontsmall, rect_text_dayw, GTextOverflowModeWordWrap,
-                           GTextAlignmentCenter, NULL);
-        s_icon = gbitmap_create_with_resource(RESOURCE_ID_BT_DISCONECT);
-        graphics_draw_bitmap_in_rect(ctx, s_icon, rect_bt_disconect);
-        gbitmap_destroy(s_icon);
-      }
-    }
-    else
-    {
-      // On affiche l'icone de quiet time
       graphics_draw_text(ctx, week_day, fontsmall, rect_text_dayw, GTextOverflowModeWordWrap,
                          GTextAlignmentCenter, NULL);
-      s_icon = gbitmap_create_with_resource(RESOURCE_ID_SILENT);
+      graphics_draw_text(ctx, mday, fontmedium, rect_text_day, GTextOverflowModeWordWrap,
+                         GTextAlignmentCenter, NULL);
+    }
+    else
+    {
+      graphics_draw_text(ctx, week_day, fontsmall, rect_text_dayw, GTextOverflowModeWordWrap,
+                         GTextAlignmentCenter, NULL);
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_BT_DISCONECT);
       graphics_draw_bitmap_in_rect(ctx, s_icon, rect_bt_disconect);
       gbitmap_destroy(s_icon);
     }
   }
-
-  graphics_draw_text(ctx, mday, fontmedium, rect_text_day, GTextOverflowModeWordWrap,
-                     GTextAlignmentCenter, NULL);
+  else
+  {
+    // On affiche l'icone de quiet time
+    graphics_draw_text(ctx, week_day, fontsmall, rect_text_dayw, GTextOverflowModeWordWrap,
+                       GTextAlignmentCenter, NULL);
+    s_icon = gbitmap_create_with_resource(RESOURCE_ID_SILENT);
+    graphics_draw_bitmap_in_rect(ctx, s_icon, rect_bt_disconect);
+    gbitmap_destroy(s_icon);
+  }
 
   if ((mktime(&now) - last_refresh) < duration + 600)
   {
@@ -968,7 +804,6 @@ static void update_proc(Layer *layer, GContext *ctx)
     graphics_draw_text(ctx, maxTemp, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
                        GTextAlignmentCenter, NULL);
   }
-#endif
 
   // Draw hours
   GRect rect_hour = {{0, 0}, {140, 180}};
@@ -1027,18 +862,9 @@ static void update_proc(Layer *layer, GContext *ctx)
   int num_x = 0;
   int num_y = 0;
 
-  if (!IS_ROUND)
-  {
-    // num_x = 42;  + 23
-    num_x = 65;
-    num_y = 1;
-  }
-  else
-  {
-    //  num_x = 57;
-    num_x = 50;
-    num_y = 7;
-  }
+  // num_x = 42;  + 23
+  num_x = 65;
+  num_y = 1;
 
   GRect rect_hour_id1 = {{num_x, num_y}, {46, 81}};
   GRect rect_hour_id2 = {{num_x + offset_x, num_y}, {46, 81}};
