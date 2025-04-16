@@ -131,60 +131,6 @@
 #define KEY_TOGGLE_PC 111
 #define KEY_SELECT_PROVIDER 112
 
-#if defined(PBL_ROUND)
-
-#define XOFFSET 18
-#define YOFFSET 6
-
-#define WIDTH 180
-#define HEIGHT 180
-
-#define TEXT_MONTH_STATUS_OFFSET_X 5
-#define TEXT_MONTH_STATUS_OFFSET_Y 0
-
-#define TEXT_DAYW_STATUS_OFFSET_X 6
-#define TEXT_DAYW_STATUS_OFFSET_Y 32
-#define TEXT_DAY_STATUS_OFFSET_X 8
-#define TEXT_DAY_STATUS_OFFSET_Y 40
-
-#define TEXT_TMAX_OFFSET_X -21
-#define TEXT_TMAX_OFFSET_Y 67
-#define TEXT_TMIN_OFFSET_X -82
-#define TEXT_TMIN_OFFSET_Y 91
-
-#define ICON_X 19
-#define ICON_Y 66
-#define ICON6_X 18
-#define ICON6_Y 100
-
-#define ICONW_X 10
-#define ICONW_Y 50
-
-#define TEXT_TEMP_OFFSET_X 8
-#define TEXT_TEMP_OFFSET_Y 105
-
-#define TEXT_HUM_OFFSET_X 19
-#define TEXT_HUM_OFFSET_Y 73
-
-#define BAT_STATUS_OFFSET_X 25
-#define BAT_STATUS_OFFSET_Y 140
-
-// For bluetooth lost notification
-#define BT_STATUS_OFFSET_Y 7
-
-#define WEATHER_OFFSET_X 0
-#define WEATHER_OFFSET_Y 0
-
-#define TEXT_WIND_OFFSET_X 10
-#define TEXT_WIND_OFFSET_Y 70
-
-#define BAT_PHONE_STATUS_OFFSET_X 0
-#define BAT_PHONE_STATUS_OFFSET_Y 5
-
-#define ICON_BT_X 0
-#define ICON_BT_Y 5
-
-#else
 //******************************************************************
 //******************************************************************
 //******************************************************************
@@ -196,14 +142,15 @@
 #define YOFFSET 0
 
 #define TEXT_DAYW_STATUS_OFFSET_X -3
-#define TEXT_DAYW_STATUS_OFFSET_Y 1
+#define TEXT_DAYW_STATUS_OFFSET_Y 0
+
 #define TEXT_DAY_STATUS_OFFSET_X -1
-#define TEXT_DAY_STATUS_OFFSET_Y 8
+#define TEXT_DAY_STATUS_OFFSET_Y 6
 #define TEXT_MONTH_STATUS_OFFSET_X -3
 #define TEXT_MONTH_STATUS_OFFSET_Y 32
 
-#define ICON_BT_X 29
-#define ICON_BT_Y 13
+#define ICON_BT_X 35
+#define ICON_BT_Y 10
 
 #define BAT_STATUS_OFFSET_X 7
 
@@ -214,18 +161,18 @@
 #define BAT_PHONE_STATUS_OFFSET_Y 57
 
 #define ICON_X 0
-#define ICON_Y 123
+#define ICON_Y 30
 
-#define TEXT_TEMP_OFFSET_X 4
-#define TEXT_TEMP_OFFSET_Y 52
+#define TEXT_TEMP_OFFSET_X -12
+#define TEXT_TEMP_OFFSET_Y 75
 
 #define TEXT_HUM_OFFSET_X 2
 #define TEXT_HUM_OFFSET_Y 77
 
-#define TEXT_TMIN_OFFSET_X 1
-#define TEXT_TMIN_OFFSET_Y 111
-#define TEXT_TMAX_OFFSET_X 19
-#define TEXT_TMAX_OFFSET_Y 111
+#define TEXT_TMIN_OFFSET_X -5
+#define TEXT_TMIN_OFFSET_Y 130
+#define TEXT_TMAX_OFFSET_X -5
+#define TEXT_TMAX_OFFSET_Y 145
 
 #define ICON6_X 0
 #define ICON6_Y 101
@@ -238,7 +185,6 @@
 
 #define WEATHER_OFFSET_X -14
 #define WEATHER_OFFSET_Y -9
-#endif
 
 #define MARK_5 12
 #define MARK_15 22
@@ -269,6 +215,9 @@ static char tmax[10] = " ";
 static char weather_temp_char[10] = " ";
 static char weather_hum_char[10] = " ";
 static char minMax[120] = " ";
+static char minTemp[12] = " ";
+static char maxTemp[12] = " ";
+
 // WEATHER
 
 static int weather_temp = 0;
@@ -386,7 +335,7 @@ static uint8_t battery_level = 0;
 
 static char hour_text[5] = " ";
 
-static char *weekdayLangFr[7] = {"Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"};
+static char *weekdayLangFr[7] = {"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"};
 static char *weekdayLangEn[7] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
 static char *weekdayLangGe[7] = {"SON", "MON", "DIE", "MIT", "DON", "FRE", "SAM"};
 static char *weekdayLangSp[7] = {"DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"};
@@ -602,15 +551,23 @@ static void update_proc(Layer *layer, GContext *ctx)
   GRect rect_text_day = {{TEXT_DAY_STATUS_OFFSET_X + status_offset_x, TEXT_DAY_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_text_dayw = {{TEXT_DAYW_STATUS_OFFSET_X + status_offset_x, TEXT_DAYW_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
   GRect rect_text_month = {{TEXT_MONTH_STATUS_OFFSET_X + status_offset_x, TEXT_MONTH_STATUS_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 150}};
-  GRect rect_temp = {{TEXT_TEMP_OFFSET_X + status_offset_x, TEXT_TEMP_OFFSET_Y + status_offset_y}, {RULER_XOFFSET+60, 150}};
+  GRect rect_temp = {{TEXT_TEMP_OFFSET_X + status_offset_x, TEXT_TEMP_OFFSET_Y + status_offset_y}, {60, 60}};
   GRect rect_hum = {{TEXT_HUM_OFFSET_X + status_offset_x, TEXT_HUM_OFFSET_Y + status_offset_y}, {RULER_XOFFSET, 50}};
 
-  GRect rect_tmin = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y}, {500, 4000}};
-  GRect rect_tmax = {{TEXT_TMAX_OFFSET_X + status_offset_x, TEXT_TMAX_OFFSET_Y + status_offset_y}, {40, 150}};
+  GRect rect_tmin = {{TEXT_TMIN_OFFSET_X, TEXT_TMIN_OFFSET_Y + status_offset_y}, {45, 35}};
+  GRect rect_tmax = {{TEXT_TMAX_OFFSET_X, TEXT_TMAX_OFFSET_Y + status_offset_y}, {45, 35}};
 
   GRect rect_sleep = {{TEXT_TMIN_OFFSET_X + status_offset_x, TEXT_TMIN_OFFSET_Y + status_offset_y + 38}, {100, 150}};
+
+  GRect rect_screen = {{0, 0}, {144, 168}};
+
   GRect rect_icon = {{ICON_X, ICON_Y + 9}, {35, 35}};
   GRect rect_icon6 = {{ICON6_X, ICON6_Y + 9}, {35, 35}};
+
+  GRect rect_icon_hum1 = {{5, 116}, {7, 10}};
+  GRect rect_icon_hum2 = {{14, 116}, {7, 10}};
+  GRect rect_icon_hum3 = {{23, 116}, {7, 10}};
+
   GRect rect_text_hour = {{RULER_XOFFSET + XOFFSET + 5 + hour_offset_x, 0}, {100, 100}};
   GRect rect_bt_disconect = {{ICON_BT_X + status_offset_x, ICON_BT_Y + status_offset_y}, {35, 17}};
 
@@ -668,16 +625,57 @@ static void update_proc(Layer *layer, GContext *ctx)
   int bat_offset = 0;
   if (((mktime(&now) - last_refresh) < duration + 600))
   {
+
+    if (humidity >= 80)
+    {
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_HUMIDITY);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_hum3);
+      gbitmap_destroy(s_icon);
+    }
+
+    if (humidity >= 70)
+    {
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_HUMIDITY);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_hum2);
+      gbitmap_destroy(s_icon);
+    }
+
+    if (humidity >= 60)
+    {
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_HUMIDITY);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_hum1);
+      gbitmap_destroy(s_icon);
+    }
+
+    if (humidity <= 40)
+    {
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_DRY);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_hum1);
+      gbitmap_destroy(s_icon);
+    }
+
+    if (humidity <= 30)
+    {
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_DRY);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_hum2);
+      gbitmap_destroy(s_icon);
+    }
+
+    if (humidity <= 20)
+    {
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_DRY);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_hum3);
+      gbitmap_destroy(s_icon);
+    }
+
     s_icon = gbitmap_create_with_resource(icon_id);
     graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon);
     gbitmap_destroy(s_icon);
 
-    if (is_bw_icon)
-    {
-      s_icon = gbitmap_create_with_resource(RESOURCE_ID_POURTOUR);
-      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon);
-      gbitmap_destroy(s_icon);
-    }
+    s_icon = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND);
+    graphics_draw_bitmap_in_rect(ctx, s_icon, rect_screen);
+    gbitmap_destroy(s_icon);
+
     int met_unit;
     if (is_metric)
       met_unit = 10;
@@ -754,11 +752,17 @@ static void update_proc(Layer *layer, GContext *ctx)
   }
 
   snprintf(weather_temp_char, sizeof(weather_temp_char), "%i°", weather_temp);
-  snprintf(weather_hum_char, sizeof(weather_hum_char), "%i%%", humidity);
-  
+  // snprintf(weather_hum_char, sizeof(weather_hum_char), "%i%%", humidity);
+
   snprintf(minMax, sizeof(minMax), "%i %i", tmin_val, tmax_val);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "minMax: %s", minMax);
-  
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "minMax: %s", minMax);
+
+  snprintf(minTemp, sizeof(minMax), "%i°", tmin_val);
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Min: %s", minTemp);
+
+  snprintf(maxTemp, sizeof(maxTemp), "%i°", tmax_val);
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Max: %s", maxTemp);
+
   // Batterie
   // APP_LOG(APP_LOG_LEVEL_INFO, "5");
   //
@@ -954,14 +958,15 @@ static void update_proc(Layer *layer, GContext *ctx)
   if ((mktime(&now) - last_refresh) < duration + 600)
   {
     graphics_draw_text(ctx, weather_temp_char, fontmedium, rect_temp, GTextOverflowModeWordWrap,
-                       GTextAlignmentLeft, NULL);
-   
-    graphics_draw_text(ctx, weather_hum_char, fontsmallbold, rect_hum, GTextOverflowModeWordWrap,
-                       GTextAlignmentLeft, NULL);
-  
-    graphics_draw_text(ctx, minMax, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
-                       GTextAlignmentLeft, NULL);
+                       GTextAlignmentCenter, NULL);
 
+    // graphics_draw_text(ctx, weather_hum_char, fontsmallbold, rect_hum, GTextOverflowModeWordWrap,
+    //                  GTextAlignmentLeft, NULL);
+
+    graphics_draw_text(ctx, minTemp, fontsmallbold, rect_tmin, GTextOverflowModeWordWrap,
+                       GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, maxTemp, fontsmallbold, rect_tmax, GTextOverflowModeWordWrap,
+                       GTextAlignmentCenter, NULL);
   }
 #endif
 
@@ -1077,7 +1082,6 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed)
   {
     if (((select_provider != 0) && (((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) || ((mktime(&now) - last_refresh) > duration))))
     {
-
       // Begin dictionary
       DictionaryIterator *iter;
       app_message_outbox_begin(&iter);
@@ -1265,13 +1269,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
     weather_temp = (int)temp_tuple->value->int32;
 
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
+    // APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
     tmin_val = (int)tmin_tuple->value->int32;
     tmax_val = (int)tmax_tuple->value->int32;
 
     wind_speed_val = (int)wind_speed_tuple->value->int32;
     humidity = (int)humidity_tuple->value->int32;
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "tmin_val now: %d", tmin_val);
+    // APP_LOG(APP_LOG_LEVEL_DEBUG, "tmin_val now: %d", tmin_val);
 
     last_refresh = mktime(&now);
 
@@ -1677,7 +1681,7 @@ static void init_var()
 
     wind_speed_val = persist_read_int(KEY_WIND_SPEED);
     humidity = persist_read_int(KEY_HUMIDITY);
-    
+
     tmin_val = persist_read_int(KEY_TMIN);
     tmax_val = persist_read_int(KEY_TMAX);
     wind1_val = persist_read_int(KEY_FORECAST_WIND1);

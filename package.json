@@ -104,6 +104,18 @@
                     "type": "bitmap"
                 },
                 {
+                    "file": "images/DRY",
+                    "name": "DRY",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/HUMIDITY",
+                    "name": "HUMIDITY",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/NUIT_AVEC_AVERSES",
                     "name": "NUIT_AVEC_AVERSES",
                     "targetPlatforms": null,
@@ -377,8 +389,8 @@
                     "type": "bitmap"
                 },
                 {
-                    "file": "images/GRADIANT",
-                    "name": "GRADIANT",
+                    "file": "images/BACKGROUND",
+                    "name": "BACKGROUND",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
@@ -443,18 +455,6 @@
                     "type": "bitmap"
                 },
                 {
-                    "file": "images/TABLE",
-                    "name": "TABLE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/TABLE_OG",
-                    "name": "TABLE_OG",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
                     "file": "images/WIND",
                     "name": "WIND",
                     "targetPlatforms": null,
@@ -463,13 +463,6 @@
                 {
                     "file": "images/WIND_S",
                     "name": "WIND_S",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/ruler_icon.png",
-                    "menuIcon": true,
-                    "name": "IMAGE_MENU_ICON",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
@@ -485,7 +478,6 @@
         "targetPlatforms": [
             "aplite",
             "basalt",
-            "chalk",
             "diorite"
         ],
         "uuid": "9040763a-6b35-49d1-82ac-13ce02e31137",
@@ -493,5 +485,5 @@
             "watchface": true
         }
     },
-    "version": "1.19.0"
+    "version": "1.20.0"
 }

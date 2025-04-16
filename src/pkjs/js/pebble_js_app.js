@@ -174,14 +174,16 @@ function getForecast() {
 
       if (bFakeData == 1){
         wind = 666;
-        tmin = -20;
-        tmax = -10;
-        temperature = -28;
+        tmin = 20;
+        tmax = 10;
+        temperature = 28;
+        humidity = 90;
       }
 
 
-      var icon = jsonWeather.properties.timeseries[i].data.next_12_hours.summary.symbol_code;
+      var icon = jsonWeather.properties.timeseries[0].data.next_12_hours.summary.symbol_code;
 
+      console.log(icon);
       // testenvoi layer
       // Assemble dictionary using our keys
       var dictionary = {
@@ -249,7 +251,7 @@ function locationSuccess(pos) {
 
 
 function locationError(err) {
-  // console.log("Error requesting location!");
+  console.log("Error requesting location!");
 }
 
 
@@ -266,8 +268,8 @@ function getPosition() {
   else {
     const position = {
       coords: {
-        latitude: 43.1,        // Remplacez par la latitude réelle
-        longitude: 5.7,        // Remplacez par la longitude réelle
+        latitude: 43.1380428,        // Remplacez par la latitude réelle
+        longitude: 5.7337657,        // Remplacez par la longitude réelle
         altitude: null,              // Peut être null si non disponible
         accuracy: 10,                // Précision en mètres
         altitudeAccuracy: null,      // Peut être null si non disponible
