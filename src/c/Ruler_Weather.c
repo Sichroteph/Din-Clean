@@ -170,9 +170,9 @@
 #define TEXT_HUM_OFFSET_Y 77
 
 #define TEXT_TMIN_OFFSET_X -5
-#define TEXT_TMIN_OFFSET_Y 130
+#define TEXT_TMIN_OFFSET_Y 131
 #define TEXT_TMAX_OFFSET_X -5
-#define TEXT_TMAX_OFFSET_Y 145
+#define TEXT_TMAX_OFFSET_Y 144
 
 #define ICON6_X 0
 #define ICON6_Y 101
@@ -243,6 +243,7 @@ static int rain3_val = 0;
 static int rain4_val = 0;
 time_t last_refresh = 0;
 int duration = 3600;
+int offline_delay = 3600;
 AppTimer *timer_short;
 
 static char icon[20] = " ";
@@ -567,6 +568,7 @@ static void update_proc(Layer *layer, GContext *ctx)
   GRect rect_icon_hum1 = {{5, 116}, {7, 10}};
   GRect rect_icon_hum2 = {{14, 116}, {7, 10}};
   GRect rect_icon_hum3 = {{23, 116}, {7, 10}};
+  GRect rect_icon_leaf = {{12, 116}, {11, 10}};
 
   GRect rect_text_hour = {{RULER_XOFFSET + XOFFSET + 5 + hour_offset_x, 0}, {100, 100}};
   GRect rect_bt_disconect = {{ICON_BT_X + status_offset_x, ICON_BT_Y + status_offset_y}, {35, 17}};
@@ -623,8 +625,16 @@ static void update_proc(Layer *layer, GContext *ctx)
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   int bat_offset = 0;
-  if (((mktime(&now) - last_refresh) < duration + 600))
+  if (((mktime(&now) - last_refresh) < duration + offline_delay))
   {
+
+    if ((humidity > 40) && (humidity < 60))
+    {
+
+      s_icon = gbitmap_create_with_resource(RESOURCE_ID_LEAF);
+      graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon_leaf);
+      gbitmap_destroy(s_icon);
+    }
 
     if (humidity >= 80)
     {
@@ -794,7 +804,7 @@ static void update_proc(Layer *layer, GContext *ctx)
     gbitmap_destroy(s_icon);
   }
 
-  if ((mktime(&now) - last_refresh) < duration + 600)
+  if ((mktime(&now) - last_refresh) < duration + offline_delay)
   {
     graphics_draw_text(ctx, weather_temp_char, fontmedium, rect_temp, GTextOverflowModeWordWrap,
                        GTextAlignmentCenter, NULL);

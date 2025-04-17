@@ -395,6 +395,12 @@
                     "type": "bitmap"
                 },
                 {
+                    "file": "images/LEAF",
+                    "name": "LEAF",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/NEIGE_FORTE",
                     "name": "NEIGE_FORTE",
                     "targetPlatforms": null,
@@ -485,5 +491,5 @@
             "watchface": true
         }
     },
-    "version": "1.23.0"
+    "version": "1.25.0"
 }

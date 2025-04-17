@@ -182,7 +182,7 @@ function getForecast() {
         tmin = 20;
         tmax = 10;
         temperature = 28;
-        humidity = 90;
+        humidity = 50;
       }
 
       var icon = jsonWeather.properties.timeseries[0].data.next_12_hours.summary.symbol_code;
@@ -249,6 +249,9 @@ function locationSuccess(pos) {
   current_Latitude = pos.coords.latitude;
   current_Longitude = pos.coords.longitude;
 
+  localStorage.setItem(160, current_Latitude);
+  localStorage.setItem(161, current_Longitude);
+
   console.log("location success");
   getForecast();
 }
@@ -256,6 +259,29 @@ function locationSuccess(pos) {
 
 function locationError(err) {
   console.log("Error requesting location!");
+ 
+  current_Latitude = localStorage.getItem(160);
+  current_Longitude = localStorage.getItem(161);
+  console.log("GPS data saved");
+  console.log(current_Latitude);
+  console.log(current_Longitude);
+
+  if (current_Latitude !== null && current_Longitude !== null) {
+    const position = {
+      coords: {
+        latitude: current_Latitude,        // Remplacez par la latitude réelle
+        longitude: current_Longitude,        // Remplacez par la longitude réelle
+        altitude: null,              // Peut être null si non disponible
+        accuracy: 10,                // Précision en mètres
+        altitudeAccuracy: null,      // Peut être null si non disponible
+        heading: null,               // Peut être null si l'appareil est stationnaire
+        speed: null                  // Peut être null si non disponible
+      },
+      timestamp: 1692448765123        // Timestamp en millisecondes depuis l'époque Unix
+    };
+    locationSuccess(position);
+  }
+
 }
 
 
@@ -266,7 +292,7 @@ function getPosition() {
     navigator.geolocation.getCurrentPosition(
       locationSuccess,
       locationError,
-      { timeout: 15000, maximumAge: 60000 }
+      { timeout: 15000, maximumAge: 120000 }
     )
   }
   else {
