@@ -676,11 +676,14 @@ static void update_proc(Layer *layer, GContext *ctx)
     graphics_draw_bitmap_in_rect(ctx, s_icon, rect_screen);
     gbitmap_destroy(s_icon);
 
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "wind_speed_val -> %d", (int)wind_speed_val);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "is_metric -> %d", (int)is_metric);
+
     int met_unit;
     if (is_metric)
       met_unit = 10;
     else
-      met_unit = 5;
+      met_unit = 22;
 
     if (wind_speed_val > met_unit)
     {

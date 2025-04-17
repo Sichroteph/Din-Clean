@@ -167,11 +167,16 @@ function getForecast() {
       tmin = Math.round(tmin);
       var temperature = Math.round(rTemperature);
       var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
+     
+      console.log(units);
+      console.log(wind);
+     
+  
       if (units == 1) {
         // mph convertion
         wind = convertMpsToMph(wind);
       }
-
+     
       if (bFakeData == 1){
         wind = 666;
         tmin = 20;
@@ -179,7 +184,6 @@ function getForecast() {
         temperature = 28;
         humidity = 90;
       }
-
 
       var icon = jsonWeather.properties.timeseries[0].data.next_12_hours.summary.symbol_code;
 
