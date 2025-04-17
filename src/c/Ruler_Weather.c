@@ -681,9 +681,9 @@ static void update_proc(Layer *layer, GContext *ctx)
 
     int met_unit;
     if (is_metric)
-      met_unit = 10;
+      met_unit = 5;
     else
-      met_unit = 22;
+      met_unit = 11;
 
     if (wind_speed_val > met_unit)
     {
