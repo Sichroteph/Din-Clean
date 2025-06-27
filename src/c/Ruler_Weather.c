@@ -149,8 +149,8 @@
 #define TEXT_MONTH_STATUS_OFFSET_X -3
 #define TEXT_MONTH_STATUS_OFFSET_Y 32
 
-#define ICON_BT_X 35
-#define ICON_BT_Y 10
+#define ICON_BT_X -2
+#define ICON_BT_Y 16
 
 #define BAT_STATUS_OFFSET_X 7
 
