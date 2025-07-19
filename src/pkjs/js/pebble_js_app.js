@@ -91,7 +91,7 @@ function getIOPoolData() {
   console.log("getIOPoolData");
 
   // var apiKey = localStorage.getItem("apiKey");
-  var apiKey = "501vxaPXNJ2D6ZkMHdxgzIhh3Gw2HI0J7";
+  var apiKey = "";
 
   if (apiKey) {
     console.log("ok");
