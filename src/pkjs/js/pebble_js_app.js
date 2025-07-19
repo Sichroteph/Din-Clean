@@ -10,7 +10,7 @@ var phone_bat = 100;
 var KEY_CONFIG = 157;
 var KEY_LAST_UPDATE = 158;
 
-var bIsImperial;
+var bIsImperial; 
 
 var currentCity;
 var current_Latitude;
@@ -20,6 +20,14 @@ var current_dictionary;
 
 var current_page = 0;
 var cityIndex = 0;
+
+var API_URL = "https://api.iopool.com/v1/pools";
+
+var poolTemp = 0;
+var poolPH = 0;
+var poolORP = 0;
+
+
 
 function convertMpsToMph(mps) {
   const conversionFactor = 2.23694;
@@ -79,8 +87,56 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
-function getForecast() {
+function getIOPoolData() {
+  console.log("getIOPoolData");
 
+  // var apiKey = localStorage.getItem("apiKey");
+  var apiKey = "501vxaPXNJ2D6ZkMHdxgzIhh3Gw2HI0J7";
+
+  if (apiKey) {
+    console.log("ok");
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", API_URL, true);
+    xhr.setRequestHeader("x-api-key", apiKey);
+    xhr.onload = function() {
+      console.log(xhr.status);
+
+      if (xhr.status === 200) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          if (data && data.length > 0 && data[0].latestMeasure) {
+            poolTemp = Math.round(data[0].latestMeasure.temperature);
+            poolPH = Math.round(data[0].latestMeasure.ph * 100) / 100;
+            poolORP = Math.round(data[0].latestMeasure.orp);
+            console.log("poolTemp");
+            console.log(poolTemp);
+            console.log("poolPH");
+            console.log(poolPH);
+            console.log("poolORP");
+            console.log(poolORP);
+          } else {
+            console.error("Données inattendues :", data);
+          }
+        } catch (e) {
+          console.error("Erreur de parsing JSON :", e);
+        }
+      } else {
+        console.error("Erreur HTTP :", xhr.status, xhr.statusText);
+      }
+    };
+    xhr.onerror = function() {
+      console.error("Erreur réseau");
+    };
+    xhr.send(); 
+    console.log("fin");
+  } else {
+    console.error("API key manquante");
+  }
+}
+
+
+function getForecast() {
+  getIOPoolData();
   console.log("getForecast");
 
   var userAgent2 = "Pebble Weather Graph - Christophe.Jeannette@gmail.com";
@@ -226,6 +282,11 @@ function getForecast() {
 
         "KEY_LOCATION": "",
 
+        "POOLTEMP": poolTemp*10,
+        "POOLPH": poolPH*100,
+        "POOLORP": poolORP, 
+
+
       };
 
       // Send to Pebble
@@ -326,7 +387,7 @@ Pebble.addEventListener('ready',
     // console.log("avant battery init");
     //Battery_Init();
 
-    console.log("PebbleKit JS ready!");
+    console.log("PebbleKit JS ready 123");
   }
 );
 

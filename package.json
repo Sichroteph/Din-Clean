@@ -91,12 +91,22 @@
             "KEY_TOGGLE_VIBRATION": 37,
             "KEY_WIND_SPEED": 3,
             "MESSAGE_KEY": 101,
-            "STATUS_KEY": 100
+            "STATUS_KEY": 100,
+            "POOLTEMP": 113,
+            "POOLPH": 114,
+            "POOLORP": 115
+
             
         },
         "projectType": "native",
         "resources": {
             "media": [
+                {
+                    "file": "images/WARNING_W",
+                    "name": "WARNING_W",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
                 {
                     "file": "images/NEIGE_FORTE_W",
                     "name": "NEIGE_FORTE_W",
