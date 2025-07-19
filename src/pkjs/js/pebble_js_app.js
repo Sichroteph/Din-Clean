@@ -4,7 +4,7 @@ var bFakeData = 0;
 var bFakePosition = 0;
 
 var myGoogleAPIKey = '';
-var API_URL ="https://api.iopool.com/v1/pools";
+
 var phone_bat = 100;
 
 var KEY_CONFIG = 157;
@@ -79,51 +79,8 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
-var poolTemp;
-var poolPH;
-var poolORP;
-
-
-function getIOPoolData() {
-
-  console.log("getIOPoolData");
-
-  //var apiKey = localStorage.getItem("apiKey");
-
-  var apiKey = "501gzIhh3Gw2HI0J7";
-  
-  poolTemp = 0;
-  poolPH = 0;
-  poolORP = 0;
-  
-  if (apiKey) {
-    console.log("ok");
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", API_URL, true);
-    xhr.setRequestHeader("x-api-key", apiKey);
-    xhr.onload = function() {
-    console.log(xhr.status);
-      
-      if (xhr.status === 200) {
-        var data = JSON.parse(xhr.responseText);
-        if (data && data.length > 0 && data[0].latestMeasure) {
-          poolTemp = Math.round(data[0].latestMeasure.temperature);
-          poolPH = Math.round(data[0].latestMeasure.ph * 100) / 100;
-          poolORP = Math.round(data[0].latestMeasure.orp);  
-
-          console.log(poolTemp);
-          console.log(poolPH);   
-          console.log(poolORP);   
-        }
-     }
-    }
-  }
-}
-
-
 function getForecast() {
 
-  
   console.log("getForecast");
 
   var userAgent2 = "Pebble Weather Graph - Christophe.Jeannette@gmail.com";
@@ -231,10 +188,6 @@ function getForecast() {
       var icon = jsonWeather.properties.timeseries[0].data.next_12_hours.summary.symbol_code;
 
       console.log(icon);
-
-      getIOPoolData();
-
-
       // testenvoi layer
       // Assemble dictionary using our keys
       var dictionary = {
@@ -300,7 +253,6 @@ function locationSuccess(pos) {
   localStorage.setItem(161, current_Longitude);
 
   console.log("location success");
-  
   getForecast();
 }
 
