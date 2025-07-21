@@ -10,7 +10,7 @@ var phone_bat = 100;
 var KEY_CONFIG = 157;
 var KEY_LAST_UPDATE = 158;
 
-var bIsImperial; 
+var bIsImperial;
 
 var currentCity;
 var current_Latitude;
@@ -26,7 +26,6 @@ var API_URL = "https://api.iopool.com/v1/pools";
 var poolTemp = 0;
 var poolPH = 0;
 var poolORP = 0;
-
 
 
 function convertMpsToMph(mps) {
@@ -90,45 +89,54 @@ var xhrRequest = function (url, type, callback) {
 function getIOPoolData() {
   console.log("getIOPoolData");
 
-  // var apiKey = localStorage.getItem("apiKey");
-  var apiKey = "";
+  var apiKey = localStorage.getItem(158);
+  console.log("poolTemp");
 
-  if (apiKey) {
-    console.log("ok");
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", API_URL, true);
-    xhr.setRequestHeader("x-api-key", apiKey);
-    xhr.onload = function() {
-      console.log(xhr.status);
 
-      if (xhr.status === 200) {
-        try {
-          var data = JSON.parse(xhr.responseText);
-          if (data && data.length > 0 && data[0].latestMeasure) {
-            poolTemp = Math.round(data[0].latestMeasure.temperature);
-            poolPH = Math.round(data[0].latestMeasure.ph * 100) / 100;
-            poolORP = Math.round(data[0].latestMeasure.orp);
-            console.log("poolTemp");
-            console.log(poolTemp);
-            console.log("poolPH");
-            console.log(poolPH);
-            console.log("poolORP");
-            console.log(poolORP);
-          } else {
-            console.error("Données inattendues :", data);
+  if (apiKey !== null) {
+
+    var size = apiKey.length;
+
+    if (size == 40) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", API_URL, true);
+      xhr.setRequestHeader("x-api-key", apiKey);
+      xhr.onload = function () {
+        console.log(xhr.status);
+
+        if (xhr.status === 200) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (data && data.length > 0 && data[0].latestMeasure) {
+              poolTemp = Math.round(data[0].latestMeasure.temperature);
+              poolPH = Math.round(data[0].latestMeasure.ph * 100) / 100;
+              poolORP = Math.round(data[0].latestMeasure.orp);
+              console.log("poolTemp");
+              console.log(poolTemp);
+              console.log("poolPH");
+              console.log(poolPH);
+              console.log("poolORP");
+              console.log(poolORP);
+            } else {
+              console.error("Données inattendues :", data);
+            }
+          } catch (e) {
+            console.error("Erreur de parsing JSON :", e);
           }
-        } catch (e) {
-          console.error("Erreur de parsing JSON :", e);
+        } else {
+          console.error("Erreur HTTP :", xhr.status, xhr.statusText);
         }
-      } else {
-        console.error("Erreur HTTP :", xhr.status, xhr.statusText);
-      }
-    };
-    xhr.onerror = function() {
-      console.error("Erreur réseau");
-    };
-    xhr.send(); 
-    console.log("fin");
+      };
+      xhr.onerror = function () {
+        console.error("Erreur réseau");
+      };
+      xhr.send();
+      console.log("fin");
+    }
+    else {
+      console.error("API key manquante");
+    }
+
   } else {
     console.error("API key manquante");
   }
@@ -185,7 +193,7 @@ function getForecast() {
 
       }
       // responseText contains a JSON object with weather info
-       
+
       var responseFixed = responseText.replace(/3h/g, "hh");
       var jsonWeather = JSON.parse(responseFixed);
 
@@ -223,17 +231,17 @@ function getForecast() {
       tmin = Math.round(tmin);
       var temperature = Math.round(rTemperature);
       var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
-     
+
       console.log(units);
       console.log(wind);
-     
-  
+
+
       if (units == 1) {
         // mph convertion
         wind = convertMpsToMph(wind);
       }
-     
-      if (bFakeData == 1){
+
+      if (bFakeData == 1) {
         wind = 666;
         tmin = 20;
         tmax = 10;
@@ -282,9 +290,9 @@ function getForecast() {
 
         "KEY_LOCATION": "",
 
-        "POOLTEMP": poolTemp*10,
-        "POOLPH": poolPH*100,
-        "POOLORP": poolORP, 
+        "POOLTEMP": poolTemp * 10,
+        "POOLPH": poolPH * 100,
+        "POOLORP": poolORP,
 
 
       };
@@ -320,7 +328,7 @@ function locationSuccess(pos) {
 
 function locationError(err) {
   console.log("Error requesting location!");
- 
+
   current_Latitude = localStorage.getItem(160);
   current_Longitude = localStorage.getItem(161);
   console.log("GPS data saved");
@@ -413,12 +421,9 @@ Pebble.addEventListener('showConfiguration', function () {
 });
 
 
-
-
-
 Pebble.addEventListener('webviewclosed', function (e) {
   var configData = JSON.parse(decodeURIComponent(e.response));
-  // console.log('Configuration page returned: ' + JSON.stringify(configData));
+  console.log('Configuration page returned: ' + JSON.stringify(configData));
 
   var gps = configData['gps'];
   gps = 1;
@@ -426,6 +431,9 @@ Pebble.addEventListener('webviewclosed', function (e) {
   input_city = ""
   var input_api = configData['input_api'];
   input_api = ""
+
+  var input_iopool_token = configData['input_iopool_token'];
+
   var select_utc = configData['select_utc'];
   var select_goal = configData['select_goal'];
   var select_provider = configData['select_provider'];
@@ -469,7 +477,7 @@ Pebble.addEventListener('webviewclosed', function (e) {
   localStorage.setItem(153, configData['select_provider']);
   localStorage.setItem(154, configData['input_city']);
   localStorage.setItem(157, configData['input_api']);
-
+  localStorage.setItem(158, configData['input_iopool_token']);
 
 
   dict['KEY_GPS'] = configData['gps'] ? 1 : 0;  // Send a boolean as an integer
