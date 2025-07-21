@@ -413,10 +413,8 @@ Pebble.addEventListener('appmessage',
 
 
 Pebble.addEventListener('showConfiguration', function () {
-  //var url = 'http://sichroteph.github.io/Ruler-Weather/';
-  var url = 'http://sichroteph.github.io/Impact/';
 
-  //  console.log('Showing configuration page: ' + url);
+  var url = 'http://sichroteph.github.io/Impact/';
   Pebble.openURL(url);
 });
 
