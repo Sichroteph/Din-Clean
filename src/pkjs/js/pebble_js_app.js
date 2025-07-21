@@ -87,11 +87,8 @@ var xhrRequest = function (url, type, callback) {
 };
 
 function getIOPoolData() {
-  console.log("getIOPoolData");
 
   var apiKey = localStorage.getItem(158);
-  console.log("poolTemp");
-
 
   if (apiKey !== null) {
 
@@ -102,7 +99,7 @@ function getIOPoolData() {
       xhr.open("GET", API_URL, true);
       xhr.setRequestHeader("x-api-key", apiKey);
       xhr.onload = function () {
-        console.log(xhr.status);
+
 
         if (xhr.status === 200) {
           try {
@@ -117,6 +114,7 @@ function getIOPoolData() {
               console.log(poolPH);
               console.log("poolORP");
               console.log(poolORP);
+              getForecast();
             } else {
               console.error("Données inattendues :", data);
             }
@@ -134,17 +132,20 @@ function getIOPoolData() {
       console.log("fin");
     }
     else {
+      getForecast();
       console.error("API key manquante");
     }
 
   } else {
+    getForecast();
     console.error("API key manquante");
   }
 }
 
 
 function getForecast() {
-  getIOPoolData();
+
+
   console.log("getForecast");
 
   var userAgent2 = "Pebble Weather Graph - Christophe.Jeannette@gmail.com";
@@ -219,7 +220,7 @@ function getForecast() {
 
       var humidity = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.relative_humidity);
 
-      console.log(humidity);
+
 
       if (units == 1) {
         rTemperature = celsiusToFahrenheit(rTemperature);
@@ -232,8 +233,6 @@ function getForecast() {
       var temperature = Math.round(rTemperature);
       var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
 
-      console.log(units);
-      console.log(wind);
 
 
       if (units == 1) {
@@ -251,7 +250,6 @@ function getForecast() {
 
       var icon = jsonWeather.properties.timeseries[0].data.next_12_hours.summary.symbol_code;
 
-      console.log(icon);
       // testenvoi layer
       // Assemble dictionary using our keys
       var dictionary = {
@@ -322,7 +320,7 @@ function locationSuccess(pos) {
   localStorage.setItem(161, current_Longitude);
 
   console.log("location success");
-  getForecast();
+  getIOPoolData();
 }
 
 

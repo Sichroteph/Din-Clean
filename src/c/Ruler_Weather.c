@@ -139,8 +139,6 @@
 #define KEY_POOLPH 114
 #define KEY_poolORP 115
 
-
-
 //******************************************************************
 //******************************************************************
 //******************************************************************
@@ -233,9 +231,9 @@ static char maxTemp[12] = " ";
 char poolTemp[10];
 char poolPH[10];
 char poolORP[10];
-int npoolTemp;  
-int npoolPH;     
-int npoolORP; 
+int npoolTemp;
+int npoolPH;
+int npoolORP;
 
 // WEATHER
 
@@ -384,10 +382,12 @@ static void app_focus_changing(bool focusing)
 
 static int build_icon(char *text_icon)
 {
-  if(npoolORP != 0){
-    if ((npoolORP < 650) || (npoolPH < 710)) {
+  if (npoolORP != 0)
+  {
+    if ((npoolORP < 650) || (npoolPH < 710))
+    {
       return RESOURCE_ID_WARNING_W;
-    } 
+    }
   }
 
   // APP_LOG(APP_LOG_LEVEL_INFO, "texte ICONE  %s", text_icon);
@@ -711,9 +711,7 @@ static void update_proc(Layer *layer, GContext *ctx)
     graphics_draw_bitmap_in_rect(ctx, s_icon, rect_screen);
     gbitmap_destroy(s_icon);
 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "wind_speed_val -> %d", (int)wind_speed_val);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "is_metric -> %d", (int)is_metric);
- APP_LOG(APP_LOG_LEVEL_DEBUG, "npooltemp -> %d", (int)npoolTemp);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "npooltemp -> %d", (int)npoolTemp);
     int met_unit;
     if (is_metric)
       met_unit = 5;
@@ -982,7 +980,7 @@ static void handle_battery(BatteryChargeState charge)
   if (is_charging != save_state)
   {
     layer_mark_dirty(layer);
-    //   APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty handle battery");
+ 
   }
 }
 
@@ -1135,16 +1133,16 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     Tuple *poolORP_tuple = dict_find(iterator, KEY_poolORP);
 
     // Extraction des valeurs
-    npoolTemp = (int)poolTemp_tuple->value->int32;  // x10
-    npoolPH = (int)poolPH_tuple->value->int32;      // x100
-    npoolORP = (int)poolORP_tuple->value->int32;    // entier
+    npoolTemp = (int)poolTemp_tuple->value->int32; // x10
+    npoolPH = (int)poolPH_tuple->value->int32;     // x100
+    npoolORP = (int)poolORP_tuple->value->int32;   // entier
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "poolTemp_tuple : %d", npoolTemp);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "poolPH_tuple : %d", npoolPH);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "poolORP_tuple : %d", npoolORP);
 
     // Buffers pour les chaînes
-  
+
     // Conversion manuelle sans float
     int temp_int = npoolTemp / 10;
     int temp_dec = npoolTemp % 10;
@@ -1152,16 +1150,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     int ph_int = npoolPH / 100;
     int ph_dec = npoolPH % 100;
 
-    snprintf(poolTemp, sizeof(poolTemp), "%d.%d", temp_int, temp_dec);      // 1 décimale
-    snprintf(poolPH, sizeof(poolPH), "%d.%02d", ph_int, ph_dec);            // 2 décimales
-    snprintf(poolORP, sizeof(poolORP), "%d", npoolORP);                     // entier simple
+    snprintf(poolTemp, sizeof(poolTemp), "%d.%d", temp_int, temp_dec); // 1 décimale
+    snprintf(poolPH, sizeof(poolPH), "%d.%02d", ph_int, ph_dec);       // 2 décimales
+    snprintf(poolORP, sizeof(poolORP), "%d", npoolORP);                // entier simple
 
     // Exemple d'affichage
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Température: %s", poolTemp);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "pH: %s", poolPH);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "ORP: %s", poolORP);
-
-
 
     snprintf(icon, sizeof(icon), "%s", icon_tuple->value->cstring);
 
@@ -1211,7 +1207,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     persist_write_int(KEY_POOLTEMP, npoolTemp);
     persist_write_int(KEY_POOLPH, npoolPH);
     persist_write_int(KEY_poolORP, npoolORP);
-
 
     //   APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty inbox_received_callback + weather");
     layer_mark_dirty(layer);
@@ -1276,7 +1271,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     Tuple *color_2nd_temp_r_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_R);
     Tuple *color_2nd_temp_g_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_G);
     Tuple *color_2nd_temp_b_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_B);
-
 
     int red;
     int green;
@@ -1600,14 +1594,14 @@ static void init_var()
     rain3_val = persist_read_int(KEY_FORECAST_RAIN3);
     rain4_val = persist_read_int(KEY_FORECAST_RAIN4);
     weather_temp = persist_read_int(KEY_TEMPERATURE);
-   
+
     npoolTemp = persist_read_int(KEY_POOLTEMP);
     npoolPH = persist_read_int(KEY_POOLPH);
     npoolORP = persist_read_int(KEY_poolORP);
-   
+
     APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolTemp memorisé %d", npoolTemp);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolTemp memorisé %d", npoolPH);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolTemp memorisé %d", npoolORP);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolPH memorisé %d", npoolPH);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolORP memorisé %d", npoolORP);
 
     persist_read_string(KEY_FORECAST_H1, h1, sizeof(h1));
     persist_read_string(KEY_FORECAST_H2, h2, sizeof(h2));
