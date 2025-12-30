@@ -30,7 +30,8 @@ def build(ctx):
 
     # Concatenate all our JS files (but not recursively), and only if any JS exists in the first place.
     ctx.path.make_node('src/js/').mkdir()
-    js_paths = ctx.path.ant_glob(['src/*.js', 'src/**/*.js'])
+    # Only bundle the primary JS entry points; exclude legacy Autre_App sources to avoid double-concatenation.
+    js_paths = ctx.path.ant_glob(['src/*.js', 'src/pkjs/js/*.js', 'src/js/*.js'])
     if js_paths:
         ctx(rule='cat ${SRC} > ${TGT}', source=js_paths, target='pebble-js-app.js')
         has_js = True

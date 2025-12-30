@@ -38,25 +38,65 @@
             "KEY_COLOR_TEMPERATURES_R": 51,
             "KEY_CONDITIONS": 1,
             "KEY_DESCRIPTION": 2,
+            "KEY_FORCE_GRAPH": 155,
+            "KEY_FORECAST_H0": 120,
             "KEY_FORECAST_H1": 16,
             "KEY_FORECAST_H2": 17,
             "KEY_FORECAST_H3": 18,
+            "KEY_FORECAST_H4": 121,
+            "KEY_FORECAST_H5": 122,
+            "KEY_FORECAST_H6": 123,
+            "KEY_FORECAST_H7": 124,
+            "KEY_FORECAST_H8": 125,
             "KEY_FORECAST_ICON1": 26,
             "KEY_FORECAST_ICON2": 27,
             "KEY_FORECAST_ICON3": 28,
+            "KEY_FORECAST_ICON4": 145,
+            "KEY_FORECAST_ICON5": 146,
+            "KEY_FORECAST_ICON6": 147,
+            "KEY_FORECAST_ICON7": 148,
             "KEY_FORECAST_RAIN1": 21,
+            "KEY_FORECAST_RAIN11": 126,
+            "KEY_FORECAST_RAIN12": 127,
             "KEY_FORECAST_RAIN2": 22,
+            "KEY_FORECAST_RAIN21": 128,
+            "KEY_FORECAST_RAIN22": 129,
             "KEY_FORECAST_RAIN3": 23,
+            "KEY_FORECAST_RAIN31": 130,
+            "KEY_FORECAST_RAIN32": 131,
             "KEY_FORECAST_RAIN4": 24,
+            "KEY_FORECAST_RAIN41": 132,
+            "KEY_FORECAST_RAIN42": 133,
             "KEY_FORECAST_RAIN5": 25,
+            "KEY_FORECAST_RAIN51": 134,
+            "KEY_FORECAST_RAIN52": 135,
+            "KEY_FORECAST_RAIN6": 136,
+            "KEY_FORECAST_RAIN61": 137,
+            "KEY_FORECAST_RAIN62": 138,
+            "KEY_FORECAST_RAIN7": 139,
+            "KEY_FORECAST_RAIN71": 140,
+            "KEY_FORECAST_RAIN72": 141,
+            "KEY_FORECAST_RAIN8": 142,
+            "KEY_FORECAST_RAIN81": 143,
+            "KEY_FORECAST_RAIN82": 144,
             "KEY_FORECAST_TEMP1": 11,
             "KEY_FORECAST_TEMP2": 12,
             "KEY_FORECAST_TEMP3": 13,
             "KEY_FORECAST_TEMP4": 14,
             "KEY_FORECAST_TEMP5": 15,
+            "KEY_FORECAST_TEMP6": 116,
+            "KEY_FORECAST_TEMP7": 117,
+            "KEY_FORECAST_TEMP8": 118,
+            "KEY_FORECAST_TEMP9": 119,
+            "KEY_FORECAST_WIND0": 149,
             "KEY_FORECAST_WIND1": 29,
             "KEY_FORECAST_WIND2": 30,
             "KEY_FORECAST_WIND3": 31,
+            "KEY_FORECAST_WIND4": 150,
+            "KEY_FORECAST_WIND5": 151,
+            "KEY_FORECAST_WIND6": 152,
+            "KEY_FORECAST_WIND7": 153,
+            "KEY_FORECAST_WIND8": 154,
             "KEY_GPS": 33,
             "KEY_HUMIDITY": 5,
             "KEY_ICON": 10,
@@ -91,12 +131,10 @@
             "KEY_TOGGLE_VIBRATION": 37,
             "KEY_WIND_SPEED": 3,
             "MESSAGE_KEY": 101,
-            "STATUS_KEY": 100,
-            "POOLTEMP": 113,
+            "POOLORP": 115,
             "POOLPH": 114,
-            "POOLORP": 115
-
-            
+            "POOLTEMP": 113,
+            "STATUS_KEY": 100
         },
         "projectType": "native",
         "resources": {
@@ -181,28 +219,8 @@
                 },
                 {
                     "characterRegex": "[0-9:]",
-                    "file": "fonts/Clearview_45",
+                    "file": "fonts/Clearview_45.ttf",
                     "name": "FONT_CLEARVIEW_45",
-                    "targetPlatforms": null,
-                    "type": "font"
-                },
-                {
-                    "file": "fonts/SQUARE_16",
-                    "name": "FONT_SQUARE_13",
-                    "targetPlatforms": null,
-                    "type": "font"
-                },
-                {
-                    "characterRegex": "[0-9]",
-                    "file": "fonts/SQUARE_25",
-                    "name": "FONT_SQUARE_25",
-                    "targetPlatforms": null,
-                    "type": "font"
-                },
-                {
-                    "characterRegex": "[0-9:]",
-                    "file": "fonts/SQUARE_50",
-                    "name": "FONT_SQUARE_50",
                     "targetPlatforms": null,
                     "type": "font"
                 },
@@ -405,6 +423,18 @@
                     "type": "bitmap"
                 },
                 {
+                    "file": "images/TABLE",
+                    "name": "TABLE",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/TABLE_OG",
+                    "name": "TABLE_OG",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/LEAF",
                     "name": "LEAF",
                     "targetPlatforms": null,
@@ -431,18 +461,6 @@
                 {
                     "file": "images/PLUIE_FORTE_W",
                     "name": "PLUIE_FORTE_W",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/POURTOUR",
-                    "name": "POURTOUR",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/POURTOUR2",
-                    "name": "POURTOUR2",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
@@ -486,6 +504,23 @@
                     "file": "images/SILENT",
                     "name": "SILENT",
                     "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/TABLE_OG",
+                    "name": "GRILLE_WEATHER",
+                    "targetPlatforms": [
+                        "aplite"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/GRILLE_WEATHER",
+                    "name": "GRILLE_WEATHER",
+                    "targetPlatforms": [
+                        "basalt",
+                        "diorite"
+                    ],
                     "type": "bitmap"
                 }
             ]
