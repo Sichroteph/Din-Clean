@@ -642,15 +642,22 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
 
 static void update_proc(Layer *layer, GContext *ctx) {
 
-  // Ensure heavy custom font is loaded only when needed
-  ensure_fontbig_loaded();
-
+  // Weather graph mode: temporarily unload heavy custom font to free memory for bitmaps
   if (s_whiteout_active) {
+    // Unload heavy font if loaded to free memory for weather graph bitmaps
+    if (fontbig_loaded && fontbig_resource_id != 0) {
+      fonts_unload_custom_font(fontbig);
+      fontbig_loaded = false;
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather graph: unloaded fontbig to free memory");
+    }
     WeatherGraphData graph_data;
     fill_weather_graph_data(&graph_data);
     ui_draw_weather_graph(ctx, &graph_data);
     return;
   }
+
+  // Ensure heavy custom font is loaded only when needed (not in weather graph mode)
+  ensure_fontbig_loaded();
 
   if (!first_draw_logged) {
     APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: first_draw %lu",

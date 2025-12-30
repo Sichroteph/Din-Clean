@@ -19,22 +19,12 @@
 #define RAIN_COLOR GColorWhite
 #endif
 
-static int clamp_int(int value, int min, int max) {
-  if (value < min) {
-    return min;
-  }
-  if (value > max) {
-    return max;
-  }
-  return value;
-}
-
 void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   if (!d) {
     return;
   }
 
-  GFont statusfontdate = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+  GFont statusfontdate = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   GFont statusfontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14);
 
   graphics_context_set_fill_color(ctx, GColorBlack);
@@ -80,8 +70,7 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 
   graphics_context_set_fill_color(ctx, RAIN_COLOR);
   for (int i_segments = 0; i_segments < 12; i_segments++) {
-    const int rain_val = clamp_int(d->rains[i_segments], 0, MAXRAIN);
-    int rain_pixel = 45 * rain_val / MAXRAIN;
+    int rain_pixel = 45 * d->rains[i_segments] / MAXRAIN;
     if (rain_pixel > 45) {
       rain_pixel = 45;
     }
@@ -103,30 +92,20 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 #endif
   }
 
-  int ttmin = clamp_int(d->temps[0], -60, 80);
-  int ttmax = clamp_int(d->temps[0], -60, 80);
+  int ttmin = d->temps[0];
+  int ttmax = d->temps[0];
   for (int k = 0; k < 5; k++) {
-    const int t = clamp_int(d->temps[k], -60, 80);
-    if (ttmin >= t) {
-      ttmin = t;
+    if (ttmin >= d->temps[k]) {
+      ttmin = d->temps[k];
     }
-    if (ttmax < t) {
-      ttmax = t;
+    if (ttmax < d->temps[k]) {
+      ttmax = d->temps[k];
     }
   }
-
-  // Log the temperature span shown on the graph for debugging zero displays
-  APP_LOG(APP_LOG_LEVEL_INFO,
-          "Weather graph temps range: [%d..%d] values %d,%d,%d,%d,%d", ttmin,
-          ttmax, d->temps[0], d->temps[1], d->temps[2], d->temps[3],
-          d->temps[4]);
 
   int echelle = 1;
   while (ttmin < ttmax - echelle * 3) {
     echelle++;
-  }
-  if (echelle <= 0) {
-    echelle = 1;
   }
 
   static char t1[20];
@@ -146,15 +125,15 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
                      GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 
   float f;
-  f = 76 + (ttmax - clamp_int(d->temps[0], -60, 80)) * 15 / echelle;
+  f = 76 + (ttmax - d->temps[0]) * 15 / echelle;
   int y1 = (int)f;
-  f = 76 + (ttmax - clamp_int(d->temps[1], -60, 80)) * 15 / echelle;
+  f = 76 + (ttmax - d->temps[1]) * 15 / echelle;
   int y2 = (int)f;
-  f = 76 + (ttmax - clamp_int(d->temps[2], -60, 80)) * 15 / echelle;
+  f = 76 + (ttmax - d->temps[2]) * 15 / echelle;
   int y3 = (int)f;
-  f = 76 + (ttmax - clamp_int(d->temps[3], -60, 80)) * 15 / echelle;
+  f = 76 + (ttmax - d->temps[3]) * 15 / echelle;
   int y4 = (int)f;
-  f = 76 + (ttmax - clamp_int(d->temps[4], -60, 80)) * 15 / echelle;
+  f = 76 + (ttmax - d->temps[4]) * 15 / echelle;
   int y5 = (int)f;
 
   graphics_context_set_stroke_width(ctx, LINE_THICK);
@@ -223,22 +202,21 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_draw_text(ctx, d->winds[3], statusfontsmall, rect_wind3,
                      GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
-  // Draw icons only when resource ids look valid to avoid crashes
-  const int icon_ids[3] = {d->icon_ids[0], d->icon_ids[1], d->icon_ids[2]};
-  GRect icon_rects[3] = {rect_icon1, rect_icon2, rect_icon3};
-  for (int i = 0; i < 3; i++) {
-    if (icon_ids[i] > 0) {
-      GBitmap *icon_bmp = gbitmap_create_with_resource(icon_ids[i]);
-      if (icon_bmp) {
-        graphics_draw_bitmap_in_rect(ctx, icon_bmp, icon_rects[i]);
-        gbitmap_destroy(icon_bmp);
-      } else {
-        APP_LOG(APP_LOG_LEVEL_WARNING, "Weather graph icon load failed id=%d",
-                icon_ids[i]);
-      }
-    } else {
-      APP_LOG(APP_LOG_LEVEL_WARNING, "Weather graph icon skipped invalid id=%d",
-              icon_ids[i]);
-    }
+  GBitmap *icon1 = gbitmap_create_with_resource(d->icon_ids[0]);
+  if (icon1) {
+    graphics_draw_bitmap_in_rect(ctx, icon1, rect_icon1);
+    gbitmap_destroy(icon1);
+  }
+
+  GBitmap *icon2 = gbitmap_create_with_resource(d->icon_ids[1]);
+  if (icon2) {
+    graphics_draw_bitmap_in_rect(ctx, icon2, rect_icon2);
+    gbitmap_destroy(icon2);
+  }
+
+  GBitmap *icon3 = gbitmap_create_with_resource(d->icon_ids[2]);
+  if (icon3) {
+    graphics_draw_bitmap_in_rect(ctx, icon3, rect_icon3);
+    gbitmap_destroy(icon3);
   }
 }
