@@ -225,15 +225,15 @@ function processWeatherResponse(responseText) {
   var day_icons = ["", "", ""];
   var day_rains = ["", "", ""];
   var day_winds = ["", "", ""];
-  
+
   // Day offsets: 24h (tomorrow), 48h (day after), 72h (3rd day) - at noon
   var dayOffsets = [24, 48, 72];
-  
+
   for (var d = 0; d < 3; d++) {
     var idx = dayOffsets[d];
     if (jsonWeather.properties.timeseries.length > idx) {
       var dayData = jsonWeather.properties.timeseries[idx].data;
-      
+
       // Temperature (use next_6_hours if available for min/max, otherwise instant)
       var dayTemp = 0;
       if (dayData.next_6_hours && dayData.next_6_hours.details) {
@@ -247,7 +247,7 @@ function processWeatherResponse(responseText) {
         dayTemp = celsiusToFahrenheit(dayTemp);
       }
       day_temps[d] = dayTemp + "°";
-      
+
       // Icon
       if (dayData.next_12_hours && dayData.next_12_hours.summary) {
         day_icons[d] = dayData.next_12_hours.summary.symbol_code;
@@ -256,7 +256,7 @@ function processWeatherResponse(responseText) {
       } else if (dayData.next_1_hours && dayData.next_1_hours.summary) {
         day_icons[d] = dayData.next_1_hours.summary.symbol_code;
       }
-      
+
       // Rain - sum over 6 hours
       var rainSum = 0;
       if (dayData.next_6_hours && dayData.next_6_hours.details && dayData.next_6_hours.details.precipitation_amount) {
@@ -265,7 +265,7 @@ function processWeatherResponse(responseText) {
         rainSum = dayData.next_1_hours.details.precipitation_amount * 6;
       }
       day_rains[d] = Math.round(rainSum) + "mm";
-      
+
       // Wind
       var dayWind = Math.round(dayData.instant.details.wind_speed * 3.6); // m/s to km/h
       if (units == 1) {

@@ -668,16 +668,6 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   out->icon_ids[2] = build_icon(graph_icon3);
 
   out->is_metric = is_metric;
-  
-  // Fill 2-day forecast data for bottom of screen
-  time_t now_time = time(NULL);
-  struct tm *now_tm = localtime(&now_time);
-  
-  for (int i = 0; i < 2; i++) {
-    out->day_of_week[i] = (now_tm->tm_wday + 1 + i) % 7;
-    out->day_icon_ids[i] = build_icon(days_icon[i]);
-    snprintf(out->day_temps[i], sizeof(out->day_temps[i]), "%s", days_temp[i]);
-  }
 }
 
 // Fill weather days data for 3-day forecast screen

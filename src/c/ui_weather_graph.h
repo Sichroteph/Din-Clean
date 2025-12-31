@@ -9,10 +9,6 @@ typedef struct {
   int icon_ids[3];
   char winds[4][8];
   bool is_metric;
-  // 2-day forecast at bottom
-  int day_icon_ids[2];    // Icons for next 2 days
-  char day_temps[2][10];  // "5°/12°" format
-  uint8_t day_of_week[2]; // Day index (0-6)
 } WeatherGraphData;
 
 void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *data);

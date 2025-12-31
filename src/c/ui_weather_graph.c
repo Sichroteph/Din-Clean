@@ -210,7 +210,7 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
                       {36, 36}};
   GRect rect_icon3 = {{127 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
                       {36, 36}};
-                      
+
   GBitmap *icon1 = gbitmap_create_with_resource(d->icon_ids[0]);
   if (icon1) {
     graphics_draw_bitmap_in_rect(ctx, icon1, rect_icon1);
