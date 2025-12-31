@@ -5,7 +5,7 @@
 #define WIDTH 144
 #define HEIGHT 168
 #define WEATHER_OFFSET_X -14
-#define WEATHER_OFFSET_Y -9
+#define WEATHER_OFFSET_Y -55
 #define MAXRAIN 40
 #define LINE_THICK 3
 
@@ -19,6 +19,12 @@
 #define RAIN_COLOR GColorWhite
 #endif
 
+static int s_weather_graph_offset_y = WEATHER_OFFSET_Y;
+
+void ui_weather_graph_set_vertical_offset(int offset_y) {
+  s_weather_graph_offset_y = offset_y;
+}
+
 void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   if (!d) {
     return;
@@ -30,36 +36,41 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
 
+  const int offset_y = s_weather_graph_offset_y;
+
 #ifdef PBL_COLOR
   GBitmap *background =
       gbitmap_create_with_resource(RESOURCE_ID_GRILLE_WEATHER);
   if (background) {
-    graphics_draw_bitmap_in_rect(ctx, background, GRect(23, 49, 121, 61));
+    graphics_draw_bitmap_in_rect(ctx, background,
+                                 GRect(23, 49 + offset_y, 121, 61));
     gbitmap_destroy(background);
   }
 #else
   // On Aplite, draw simple lines instead of bitmap to save heap memory
   graphics_context_set_stroke_color(ctx, GColorWhite);
-  graphics_draw_line(ctx, GPoint(23, 49), GPoint(144, 49));
-  graphics_draw_line(ctx, GPoint(23, 110), GPoint(144, 110));
+  graphics_draw_line(ctx, GPoint(23, 59 + offset_y),
+                     GPoint(144, 59 + offset_y));
+  graphics_draw_line(ctx, GPoint(23, 120 + offset_y),
+                     GPoint(144, 120 + offset_y));
 #endif
 
-  int var_weath_ofF_y = WEATHER_OFFSET_Y;
+  GRect rect_h0 = {{6 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
+  GRect rect_h1 = {{37 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
+  GRect rect_h2 = {{68 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
+  GRect rect_h3 = {{97 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
 
-  GRect rect_h0 = {{6 + WEATHER_OFFSET_X, 116 + var_weath_ofF_y}, {60, 40}};
-  GRect rect_h1 = {{37 + WEATHER_OFFSET_X, 116 + var_weath_ofF_y}, {60, 40}};
-  GRect rect_h2 = {{68 + WEATHER_OFFSET_X, 116 + var_weath_ofF_y}, {60, 40}};
-  GRect rect_h3 = {{97 + WEATHER_OFFSET_X, 116 + var_weath_ofF_y}, {60, 40}};
+  GRect rect_wind0 = {{6 + WEATHER_OFFSET_X, 144 + offset_y}, {60, 40}};
+  GRect rect_wind1 = {{37 + WEATHER_OFFSET_X, 144 + offset_y}, {60, 40}};
+  GRect rect_wind2 = {{68 + WEATHER_OFFSET_X, 144 + offset_y}, {60, 40}};
+  GRect rect_wind3 = {{99 + WEATHER_OFFSET_X, 144 + offset_y}, {60, 40}};
 
-  GRect rect_wind0 = {{6 + WEATHER_OFFSET_X, 144 + var_weath_ofF_y}, {60, 40}};
-  GRect rect_wind1 = {{37 + WEATHER_OFFSET_X, 144 + var_weath_ofF_y}, {60, 40}};
-  GRect rect_wind2 = {{68 + WEATHER_OFFSET_X, 144 + var_weath_ofF_y}, {60, 40}};
-  GRect rect_wind3 = {{97 + WEATHER_OFFSET_X, 144 + var_weath_ofF_y}, {60, 40}};
+  GRect rect_wind_unit = {{56, rect_wind3.origin.y + 24}, {28, 40}};
 
-  GRect rect_t1 = {{-25 + WEATHER_OFFSET_X, 51 + var_weath_ofF_y}, {60, 20}};
-  GRect rect_t12 = {{-25 + WEATHER_OFFSET_X, 73 + var_weath_ofF_y}, {60, 20}};
-  GRect rect_t2 = {{-25 + WEATHER_OFFSET_X, 95 + var_weath_ofF_y}, {60, 20}};
-  GRect rect_patch = {{WEATHER_OFFSET_X, 150 + var_weath_ofF_y}, {80, 20}};
+  GRect rect_t1 = {{-25 + WEATHER_OFFSET_X, 51 + offset_y}, {60, 20}};
+  GRect rect_t12 = {{-25 + WEATHER_OFFSET_X, 73 + offset_y}, {60, 20}};
+  GRect rect_t2 = {{-25 + WEATHER_OFFSET_X, 95 + offset_y}, {60, 20}};
+  GRect rect_patch = {{WEATHER_OFFSET_X, 150 + offset_y}, {80, 20}};
 
   char h0_buffer[6] = " ";
   char h1_buffer[6] = " ";
@@ -85,15 +96,13 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 #ifdef PBL_COLOR
     graphics_fill_rect(ctx,
                        GRect(37 + WEATHER_OFFSET_X + i_segments * 10,
-                             76 + 45 - rain_pixel + var_weath_ofF_y, 10,
-                             rain_pixel),
+                             76 + 45 - rain_pixel + offset_y, 10, rain_pixel),
                        0, GCornerNone);
 #else
     for (int i = 0; i < 10; i = i + 2) {
       graphics_fill_rect(ctx,
                          GRect(37 + WEATHER_OFFSET_X + i + i_segments * 10,
-                               76 + 45 - rain_pixel + var_weath_ofF_y, 1,
-                               rain_pixel),
+                               76 + 45 - rain_pixel + offset_y, 1, rain_pixel),
                          0, GCornerNone);
     }
 #endif
@@ -152,32 +161,32 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   else
     graphics_context_set_stroke_color(ctx, RED_LINE);
   graphics_draw_line(
-      ctx, GPoint(37 + WEATHER_OFFSET_X, y1 + var_weath_ofF_y + decallage_y),
-      GPoint(67 + WEATHER_OFFSET_X, y2 + var_weath_ofF_y + decallage_y));
+      ctx, GPoint(37 + WEATHER_OFFSET_X, y1 + offset_y + decallage_y),
+      GPoint(67 + WEATHER_OFFSET_X, y2 + offset_y + decallage_y));
 
   if ((d->temps[1] < freezing_temp) && (d->temps[2] < freezing_temp))
     graphics_context_set_stroke_color(ctx, BLUE_LINE);
   else
     graphics_context_set_stroke_color(ctx, RED_LINE);
   graphics_draw_line(
-      ctx, GPoint(67 + WEATHER_OFFSET_X, y2 + var_weath_ofF_y + decallage_y),
-      GPoint(97 + WEATHER_OFFSET_X, y3 + var_weath_ofF_y + decallage_y));
+      ctx, GPoint(67 + WEATHER_OFFSET_X, y2 + offset_y + decallage_y),
+      GPoint(97 + WEATHER_OFFSET_X, y3 + offset_y + decallage_y));
 
   if ((d->temps[2] < freezing_temp) && (d->temps[3] < freezing_temp))
     graphics_context_set_stroke_color(ctx, BLUE_LINE);
   else
     graphics_context_set_stroke_color(ctx, RED_LINE);
   graphics_draw_line(
-      ctx, GPoint(97 + WEATHER_OFFSET_X, y3 + var_weath_ofF_y + decallage_y),
-      GPoint(127 + WEATHER_OFFSET_X, y4 + var_weath_ofF_y + decallage_y));
+      ctx, GPoint(97 + WEATHER_OFFSET_X, y3 + offset_y + decallage_y),
+      GPoint(127 + WEATHER_OFFSET_X, y4 + offset_y + decallage_y));
 
   if ((d->temps[3] < freezing_temp) && (d->temps[4] < freezing_temp))
     graphics_context_set_stroke_color(ctx, BLUE_LINE);
   else
     graphics_context_set_stroke_color(ctx, RED_LINE);
   graphics_draw_line(
-      ctx, GPoint(127 + WEATHER_OFFSET_X, y4 + var_weath_ofF_y + decallage_y),
-      GPoint(157 + WEATHER_OFFSET_X, y5 + var_weath_ofF_y + decallage_y));
+      ctx, GPoint(127 + WEATHER_OFFSET_X, y4 + offset_y + decallage_y),
+      GPoint(157 + WEATHER_OFFSET_X, y5 + offset_y + decallage_y));
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
 
@@ -202,14 +211,15 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_draw_text(ctx, d->winds[3], statusfontsmall, rect_wind3,
                      GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
+  const char *wind_unit = d->is_metric ? "km/h" : "mph";
+  graphics_draw_text(ctx, wind_unit, statusfontsmall, rect_wind_unit,
+                     GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+
 #ifdef PBL_COLOR
   // Only load icons on color platforms - Aplite doesn't have enough heap
-  GRect rect_icon1 = {{67 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
-                      {36, 36}};
-  GRect rect_icon2 = {{97 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
-                      {36, 36}};
-  GRect rect_icon3 = {{127 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
-                      {36, 36}};
+  GRect rect_icon1 = {{67 - 18 + WEATHER_OFFSET_X, 25 + offset_y}, {36, 36}};
+  GRect rect_icon2 = {{97 - 18 + WEATHER_OFFSET_X, 25 + offset_y}, {36, 36}};
+  GRect rect_icon3 = {{127 - 18 + WEATHER_OFFSET_X, 25 + offset_y}, {36, 36}};
 
   GBitmap *icon1 = gbitmap_create_with_resource(d->icon_ids[0]);
   if (icon1) {

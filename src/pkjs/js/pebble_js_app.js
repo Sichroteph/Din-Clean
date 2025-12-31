@@ -38,28 +38,6 @@ function celsiusToFahrenheit(celsius) {
 }
 
 
-function windBearing(wind) {
-  if ((wind >= 337) || (wind < 22))
-    return "N";
-  if ((wind >= 22) && (wind < 67))
-    return "NE";
-  if ((wind >= 67) && (wind < 112))
-    return "E";
-  if ((wind >= 112) && (wind < 157))
-    return "SE";
-  if ((wind >= 157) && (wind < 202))
-    return "S";
-  if ((wind >= 202) && (wind < 247))
-    return "SW";
-  if ((wind >= 247) && (wind < 292))
-    return "W";
-  if ((wind >= 292) && (wind < 337))
-    return "NW";
-
-  return "?";
-}
-
-
 function SendStatus(status) {
   var dictionary = {
     "KEY_STATUS": status,
@@ -199,11 +177,15 @@ function processWeatherResponse(responseText) {
       }
       hourlyTemperatures['hour' + j] = tempI;
 
-      var windSpeed = Math.round(jsonWeather.properties.timeseries[j].data.instant.details.wind_speed);
+      var windSpeedMps = jsonWeather.properties.timeseries[j].data.instant.details.wind_speed;
+      var humidityHour = Math.round(jsonWeather.properties.timeseries[j].data.instant.details.relative_humidity);
+      var windValue;
       if (units_setting == 1) {
-        windSpeed = convertMpsToMph(windSpeed);
+        windValue = convertMpsToMph(windSpeedMps);
+      } else {
+        windValue = Math.round(windSpeedMps * 3.6);
       }
-      hourlyWind['hour' + j] = windSpeed + "\n" + windBearing(jsonWeather.properties.timeseries[j].data.instant.details.wind_from_direction);
+      hourlyWind['hour' + j] = humidityHour + " %\n" + windValue;
 
       if (jsonWeather.properties.timeseries[j].data.next_1_hours && jsonWeather.properties.timeseries[j].data.next_1_hours.summary) {
         hourly_icons['hour' + j] = jsonWeather.properties.timeseries[j].data.next_1_hours.summary.symbol_code;

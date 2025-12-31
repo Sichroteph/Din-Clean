@@ -2,8 +2,13 @@
 
 #include "ui_icon_bar.h"
 #include "ui_time.h"
-#include "ui_weather_graph.h"
 #include "ui_weather_days.h"
+#include "ui_weather_graph.h"
+
+#ifndef WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
+#define WEATHER_GRAPH_DEBUG_RAIN_SAMPLE 0
+#endif
+
 // pour afficher les segments
 #define FORCE_REFRESH false
 #define IS_HOUR_FICTIVE false
@@ -188,10 +193,10 @@
 #define KEY_DAY1_ICON 203
 #define KEY_DAY2_ICON 204
 #define KEY_DAY3_ICON 205
-#define KEY_DAY1_RAIN 206  // mm de pluie
+#define KEY_DAY1_RAIN 206 // mm de pluie
 #define KEY_DAY2_RAIN 207
 #define KEY_DAY3_RAIN 208
-#define KEY_DAY1_WIND 209  // vitesse vent
+#define KEY_DAY1_WIND 209 // vitesse vent
 #define KEY_DAY2_WIND 210
 #define KEY_DAY3_WIND 211
 
@@ -352,10 +357,10 @@ static uint8_t graph_rains[12] = {0};
 static char graph_icon1[16] = "";
 static char graph_icon2[16] = "";
 static char graph_icon3[16] = "";
-static char graph_wind0[8] = "";
-static char graph_wind1[8] = "";
-static char graph_wind2[8] = "";
-static char graph_wind3[8] = "";
+static char graph_wind0[20] = "";
+static char graph_wind1[20] = "";
+static char graph_wind2[20] = "";
+static char graph_wind3[20] = "";
 static uint8_t graph_h0 = 0;
 static uint8_t graph_h1 = 0;
 static uint8_t graph_h2 = 0;
@@ -442,9 +447,10 @@ int segment_thickness = 2;
 //                             MARK_30, MARK_5, MARK_5, MARK_15, MARK_5,
 //                             MARK_5};
 static int8_t labels_12h[28] = {10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8,  9,  10, 11,
-                             12, 1,  2,  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
-static int8_t labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
-                         12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0,  1};
+                                12, 1,  2,  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
+static int8_t labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,
+                            8,  9,  10, 11, 12, 13, 14, 15, 16, 17,
+                            18, 19, 20, 21, 22, 23, 0,  1};
 
 static uint8_t battery_level = 0;
 // UNUSED hour_text - saves 5 bytes
@@ -649,9 +655,17 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
     out->temps[i] = graph_temps[i];
   }
 
+#if WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
+  static const uint8_t s_debug_rain_values[12] = {
+      0, 4, 8, 12, 16, 20, 24, 16, 8, 4, 0, 10};
+  for (int i = 0; i < 12; i++) {
+    out->rains[i] = s_debug_rain_values[i];
+  }
+#else
   for (int i = 0; i < 12; i++) {
     out->rains[i] = graph_rains[i];
   }
+#endif
 
   out->hours[0] = graph_h0;
   out->hours[1] = graph_h1;
@@ -672,11 +686,12 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
 
 // Fill weather days data for 3-day forecast screen
 static void fill_weather_days_data(WeatherDaysData *out) {
-  if (!out) return;
-  
+  if (!out)
+    return;
+
   time_t now_time = time(NULL);
   struct tm *now_tm = localtime(&now_time);
-  
+
   // Jour de la semaine pour les 3 prochains jours
   for (int i = 0; i < 3; i++) {
     out->day_of_week[i] = (now_tm->tm_wday + 1 + i) % 7;
@@ -685,7 +700,7 @@ static void fill_weather_days_data(WeatherDaysData *out) {
     snprintf(out->day_rain[i], sizeof(out->day_rain[i]), "%s", days_rain[i]);
     snprintf(out->day_wind[i], sizeof(out->day_wind[i]), "%s", days_wind[i]);
   }
-  
+
   snprintf(out->pebble_lang, sizeof(out->pebble_lang), "%s", pebble_Lang);
 }
 
@@ -701,7 +716,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
       fonts_unload_custom_font(fontbig);
       fontbig_loaded = false;
     }
-    
+
 #ifdef PBL_COLOR
     if (s_whiteout_screen == WHITEOUT_SCREEN_DAYS) {
       // Show 3-day forecast (color only)
@@ -941,7 +956,7 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
 
 static void handle_whiteout_timeout(void *context) {
   s_whiteout_active = false;
-  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;  // Reset to graph for next time
+  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH; // Reset to graph for next time
   timer_short = NULL;
   layer_mark_dirty(layer);
 }
@@ -1319,29 +1334,41 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 
     // Process 3-day forecast data
     if (day1_temp_tuple)
-      snprintf(days_temp[0], sizeof(days_temp[0]), "%s", day1_temp_tuple->value->cstring);
+      snprintf(days_temp[0], sizeof(days_temp[0]), "%s",
+               day1_temp_tuple->value->cstring);
     if (day2_temp_tuple)
-      snprintf(days_temp[1], sizeof(days_temp[1]), "%s", day2_temp_tuple->value->cstring);
+      snprintf(days_temp[1], sizeof(days_temp[1]), "%s",
+               day2_temp_tuple->value->cstring);
     if (day3_temp_tuple)
-      snprintf(days_temp[2], sizeof(days_temp[2]), "%s", day3_temp_tuple->value->cstring);
+      snprintf(days_temp[2], sizeof(days_temp[2]), "%s",
+               day3_temp_tuple->value->cstring);
     if (day1_icon_tuple)
-      snprintf(days_icon[0], sizeof(days_icon[0]), "%s", day1_icon_tuple->value->cstring);
+      snprintf(days_icon[0], sizeof(days_icon[0]), "%s",
+               day1_icon_tuple->value->cstring);
     if (day2_icon_tuple)
-      snprintf(days_icon[1], sizeof(days_icon[1]), "%s", day2_icon_tuple->value->cstring);
+      snprintf(days_icon[1], sizeof(days_icon[1]), "%s",
+               day2_icon_tuple->value->cstring);
     if (day3_icon_tuple)
-      snprintf(days_icon[2], sizeof(days_icon[2]), "%s", day3_icon_tuple->value->cstring);
+      snprintf(days_icon[2], sizeof(days_icon[2]), "%s",
+               day3_icon_tuple->value->cstring);
     if (day1_rain_tuple)
-      snprintf(days_rain[0], sizeof(days_rain[0]), "%s", day1_rain_tuple->value->cstring);
+      snprintf(days_rain[0], sizeof(days_rain[0]), "%s",
+               day1_rain_tuple->value->cstring);
     if (day2_rain_tuple)
-      snprintf(days_rain[1], sizeof(days_rain[1]), "%s", day2_rain_tuple->value->cstring);
+      snprintf(days_rain[1], sizeof(days_rain[1]), "%s",
+               day2_rain_tuple->value->cstring);
     if (day3_rain_tuple)
-      snprintf(days_rain[2], sizeof(days_rain[2]), "%s", day3_rain_tuple->value->cstring);
+      snprintf(days_rain[2], sizeof(days_rain[2]), "%s",
+               day3_rain_tuple->value->cstring);
     if (day1_wind_tuple)
-      snprintf(days_wind[0], sizeof(days_wind[0]), "%s", day1_wind_tuple->value->cstring);
+      snprintf(days_wind[0], sizeof(days_wind[0]), "%s",
+               day1_wind_tuple->value->cstring);
     if (day2_wind_tuple)
-      snprintf(days_wind[1], sizeof(days_wind[1]), "%s", day2_wind_tuple->value->cstring);
+      snprintf(days_wind[1], sizeof(days_wind[1]), "%s",
+               day2_wind_tuple->value->cstring);
     if (day3_wind_tuple)
-      snprintf(days_wind[2], sizeof(days_wind[2]), "%s", day3_wind_tuple->value->cstring);
+      snprintf(days_wind[2], sizeof(days_wind[2]), "%s",
+               day3_wind_tuple->value->cstring);
 
     last_refresh = mktime(&now);
 
