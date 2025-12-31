@@ -10,7 +10,7 @@
 
 // pour afficher les segments
 #define FORCE_REFRESH false
-#define IS_HOUR_FICTIVE false
+#define IS_HOUR_FICTIVE true
 
 #define FICTIVE_HOUR 12
 #define FICTIVE_MINUTE 34
