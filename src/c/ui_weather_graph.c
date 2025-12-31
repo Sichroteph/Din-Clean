@@ -30,12 +30,19 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
 
+#ifdef PBL_COLOR
   GBitmap *background =
       gbitmap_create_with_resource(RESOURCE_ID_GRILLE_WEATHER);
   if (background) {
     graphics_draw_bitmap_in_rect(ctx, background, GRect(23, 49, 121, 61));
     gbitmap_destroy(background);
   }
+#else
+  // On Aplite, draw simple lines instead of bitmap to save heap memory
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_draw_line(ctx, GPoint(23, 49), GPoint(144, 49));
+  graphics_draw_line(ctx, GPoint(23, 110), GPoint(144, 110));
+#endif
 
   int var_weath_ofF_y = WEATHER_OFFSET_Y;
 
@@ -54,10 +61,10 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   GRect rect_t2 = {{-25 + WEATHER_OFFSET_X, 95 + var_weath_ofF_y}, {60, 20}};
   GRect rect_patch = {{WEATHER_OFFSET_X, 150 + var_weath_ofF_y}, {80, 20}};
 
-  char h0_buffer[20] = " ";
-  char h1_buffer[20] = " ";
-  char h2_buffer[20] = " ";
-  char h3_buffer[20] = " ";
+  char h0_buffer[6] = " ";
+  char h1_buffer[6] = " ";
+  char h2_buffer[6] = " ";
+  char h3_buffer[6] = " ";
 
   int hour_style = clock_is_24h_style() ? 24 : 12;
 
@@ -108,9 +115,9 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     echelle++;
   }
 
-  static char t1[20];
-  static char t12[20];
-  static char t2[20];
+  static char t1[8];
+  static char t12[8];
+  static char t2[8];
   int tmoy = (int)((ttmax + ttmin) / 2);
 
   snprintf(t1, sizeof(t1), "%i", ttmax);
@@ -172,13 +179,6 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
       ctx, GPoint(127 + WEATHER_OFFSET_X, y4 + var_weath_ofF_y + decallage_y),
       GPoint(157 + WEATHER_OFFSET_X, y5 + var_weath_ofF_y + decallage_y));
 
-  GRect rect_icon1 = {{67 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
-                      {36, 36}};
-  GRect rect_icon2 = {{97 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
-                      {36, 36}};
-  GRect rect_icon3 = {{127 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
-                      {36, 36}};
-
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
 
   graphics_context_set_fill_color(ctx, GColorBlack);
@@ -202,6 +202,15 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_draw_text(ctx, d->winds[3], statusfontsmall, rect_wind3,
                      GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
+#ifdef PBL_COLOR
+  // Only load icons on color platforms - Aplite doesn't have enough heap
+  GRect rect_icon1 = {{67 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
+                      {36, 36}};
+  GRect rect_icon2 = {{97 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
+                      {36, 36}};
+  GRect rect_icon3 = {{127 - 18 + WEATHER_OFFSET_X, 25 + var_weath_ofF_y},
+                      {36, 36}};
+                      
   GBitmap *icon1 = gbitmap_create_with_resource(d->icon_ids[0]);
   if (icon1) {
     graphics_draw_bitmap_in_rect(ctx, icon1, rect_icon1);
@@ -219,4 +228,5 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     graphics_draw_bitmap_in_rect(ctx, icon3, rect_icon3);
     gbitmap_destroy(icon3);
   }
+#endif
 }

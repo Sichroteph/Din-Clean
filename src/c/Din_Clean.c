@@ -3,6 +3,7 @@
 #include "ui_icon_bar.h"
 #include "ui_time.h"
 #include "ui_weather_graph.h"
+#include "ui_weather_days.h"
 // pour afficher les segments
 #define FORCE_REFRESH false
 #define IS_HOUR_FICTIVE false
@@ -180,6 +181,20 @@
 #define KEY_POOLPH 114
 #define KEY_poolORP 115
 
+// 3-day forecast keys (for ui_weather_days)
+#define KEY_DAY1_TEMP 200
+#define KEY_DAY2_TEMP 201
+#define KEY_DAY3_TEMP 202
+#define KEY_DAY1_ICON 203
+#define KEY_DAY2_ICON 204
+#define KEY_DAY3_ICON 205
+#define KEY_DAY1_RAIN 206  // mm de pluie
+#define KEY_DAY2_RAIN 207
+#define KEY_DAY3_RAIN 208
+#define KEY_DAY1_WIND 209  // vitesse vent
+#define KEY_DAY2_WIND 210
+#define KEY_DAY3_WIND 211
+
 //******************************************************************
 //******************************************************************
 //******************************************************************
@@ -263,9 +278,9 @@ static char mday[4] = " ";
 // static char tmax[10] = " ";  // UNUSED - use tmax_val instead
 static char weather_temp_char[10] = " ";
 // static char weather_hum_char[10] = " ";  // UNUSED - saves 10 bytes
-static char minMax[40] = " ";   // Reduced from 120 - saves 80 bytes
-static char minTemp[8] = " ";   // Reduced from 12 - saves 4 bytes
-static char maxTemp[8] = " ";   // Reduced from 12 - saves 4 bytes
+static char minMax[16] = " "; // Reduced from 120 - saves 104 bytes
+static char minTemp[8] = " "; // Reduced from 12 - saves 4 bytes
+static char maxTemp[8] = " "; // Reduced from 12 - saves 4 bytes
 
 // POOL DATA
 
@@ -278,36 +293,36 @@ int npoolORP;
 
 // WEATHER
 
-static int weather_temp = 0;
+static int8_t weather_temp = 0;
 
 static time_t t;
 static struct tm now;
 
-static int tmin_val = 0;
-static int tmax_val = 0;
-static int wind_speed_val = 0;
-static int humidity = 0;
-static int wind1_val = 0;
-static int wind2_val = 0;
-static int wind3_val = 0;
-static int temp1_val = 0;
-static int temp2_val = 0;
-static int temp3_val = 0;
-static int temp4_val = 0;
-static int temp5_val = 0;
-static int rain1_val = 0;
-static int rain2_val = 0;
-static int rain3_val = 0;
-static int rain4_val = 0;
+static int8_t tmin_val = 0;
+static int8_t tmax_val = 0;
+static uint8_t wind_speed_val = 0;
+static uint8_t humidity = 0;
+static uint8_t wind1_val = 0;
+static uint8_t wind2_val = 0;
+static uint8_t wind3_val = 0;
+static int8_t temp1_val = 0;
+static int8_t temp2_val = 0;
+static int8_t temp3_val = 0;
+static int8_t temp4_val = 0;
+static int8_t temp5_val = 0;
+static uint8_t rain1_val = 0;
+static uint8_t rain2_val = 0;
+static uint8_t rain3_val = 0;
+static uint8_t rain4_val = 0;
 time_t last_refresh = 0;
 int duration = 3600;
 int offline_delay = 3600;
 AppTimer *timer_short;
 
-static char icon[20] = " ";
-static char icon1[20] = " ";
-static char icon2[20] = " ";
-static char icon3[20] = " ";
+static char icon[16] = " ";
+static char icon1[16] = " ";
+static char icon2[16] = " ";
+static char icon3[16] = " ";
 // UNUSED icon4-7 - saves 80 bytes
 // static char icon4[20] = " ";
 // static char icon5[20] = " ";
@@ -317,13 +332,10 @@ static char icon3[20] = " ";
 static char h1[8] = " ";        // Reduced from 20 - saves 12 bytes
 static char h2[8] = " ";        // Reduced from 20 - saves 12 bytes
 static char h3[8] = " ";        // Reduced from 20 - saves 12 bytes
-static char location[40] = " "; // Reduced from 100 - saves 60 bytes
-// UNUSED wind/temp/rain char arrays - we use _val int versions - saves 120 bytes
-// static char wind1[10] = " ";
-// static char wind2[10] = " ";
-// static char wind3[10] = " ";
-// static char temp1[10] = " ";
-// static char temp2[10] = " ";
+static char location[20] = " "; // Reduced from 100 - saves 80 bytes
+// UNUSED wind/temp/rain char arrays - we use _val int versions - saves 120
+// bytes static char wind1[10] = " "; static char wind2[10] = " "; static char
+// wind3[10] = " "; static char temp1[10] = " "; static char temp2[10] = " ";
 // static char temp3[10] = " ";
 // static char temp4[10] = " ";
 // static char temp5[10] = " ";
@@ -332,22 +344,35 @@ static char location[40] = " "; // Reduced from 100 - saves 60 bytes
 // static char rain3[10] = " ";
 // static char rain4[10] = " ";
 static char rain_ico_val;
-static char city[32] = " "; // Reduced from 50 - saves 18 bytes
+static char city[16] = " "; // Reduced from 50 - saves 34 bytes
 
 // Extended hourly forecast data for weather graph (minimized for memory)
-static int graph_temps[5] = {10, 10, 10, 10, 10};
-static int graph_rains[12] = {0};
-static char graph_icon1[24] = "";
-static char graph_icon2[24] = "";
-static char graph_icon3[24] = "";
+static int8_t graph_temps[5] = {10, 10, 10, 10, 10};
+static uint8_t graph_rains[12] = {0};
+static char graph_icon1[16] = "";
+static char graph_icon2[16] = "";
+static char graph_icon3[16] = "";
 static char graph_wind0[8] = "";
 static char graph_wind1[8] = "";
 static char graph_wind2[8] = "";
 static char graph_wind3[8] = "";
-static int graph_h0 = 0;
-static int graph_h1 = 0;
-static int graph_h2 = 0;
-static int graph_h3 = 0;
+static uint8_t graph_h0 = 0;
+static uint8_t graph_h1 = 0;
+static uint8_t graph_h2 = 0;
+static uint8_t graph_h3 = 0;
+
+// 3-day forecast data for ui_weather_days
+static char days_temp[3][12] = {"--", "--", "--"};
+static char days_icon[3][16] = {"", "", ""};
+static char days_rain[3][6] = {"0mm", "0mm", "0mm"};
+static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
+
+// Whiteout screen mode (0=graph, 1=days)
+typedef enum {
+  WHITEOUT_SCREEN_GRAPH = 0,
+  WHITEOUT_SCREEN_DAYS = 1
+} WhiteoutScreenMode;
+static WhiteoutScreenMode s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
 
 // Config data
 static bool is_gps;
@@ -390,7 +415,7 @@ static int status_offset_y = 0;
 
 static int hour_line_ypos = 84 + YOFFSET;
 
-static char pebble_Lang[20] = " ";
+static char pebble_Lang[8] = " ";
 
 bool is_charging = false;
 
@@ -414,10 +439,11 @@ int segment_thickness = 2;
 
 // UNUSED markWidth array - saves 48 bytes
 // static int markWidth[12] = {MARK_0,  MARK_5, MARK_5, MARK_15, MARK_5, MARK_5,
-//                             MARK_30, MARK_5, MARK_5, MARK_15, MARK_5, MARK_5};
-static int labels_12h[28] = {10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8,  9,  10, 11,
+//                             MARK_30, MARK_5, MARK_5, MARK_15, MARK_5,
+//                             MARK_5};
+static int8_t labels_12h[28] = {10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8,  9,  10, 11,
                              12, 1,  2,  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
-static int labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
+static int8_t labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
                          12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0,  1};
 
 static uint8_t battery_level = 0;
@@ -460,7 +486,7 @@ static int build_icon(char *text_icon) {
   if (text_icon == NULL || text_icon[0] == '\0' || text_icon[0] == ' ') {
     return RESOURCE_ID_ENSOLEILLE_W;
   }
-  
+
   if (npoolORP != 0) {
     if ((npoolORP < 650) || (npoolPH < 710)) {
       return RESOURCE_ID_WARNING_W;
@@ -642,27 +668,74 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   out->icon_ids[2] = build_icon(graph_icon3);
 
   out->is_metric = is_metric;
+  
+  // Fill 2-day forecast data for bottom of screen
+  time_t now_time = time(NULL);
+  struct tm *now_tm = localtime(&now_time);
+  
+  for (int i = 0; i < 2; i++) {
+    out->day_of_week[i] = (now_tm->tm_wday + 1 + i) % 7;
+    out->day_icon_ids[i] = build_icon(days_icon[i]);
+    snprintf(out->day_temps[i], sizeof(out->day_temps[i]), "%s", days_temp[i]);
+  }
 }
 
-// Draw weather graph screen (hourly forecast with temperature curve and rain bars)
+// Fill weather days data for 3-day forecast screen
+static void fill_weather_days_data(WeatherDaysData *out) {
+  if (!out) return;
+  
+  time_t now_time = time(NULL);
+  struct tm *now_tm = localtime(&now_time);
+  
+  // Jour de la semaine pour les 3 prochains jours
+  for (int i = 0; i < 3; i++) {
+    out->day_of_week[i] = (now_tm->tm_wday + 1 + i) % 7;
+    snprintf(out->day_temp[i], sizeof(out->day_temp[i]), "%s", days_temp[i]);
+    snprintf(out->day_icon[i], sizeof(out->day_icon[i]), "%s", days_icon[i]);
+    snprintf(out->day_rain[i], sizeof(out->day_rain[i]), "%s", days_rain[i]);
+    snprintf(out->day_wind[i], sizeof(out->day_wind[i]), "%s", days_wind[i]);
+  }
+  
+  snprintf(out->pebble_lang, sizeof(out->pebble_lang), "%s", pebble_Lang);
+}
+
+// Draw weather graph screen (hourly forecast with temperature curve and rain
+// bars)
 
 static void update_proc(Layer *layer, GContext *ctx) {
 
-  // Weather graph mode: temporarily unload heavy custom font to free memory for bitmaps
+  // Weather screen mode: temporarily unload heavy custom font to free memory
   if (s_whiteout_active) {
-    // Unload heavy font if loaded to free memory for weather graph bitmaps
+    // Unload heavy font if loaded to free memory for weather bitmaps
     if (fontbig_loaded && fontbig_resource_id != 0) {
       fonts_unload_custom_font(fontbig);
       fontbig_loaded = false;
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Weather graph: unloaded fontbig to free memory");
     }
+    
+#ifdef PBL_COLOR
+    if (s_whiteout_screen == WHITEOUT_SCREEN_DAYS) {
+      // Show 3-day forecast (color only)
+      WeatherDaysData days_data;
+      fill_weather_days_data(&days_data);
+      ui_draw_weather_days(ctx, &days_data);
+    } else {
+      // Show hourly graph
+      WeatherGraphData graph_data;
+      fill_weather_graph_data(&graph_data);
+      ui_draw_weather_graph(ctx, &graph_data);
+    }
+#else
+    // Aplite: show hourly graph (without icons to save memory)
+    // Graph shows: temperature curve, rain bars, wind text, hours
     WeatherGraphData graph_data;
     fill_weather_graph_data(&graph_data);
     ui_draw_weather_graph(ctx, &graph_data);
+#endif
     return;
   }
 
-  // Ensure heavy custom font is loaded only when needed (not in weather graph mode)
+  // Ensure heavy custom font is loaded only when needed (not in weather graph
+  // mode)
   ensure_fontbig_loaded();
 
   if (!first_draw_logged) {
@@ -751,49 +824,49 @@ static void update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_text_color(ctx, color_temp);
   rect_text_dayw.origin.x += 2;
 
-  bool has_fresh_weather = ((mktime(&now) - last_refresh) < duration + offline_delay);
+  bool has_fresh_weather =
+      ((mktime(&now) - last_refresh) < duration + offline_delay);
 
   snprintf(weather_temp_char, sizeof(weather_temp_char), "%i°", weather_temp);
   snprintf(minMax, sizeof(minMax), "%i %i", tmin_val, tmax_val);
   snprintf(minTemp, sizeof(minMax), "%i°", tmin_val);
   snprintf(maxTemp, sizeof(maxTemp), "%i°", tmax_val);
 
-  IconBarData icon_data = {
-      .fontsmall = fontsmall,
-      .fontsmallbold = fontsmallbold,
-      .fontmedium = fontmedium,
-      .color_temp = color_temp,
-      .week_day = week_day,
-      .mday = mday,
-      .min_temp_text = minTemp,
-      .max_temp_text = maxTemp,
-      .weather_temp_text = weather_temp_char,
-      .has_fresh_weather = has_fresh_weather,
-      .is_connected = is_connected,
-      .is_quiet_time = quiet_time_is_active(),
-      .is_bw_icon = is_bw_icon,
-      .is_color = IS_COLOR,
-      .is_round = IS_ROUND,
-      .is_metric = is_metric,
-      .humidity = humidity,
-      .wind_speed_val = wind_speed_val,
-      .wind2_val = wind2_val,
-      .met_unit = is_metric ? 5 : 11,
-      .icon_id = icon_id,
-      .icon_id6 = icon_id6,
-      .rect_text_day = rect_text_day,
-      .rect_text_dayw = rect_text_dayw,
-      .rect_temp = rect_temp,
-      .rect_tmin = rect_tmin,
-      .rect_tmax = rect_tmax,
-      .rect_icon = rect_icon,
-      .rect_icon6 = rect_icon6,
-      .rect_icon_hum1 = rect_icon_hum1,
-      .rect_icon_hum2 = rect_icon_hum2,
-      .rect_icon_hum3 = rect_icon_hum3,
-      .rect_icon_leaf = rect_icon_leaf,
-      .rect_bt_disconect = rect_bt_disconect,
-      .rect_screen = rect_screen};
+  IconBarData icon_data = {.fontsmall = fontsmall,
+                           .fontsmallbold = fontsmallbold,
+                           .fontmedium = fontmedium,
+                           .color_temp = color_temp,
+                           .week_day = week_day,
+                           .mday = mday,
+                           .min_temp_text = minTemp,
+                           .max_temp_text = maxTemp,
+                           .weather_temp_text = weather_temp_char,
+                           .has_fresh_weather = has_fresh_weather,
+                           .is_connected = is_connected,
+                           .is_quiet_time = quiet_time_is_active(),
+                           .is_bw_icon = is_bw_icon,
+                           .is_color = IS_COLOR,
+                           .is_round = IS_ROUND,
+                           .is_metric = is_metric,
+                           .humidity = humidity,
+                           .wind_speed_val = wind_speed_val,
+                           .wind2_val = wind2_val,
+                           .met_unit = is_metric ? 5 : 11,
+                           .icon_id = icon_id,
+                           .icon_id6 = icon_id6,
+                           .rect_text_day = rect_text_day,
+                           .rect_text_dayw = rect_text_dayw,
+                           .rect_temp = rect_temp,
+                           .rect_tmin = rect_tmin,
+                           .rect_tmax = rect_tmax,
+                           .rect_icon = rect_icon,
+                           .rect_icon6 = rect_icon6,
+                           .rect_icon_hum1 = rect_icon_hum1,
+                           .rect_icon_hum2 = rect_icon_hum2,
+                           .rect_icon_hum3 = rect_icon_hum3,
+                           .rect_icon_leaf = rect_icon_leaf,
+                           .rect_bt_disconect = rect_bt_disconect,
+                           .rect_screen = rect_screen};
 
   ui_draw_icon_bar(ctx, &icon_data);
 
@@ -832,9 +905,9 @@ static void update_proc(Layer *layer, GContext *ctx) {
   GRect rect_minute_id1 = {{num_x, num_y + offset_y}, {46, 81}};
   GRect rect_minute_id2 = {{num_x + offset_x, num_y + offset_y}, {46, 81}};
 
-  TimeRenderData time_data = {
-      .digit_rects = {rect_hour_id1, rect_hour_id2, rect_minute_id1,
-                      rect_minute_id2}};
+  TimeRenderData time_data = {.digit_rects = {rect_hour_id1, rect_hour_id2,
+                                              rect_minute_id1,
+                                              rect_minute_id2}};
   snprintf(time_data.digits, sizeof(time_data.digits), "%s", heure);
   ui_draw_time(ctx, &time_data);
 }
@@ -878,24 +951,39 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
 
 static void handle_whiteout_timeout(void *context) {
   s_whiteout_active = false;
+  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;  // Reset to graph for next time
   timer_short = NULL;
   layer_mark_dirty(layer);
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-  // Removed APP_LOG to save memory
+#ifdef PBL_COLOR
+  // Color platforms: toggle between graph and 3-day forecast
+  if (s_whiteout_active) {
+    // Second tap: toggle to 3-day forecast
+    s_whiteout_screen = WHITEOUT_SCREEN_DAYS;
+  } else {
+    // First tap: show hourly graph
+    s_whiteout_active = true;
+    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+  }
+#else
+  // Aplite: only show simplified graph (no toggle, not enough memory)
   s_whiteout_active = true;
+  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+#endif
 
+  // Reset timer
   if (timer_short) {
     app_timer_cancel(timer_short);
     timer_short = NULL;
   }
-
   timer_short = app_timer_register(10000, handle_whiteout_timeout, NULL);
   layer_mark_dirty(layer);
 }
 
-// UNUSED handle_battery - battery_state_service not subscribed - saves ~100 bytes
+// UNUSED handle_battery - battery_state_service not subscribed - saves ~100
+// bytes
 /*
 static void handle_battery(BatteryChargeState charge) {
   battery_level = charge.charge_percent;
@@ -1055,7 +1143,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // Tuple *temp7_tuple = dict_find(iterator, KEY_FORECAST_TEMP7);
     // Tuple *temp8_tuple = dict_find(iterator, KEY_FORECAST_TEMP8);
     // Tuple *temp9_tuple = dict_find(iterator, KEY_FORECAST_TEMP9);
-    
+
     Tuple *h0_tuple = dict_find(iterator, KEY_FORECAST_H0);
     // UNUSED h4-h8 tuples
     // Tuple *h4_tuple = dict_find(iterator, KEY_FORECAST_H4);
@@ -1063,13 +1151,13 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // Tuple *h6_tuple = dict_find(iterator, KEY_FORECAST_H6);
     // Tuple *h7_tuple = dict_find(iterator, KEY_FORECAST_H7);
     // Tuple *h8_tuple = dict_find(iterator, KEY_FORECAST_H8);
-    
+
     // UNUSED rain5-8 tuples (only 12 rain values needed)
     // Tuple *rain5_tuple = dict_find(iterator, KEY_FORECAST_RAIN5);
     // Tuple *rain6_tuple = dict_find(iterator, KEY_FORECAST_RAIN6);
     // Tuple *rain7_tuple = dict_find(iterator, KEY_FORECAST_RAIN7);
     // Tuple *rain8_tuple = dict_find(iterator, KEY_FORECAST_RAIN8);
-    
+
     // Detailed rain tuples (3 per 3-hour block) - only first 4 blocks used
     Tuple *rain11_tuple = dict_find(iterator, KEY_FORECAST_RAIN11);
     Tuple *rain12_tuple = dict_find(iterator, KEY_FORECAST_RAIN12);
@@ -1088,13 +1176,13 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // Tuple *rain72_tuple = dict_find(iterator, KEY_FORECAST_RAIN72);
     // Tuple *rain81_tuple = dict_find(iterator, KEY_FORECAST_RAIN81);
     // Tuple *rain82_tuple = dict_find(iterator, KEY_FORECAST_RAIN82);
-    
+
     // UNUSED icon4-7 (only 3 icons in graph)
     // Tuple *icon4_tuple = dict_find(iterator, KEY_FORECAST_ICON4);
     // Tuple *icon5_tuple = dict_find(iterator, KEY_FORECAST_ICON5);
     // Tuple *icon6_tuple = dict_find(iterator, KEY_FORECAST_ICON6);
     // Tuple *icon7_tuple = dict_find(iterator, KEY_FORECAST_ICON7);
-    
+
     Tuple *wind0_tuple = dict_find(iterator, KEY_FORECAST_WIND0);
     // UNUSED wind4-8 (only wind0-3 needed)
     // Tuple *wind4_tuple = dict_find(iterator, KEY_FORECAST_WIND4);
@@ -1102,6 +1190,20 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // Tuple *wind6_tuple = dict_find(iterator, KEY_FORECAST_WIND6);
     // Tuple *wind7_tuple = dict_find(iterator, KEY_FORECAST_WIND7);
     // Tuple *wind8_tuple = dict_find(iterator, KEY_FORECAST_WIND8);
+
+    // 3-day forecast tuples
+    Tuple *day1_temp_tuple = dict_find(iterator, KEY_DAY1_TEMP);
+    Tuple *day2_temp_tuple = dict_find(iterator, KEY_DAY2_TEMP);
+    Tuple *day3_temp_tuple = dict_find(iterator, KEY_DAY3_TEMP);
+    Tuple *day1_icon_tuple = dict_find(iterator, KEY_DAY1_ICON);
+    Tuple *day2_icon_tuple = dict_find(iterator, KEY_DAY2_ICON);
+    Tuple *day3_icon_tuple = dict_find(iterator, KEY_DAY3_ICON);
+    Tuple *day1_rain_tuple = dict_find(iterator, KEY_DAY1_RAIN);
+    Tuple *day2_rain_tuple = dict_find(iterator, KEY_DAY2_RAIN);
+    Tuple *day3_rain_tuple = dict_find(iterator, KEY_DAY3_RAIN);
+    Tuple *day1_wind_tuple = dict_find(iterator, KEY_DAY1_WIND);
+    Tuple *day2_wind_tuple = dict_find(iterator, KEY_DAY2_WIND);
+    Tuple *day3_wind_tuple = dict_find(iterator, KEY_DAY3_WIND);
 
     // Récupération des tuples
     Tuple *poolTemp_tuple = dict_find(iterator, KEY_POOLTEMP);
@@ -1149,46 +1251,107 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // APP_LOG(APP_LOG_LEVEL_DEBUG, "tmin_val now: %d", tmin_val);
 
     // Process extended hourly forecast data for weather graph (only 5 temps)
-    if (temp1_tuple) graph_temps[0] = (int)temp1_tuple->value->int32;
-    if (temp2_tuple) graph_temps[1] = (int)temp2_tuple->value->int32;
-    if (temp3_tuple) graph_temps[2] = (int)temp3_tuple->value->int32;
-    if (temp4_tuple) graph_temps[3] = (int)temp4_tuple->value->int32;
-    if (temp5_tuple) graph_temps[4] = (int)temp5_tuple->value->int32;
+    if (temp1_tuple)
+      graph_temps[0] = (int)temp1_tuple->value->int32;
+    if (temp2_tuple)
+      graph_temps[1] = (int)temp2_tuple->value->int32;
+    if (temp3_tuple)
+      graph_temps[2] = (int)temp3_tuple->value->int32;
+    if (temp4_tuple)
+      graph_temps[3] = (int)temp4_tuple->value->int32;
+    if (temp5_tuple)
+      graph_temps[4] = (int)temp5_tuple->value->int32;
     // temp6-9 not used (array reduced to 5)
-    
-    if (h0_tuple) graph_h0 = (int)h0_tuple->value->int32;
-    if (h1_tuple) graph_h1 = (int)h1_tuple->value->int32;
-    if (h2_tuple) graph_h2 = (int)h2_tuple->value->int32;
-    if (h3_tuple) graph_h3 = (int)h3_tuple->value->int32;
+
+    if (h0_tuple)
+      graph_h0 = (int)h0_tuple->value->int32;
+    if (h1_tuple)
+      graph_h1 = (int)h1_tuple->value->int32;
+    if (h2_tuple)
+      graph_h2 = (int)h2_tuple->value->int32;
+    if (h3_tuple)
+      graph_h3 = (int)h3_tuple->value->int32;
     // h4-h8 not used
-    
+
     // Rain data (12 segments only)
-    if (rain1_tuple) graph_rains[0] = (int)rain1_tuple->value->int32;
-    if (rain11_tuple) graph_rains[1] = (int)rain11_tuple->value->int32;
-    if (rain12_tuple) graph_rains[2] = (int)rain12_tuple->value->int32;
-    if (rain2_tuple) graph_rains[3] = (int)rain2_tuple->value->int32;
-    if (rain21_tuple) graph_rains[4] = (int)rain21_tuple->value->int32;
-    if (rain22_tuple) graph_rains[5] = (int)rain22_tuple->value->int32;
-    if (rain3_tuple) graph_rains[6] = (int)rain3_tuple->value->int32;
-    if (rain31_tuple) graph_rains[7] = (int)rain31_tuple->value->int32;
-    if (rain32_tuple) graph_rains[8] = (int)rain32_tuple->value->int32;
-    if (rain4_tuple) graph_rains[9] = (int)rain4_tuple->value->int32;
-    if (rain41_tuple) graph_rains[10] = (int)rain41_tuple->value->int32;
-    if (rain42_tuple) graph_rains[11] = (int)rain42_tuple->value->int32;
+    if (rain1_tuple)
+      graph_rains[0] = (int)rain1_tuple->value->int32;
+    if (rain11_tuple)
+      graph_rains[1] = (int)rain11_tuple->value->int32;
+    if (rain12_tuple)
+      graph_rains[2] = (int)rain12_tuple->value->int32;
+    if (rain2_tuple)
+      graph_rains[3] = (int)rain2_tuple->value->int32;
+    if (rain21_tuple)
+      graph_rains[4] = (int)rain21_tuple->value->int32;
+    if (rain22_tuple)
+      graph_rains[5] = (int)rain22_tuple->value->int32;
+    if (rain3_tuple)
+      graph_rains[6] = (int)rain3_tuple->value->int32;
+    if (rain31_tuple)
+      graph_rains[7] = (int)rain31_tuple->value->int32;
+    if (rain32_tuple)
+      graph_rains[8] = (int)rain32_tuple->value->int32;
+    if (rain4_tuple)
+      graph_rains[9] = (int)rain4_tuple->value->int32;
+    if (rain41_tuple)
+      graph_rains[10] = (int)rain41_tuple->value->int32;
+    if (rain42_tuple)
+      graph_rains[11] = (int)rain42_tuple->value->int32;
     // rain5-8 tuples not used (array reduced to 12)
-    
-    // Icons for graph  
-    if (icon1_tuple) snprintf(graph_icon1, sizeof(graph_icon1), "%s", icon1_tuple->value->cstring);
-    if (icon2_tuple) snprintf(graph_icon2, sizeof(graph_icon2), "%s", icon2_tuple->value->cstring);
-    if (icon3_tuple) snprintf(graph_icon3, sizeof(graph_icon3), "%s", icon3_tuple->value->cstring);
+
+    // Icons for graph
+    if (icon1_tuple)
+      snprintf(graph_icon1, sizeof(graph_icon1), "%s",
+               icon1_tuple->value->cstring);
+    if (icon2_tuple)
+      snprintf(graph_icon2, sizeof(graph_icon2), "%s",
+               icon2_tuple->value->cstring);
+    if (icon3_tuple)
+      snprintf(graph_icon3, sizeof(graph_icon3), "%s",
+               icon3_tuple->value->cstring);
     // icon4-7 not used
-    
+
     // Winds for graph
-    if (wind0_tuple) snprintf(graph_wind0, sizeof(graph_wind0), "%s", wind0_tuple->value->cstring);
-    if (wind1_tuple) snprintf(graph_wind1, sizeof(graph_wind1), "%s", wind1_tuple->value->cstring);
-    if (wind2_tuple) snprintf(graph_wind2, sizeof(graph_wind2), "%s", wind2_tuple->value->cstring);
-    if (wind3_tuple) snprintf(graph_wind3, sizeof(graph_wind3), "%s", wind3_tuple->value->cstring);
+    if (wind0_tuple)
+      snprintf(graph_wind0, sizeof(graph_wind0), "%s",
+               wind0_tuple->value->cstring);
+    if (wind1_tuple)
+      snprintf(graph_wind1, sizeof(graph_wind1), "%s",
+               wind1_tuple->value->cstring);
+    if (wind2_tuple)
+      snprintf(graph_wind2, sizeof(graph_wind2), "%s",
+               wind2_tuple->value->cstring);
+    if (wind3_tuple)
+      snprintf(graph_wind3, sizeof(graph_wind3), "%s",
+               wind3_tuple->value->cstring);
     // wind4-8 not used
+
+    // Process 3-day forecast data
+    if (day1_temp_tuple)
+      snprintf(days_temp[0], sizeof(days_temp[0]), "%s", day1_temp_tuple->value->cstring);
+    if (day2_temp_tuple)
+      snprintf(days_temp[1], sizeof(days_temp[1]), "%s", day2_temp_tuple->value->cstring);
+    if (day3_temp_tuple)
+      snprintf(days_temp[2], sizeof(days_temp[2]), "%s", day3_temp_tuple->value->cstring);
+    if (day1_icon_tuple)
+      snprintf(days_icon[0], sizeof(days_icon[0]), "%s", day1_icon_tuple->value->cstring);
+    if (day2_icon_tuple)
+      snprintf(days_icon[1], sizeof(days_icon[1]), "%s", day2_icon_tuple->value->cstring);
+    if (day3_icon_tuple)
+      snprintf(days_icon[2], sizeof(days_icon[2]), "%s", day3_icon_tuple->value->cstring);
+    if (day1_rain_tuple)
+      snprintf(days_rain[0], sizeof(days_rain[0]), "%s", day1_rain_tuple->value->cstring);
+    if (day2_rain_tuple)
+      snprintf(days_rain[1], sizeof(days_rain[1]), "%s", day2_rain_tuple->value->cstring);
+    if (day3_rain_tuple)
+      snprintf(days_rain[2], sizeof(days_rain[2]), "%s", day3_rain_tuple->value->cstring);
+    if (day1_wind_tuple)
+      snprintf(days_wind[0], sizeof(days_wind[0]), "%s", day1_wind_tuple->value->cstring);
+    if (day2_wind_tuple)
+      snprintf(days_wind[1], sizeof(days_wind[1]), "%s", day2_wind_tuple->value->cstring);
+    if (day3_wind_tuple)
+      snprintf(days_wind[2], sizeof(days_wind[2]), "%s", day3_wind_tuple->value->cstring);
 
     last_refresh = mktime(&now);
 
@@ -1245,6 +1408,20 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_string(KEY_FORECAST_WIND4, graph_wind1);
     persist_write_string(KEY_FORECAST_WIND5, graph_wind2);
     persist_write_string(KEY_FORECAST_WIND6, graph_wind3);
+
+    // Persist 3-day forecast data
+    persist_write_string(KEY_DAY1_TEMP, days_temp[0]);
+    persist_write_string(KEY_DAY2_TEMP, days_temp[1]);
+    persist_write_string(KEY_DAY3_TEMP, days_temp[2]);
+    persist_write_string(KEY_DAY1_ICON, days_icon[0]);
+    persist_write_string(KEY_DAY2_ICON, days_icon[1]);
+    persist_write_string(KEY_DAY3_ICON, days_icon[2]);
+    persist_write_string(KEY_DAY1_RAIN, days_rain[0]);
+    persist_write_string(KEY_DAY2_RAIN, days_rain[1]);
+    persist_write_string(KEY_DAY3_RAIN, days_rain[2]);
+    persist_write_string(KEY_DAY1_WIND, days_wind[0]);
+    persist_write_string(KEY_DAY2_WIND, days_wind[1]);
+    persist_write_string(KEY_DAY3_WIND, days_wind[2]);
 
     //   APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty inbox_received_callback + weather");
     layer_mark_dirty(layer);
@@ -1671,19 +1848,19 @@ static void init_var() {
     persist_read_string(KEY_FORECAST_ICON1, icon1, sizeof(icon1));
     persist_read_string(KEY_FORECAST_ICON2, icon2, sizeof(icon2));
     persist_read_string(KEY_FORECAST_ICON3, icon3, sizeof(icon3));
-    
+
     // Initialize graph data from persisted values (minimal)
     graph_temps[0] = temp1_val;
     graph_temps[1] = temp2_val;
     graph_temps[2] = temp3_val;
     graph_temps[3] = temp4_val;
     graph_temps[4] = temp5_val;
-    
+
     graph_h0 = persist_read_int(KEY_FORECAST_H0);
     graph_h1 = atoi(h1);
     graph_h2 = atoi(h2);
     graph_h3 = atoi(h3);
-    
+
     graph_rains[0] = rain1_val;
     graph_rains[1] = persist_read_int(KEY_FORECAST_RAIN11);
     graph_rains[2] = persist_read_int(KEY_FORECAST_RAIN12);
@@ -1696,16 +1873,32 @@ static void init_var() {
     graph_rains[9] = rain4_val;
     graph_rains[10] = persist_read_int(KEY_FORECAST_RAIN41);
     graph_rains[11] = persist_read_int(KEY_FORECAST_RAIN42);
-    
+
     persist_read_string(KEY_FORECAST_ICON4, graph_icon1, sizeof(graph_icon1));
     persist_read_string(KEY_FORECAST_ICON5, graph_icon2, sizeof(graph_icon2));
     persist_read_string(KEY_FORECAST_ICON6, graph_icon3, sizeof(graph_icon3));
-    
+
     persist_read_string(KEY_FORECAST_WIND0, graph_wind0, sizeof(graph_wind0));
     persist_read_string(KEY_FORECAST_WIND4, graph_wind1, sizeof(graph_wind1));
     persist_read_string(KEY_FORECAST_WIND5, graph_wind2, sizeof(graph_wind2));
     persist_read_string(KEY_FORECAST_WIND6, graph_wind3, sizeof(graph_wind3));
-    
+
+    // Load 3-day forecast data from persistence
+    if (persist_exists(KEY_DAY1_TEMP)) {
+      persist_read_string(KEY_DAY1_TEMP, days_temp[0], sizeof(days_temp[0]));
+      persist_read_string(KEY_DAY2_TEMP, days_temp[1], sizeof(days_temp[1]));
+      persist_read_string(KEY_DAY3_TEMP, days_temp[2], sizeof(days_temp[2]));
+      persist_read_string(KEY_DAY1_ICON, days_icon[0], sizeof(days_icon[0]));
+      persist_read_string(KEY_DAY2_ICON, days_icon[1], sizeof(days_icon[1]));
+      persist_read_string(KEY_DAY3_ICON, days_icon[2], sizeof(days_icon[2]));
+      persist_read_string(KEY_DAY1_RAIN, days_rain[0], sizeof(days_rain[0]));
+      persist_read_string(KEY_DAY2_RAIN, days_rain[1], sizeof(days_rain[1]));
+      persist_read_string(KEY_DAY3_RAIN, days_rain[2], sizeof(days_rain[2]));
+      persist_read_string(KEY_DAY1_WIND, days_wind[0], sizeof(days_wind[0]));
+      persist_read_string(KEY_DAY2_WIND, days_wind[1], sizeof(days_wind[1]));
+      persist_read_string(KEY_DAY3_WIND, days_wind[2], sizeof(days_wind[2]));
+    }
+
   } else {
     last_refresh = 0;
     wind_speed_val = 0;
@@ -1734,7 +1927,7 @@ static void init_var() {
     snprintf(icon2, sizeof(icon2), " ");
     snprintf(icon3, sizeof(icon3), " ");
     snprintf(location, sizeof(location), " ");
-    
+
     // Initialize graph data to defaults (minimal)
     for (int i = 0; i < 5; i++) {
       graph_temps[i] = 10; // Default temperature

@@ -220,6 +220,61 @@ function processWeatherResponse(responseText) {
     }
   }
 
+  // --- 3-day forecast data extraction ---
+  var day_temps = ["", "", ""];
+  var day_icons = ["", "", ""];
+  var day_rains = ["", "", ""];
+  var day_winds = ["", "", ""];
+  
+  // Day offsets: 24h (tomorrow), 48h (day after), 72h (3rd day) - at noon
+  var dayOffsets = [24, 48, 72];
+  
+  for (var d = 0; d < 3; d++) {
+    var idx = dayOffsets[d];
+    if (jsonWeather.properties.timeseries.length > idx) {
+      var dayData = jsonWeather.properties.timeseries[idx].data;
+      
+      // Temperature (use next_6_hours if available for min/max, otherwise instant)
+      var dayTemp = 0;
+      if (dayData.next_6_hours && dayData.next_6_hours.details) {
+        var tMax = dayData.next_6_hours.details.air_temperature_max || dayData.instant.details.air_temperature;
+        var tMin = dayData.next_6_hours.details.air_temperature_min || dayData.instant.details.air_temperature;
+        dayTemp = Math.round((tMax + tMin) / 2);
+      } else {
+        dayTemp = Math.round(dayData.instant.details.air_temperature);
+      }
+      if (units == 1) {
+        dayTemp = celsiusToFahrenheit(dayTemp);
+      }
+      day_temps[d] = dayTemp + "°";
+      
+      // Icon
+      if (dayData.next_12_hours && dayData.next_12_hours.summary) {
+        day_icons[d] = dayData.next_12_hours.summary.symbol_code;
+      } else if (dayData.next_6_hours && dayData.next_6_hours.summary) {
+        day_icons[d] = dayData.next_6_hours.summary.symbol_code;
+      } else if (dayData.next_1_hours && dayData.next_1_hours.summary) {
+        day_icons[d] = dayData.next_1_hours.summary.symbol_code;
+      }
+      
+      // Rain - sum over 6 hours
+      var rainSum = 0;
+      if (dayData.next_6_hours && dayData.next_6_hours.details && dayData.next_6_hours.details.precipitation_amount) {
+        rainSum = dayData.next_6_hours.details.precipitation_amount;
+      } else if (dayData.next_1_hours && dayData.next_1_hours.details && dayData.next_1_hours.details.precipitation_amount) {
+        rainSum = dayData.next_1_hours.details.precipitation_amount * 6;
+      }
+      day_rains[d] = Math.round(rainSum) + "mm";
+      
+      // Wind
+      var dayWind = Math.round(dayData.instant.details.wind_speed * 3.6); // m/s to km/h
+      if (units == 1) {
+        dayWind = convertMpsToMph(dayData.instant.details.wind_speed);
+      }
+      day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
+    }
+  }
+
   var dictionary = {
     "KEY_TEMPERATURE": temperature,
     "KEY_HUMIDITY": humidity,
@@ -259,6 +314,18 @@ function processWeatherResponse(responseText) {
     "POOLTEMP": poolTemp * 10,
     "POOLPH": poolPH * 100,
     "POOLORP": poolORP,
+    "KEY_DAY1_TEMP": day_temps[0],
+    "KEY_DAY1_ICON": day_icons[0],
+    "KEY_DAY1_RAIN": day_rains[0],
+    "KEY_DAY1_WIND": day_winds[0],
+    "KEY_DAY2_TEMP": day_temps[1],
+    "KEY_DAY2_ICON": day_icons[1],
+    "KEY_DAY2_RAIN": day_rains[1],
+    "KEY_DAY2_WIND": day_winds[1],
+    "KEY_DAY3_TEMP": day_temps[2],
+    "KEY_DAY3_ICON": day_icons[2],
+    "KEY_DAY3_RAIN": day_rains[2],
+    "KEY_DAY3_WIND": day_winds[2],
   };
 
   Pebble.sendAppMessage(dictionary,
