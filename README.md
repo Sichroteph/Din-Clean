@@ -12,7 +12,7 @@ Large, crisp digits make the time easy to read in any condition. You can choose 
 A single tap on the watch reveals a clear weather graph showing the next 12 hours of temperature, precipitation, and wind speed, plus a three‑day forecast.  
 Data is provided by the MET Norway API, which is free and requires no subscription or API key.
 
-![Din Clean screenshot showing the time and weather graph](./screenshot_dinclean.png)
+![Din Clean screenshot showing the time and weather graph](./screenshot_dinclean2.png)
 
 **Readable forecast**  
 Color indicators help you quickly identify temperature trends: red for warm, blue for cold. You can understand the coming weather in just a glance.
