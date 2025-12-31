@@ -483,6 +483,12 @@
                     "type": "bitmap"
                 },
                 {
+                    "file": "images/POURTOUR2",
+                    "name": "POURTOUR2",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/POURTOURW2",
                     "name": "POURTOURW2",
                     "targetPlatforms": null,

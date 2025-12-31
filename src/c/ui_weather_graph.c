@@ -1,6 +1,7 @@
 #include <pebble.h>
 
 #include "ui_weather_graph.h"
+#include "weather_utils.h"
 
 #define WIDTH 144
 #define HEIGHT 168
@@ -38,22 +39,12 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 
   const int offset_y = s_weather_graph_offset_y;
 
-#ifdef PBL_COLOR
-  GBitmap *background =
-      gbitmap_create_with_resource(RESOURCE_ID_GRILLE_WEATHER);
-  if (background) {
-    graphics_draw_bitmap_in_rect(ctx, background,
-                                 GRect(23, 49 + offset_y, 121, 61));
-    gbitmap_destroy(background);
-  }
-#else
   // On Aplite, draw simple lines instead of bitmap to save heap memory
   graphics_context_set_stroke_color(ctx, GColorWhite);
   graphics_draw_line(ctx, GPoint(23, 59 + offset_y),
                      GPoint(144, 59 + offset_y));
   graphics_draw_line(ctx, GPoint(23, 120 + offset_y),
                      GPoint(144, 120 + offset_y));
-#endif
 
   GRect rect_h0 = {{6 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
   GRect rect_h1 = {{37 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
@@ -215,28 +206,22 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_draw_text(ctx, wind_unit, statusfontsmall, rect_wind_unit,
                      GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 
-#ifdef PBL_COLOR
-  // Only load icons on color platforms - Aplite doesn't have enough heap
-  GRect rect_icon1 = {{67 - 18 + WEATHER_OFFSET_X, 25 + offset_y}, {36, 36}};
-  GRect rect_icon2 = {{97 - 18 + WEATHER_OFFSET_X, 25 + offset_y}, {36, 36}};
-  GRect rect_icon3 = {{127 - 18 + WEATHER_OFFSET_X, 25 + offset_y}, {36, 36}};
+  GRect rect_tomorrow_icon = {{4, HEIGHT - 40}, {36, 36}};
 
-  GBitmap *icon1 = gbitmap_create_with_resource(d->icon_ids[0]);
-  if (icon1) {
-    graphics_draw_bitmap_in_rect(ctx, icon1, rect_icon1);
-    gbitmap_destroy(icon1);
+  GBitmap *pourtour = gbitmap_create_with_resource(RESOURCE_ID_POURTOUR2);
+
+  if (pourtour) {
+    graphics_draw_bitmap_in_rect(ctx, pourtour, rect_tomorrow_icon);
+    gbitmap_destroy(pourtour);
   }
 
-  GBitmap *icon2 = gbitmap_create_with_resource(d->icon_ids[1]);
-  if (icon2) {
-    graphics_draw_bitmap_in_rect(ctx, icon2, rect_icon2);
-    gbitmap_destroy(icon2);
+  APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: try tomorrow icon %d", d->icon_ids[1]);
+  GBitmap *tomorrow_icon = gbitmap_create_with_resource(d->icon_ids[1]);
+  if (tomorrow_icon) {
+    graphics_draw_bitmap_in_rect(ctx, tomorrow_icon, rect_tomorrow_icon);
+    gbitmap_destroy(tomorrow_icon);
+    APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: tomorrow icon drawn");
+  } else {
+    APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: tomorrow icon load failed");
   }
-
-  GBitmap *icon3 = gbitmap_create_with_resource(d->icon_ids[2]);
-  if (icon3) {
-    graphics_draw_bitmap_in_rect(ctx, icon3, rect_icon3);
-    gbitmap_destroy(icon3);
-  }
-#endif
 }

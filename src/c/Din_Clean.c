@@ -2,7 +2,6 @@
 
 #include "ui_icon_bar.h"
 #include "ui_time.h"
-#include "ui_weather_days.h"
 #include "ui_weather_graph.h"
 
 #ifndef WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
@@ -188,16 +187,16 @@
 
 // 3-day forecast keys (for ui_weather_days)
 #define KEY_DAY1_TEMP 200
-#define KEY_DAY2_TEMP 201
-#define KEY_DAY3_TEMP 202
-#define KEY_DAY1_ICON 203
-#define KEY_DAY2_ICON 204
-#define KEY_DAY3_ICON 205
-#define KEY_DAY1_RAIN 206 // mm de pluie
-#define KEY_DAY2_RAIN 207
-#define KEY_DAY3_RAIN 208
-#define KEY_DAY1_WIND 209 // vitesse vent
-#define KEY_DAY2_WIND 210
+#define KEY_DAY1_ICON 201
+#define KEY_DAY1_RAIN 202 // mm de pluie
+#define KEY_DAY1_WIND 203 // vitesse vent
+#define KEY_DAY2_TEMP 204
+#define KEY_DAY2_ICON 205
+#define KEY_DAY2_RAIN 206
+#define KEY_DAY2_WIND 207
+#define KEY_DAY3_TEMP 208
+#define KEY_DAY3_ICON 209
+#define KEY_DAY3_RAIN 210
 #define KEY_DAY3_WIND 211
 
 //******************************************************************
@@ -324,10 +323,10 @@ int duration = 3600;
 int offline_delay = 3600;
 AppTimer *timer_short;
 
-static char icon[16] = " ";
-static char icon1[16] = " ";
-static char icon2[16] = " ";
-static char icon3[16] = " ";
+static char icon[32] = " ";
+static char icon1[32] = " ";
+static char icon2[32] = " ";
+static char icon3[32] = " ";
 // UNUSED icon4-7 - saves 80 bytes
 // static char icon4[20] = " ";
 // static char icon5[20] = " ";
@@ -354,9 +353,9 @@ static char city[16] = " "; // Reduced from 50 - saves 34 bytes
 // Extended hourly forecast data for weather graph (minimized for memory)
 static int8_t graph_temps[5] = {10, 10, 10, 10, 10};
 static uint8_t graph_rains[12] = {0};
-static char graph_icon1[16] = "";
-static char graph_icon2[16] = "";
-static char graph_icon3[16] = "";
+static char graph_icon1[32] = "";
+static char graph_icon2[32] = "";
+static char graph_icon3[32] = "";
 static char graph_wind0[20] = "";
 static char graph_wind1[20] = "";
 static char graph_wind2[20] = "";
@@ -368,7 +367,7 @@ static uint8_t graph_h3 = 0;
 
 // 3-day forecast data for ui_weather_days
 static char days_temp[3][12] = {"--", "--", "--"};
-static char days_icon[3][16] = {"", "", ""};
+static char days_icon[3][32] = {"", "", ""};
 static char days_rain[3][6] = {"0mm", "0mm", "0mm"};
 static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 
@@ -678,30 +677,14 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   snprintf(out->winds[3], sizeof(out->winds[3]), "%s", graph_wind3);
 
   out->icon_ids[0] = build_icon(graph_icon1);
-  out->icon_ids[1] = build_icon(graph_icon2);
+
+  // Prefer the daily forecast string for tomorrow; fall back to hourly icon.
+  char *tomorrow_icon_str = days_icon[1][0] ? days_icon[1] : graph_icon2;
+  out->icon_ids[1] = build_icon(tomorrow_icon_str);
+
   out->icon_ids[2] = build_icon(graph_icon3);
 
   out->is_metric = is_metric;
-}
-
-// Fill weather days data for 3-day forecast screen
-static void fill_weather_days_data(WeatherDaysData *out) {
-  if (!out)
-    return;
-
-  time_t now_time = time(NULL);
-  struct tm *now_tm = localtime(&now_time);
-
-  // Jour de la semaine pour les 3 prochains jours
-  for (int i = 0; i < 3; i++) {
-    out->day_of_week[i] = (now_tm->tm_wday + 1 + i) % 7;
-    snprintf(out->day_temp[i], sizeof(out->day_temp[i]), "%s", days_temp[i]);
-    snprintf(out->day_icon[i], sizeof(out->day_icon[i]), "%s", days_icon[i]);
-    snprintf(out->day_rain[i], sizeof(out->day_rain[i]), "%s", days_rain[i]);
-    snprintf(out->day_wind[i], sizeof(out->day_wind[i]), "%s", days_wind[i]);
-  }
-
-  snprintf(out->pebble_lang, sizeof(out->pebble_lang), "%s", pebble_Lang);
 }
 
 // Draw weather graph screen (hourly forecast with temperature curve and rain
@@ -717,25 +700,10 @@ static void update_proc(Layer *layer, GContext *ctx) {
       fontbig_loaded = false;
     }
 
-#ifdef PBL_COLOR
-    if (s_whiteout_screen == WHITEOUT_SCREEN_DAYS) {
-      // Show 3-day forecast (color only)
-      WeatherDaysData days_data;
-      fill_weather_days_data(&days_data);
-      ui_draw_weather_days(ctx, &days_data);
-    } else {
-      // Show hourly graph
-      WeatherGraphData graph_data;
-      fill_weather_graph_data(&graph_data);
-      ui_draw_weather_graph(ctx, &graph_data);
-    }
-#else
-    // Aplite: show hourly graph (without icons to save memory)
-    // Graph shows: temperature curve, rain bars, wind text, hours
+    // Always render the hourly graph; 3-day view removed
     WeatherGraphData graph_data;
     fill_weather_graph_data(&graph_data);
     ui_draw_weather_graph(ctx, &graph_data);
-#endif
     return;
   }
 
