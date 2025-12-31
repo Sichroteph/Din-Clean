@@ -56,8 +56,6 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   GRect rect_wind2 = {{68 + WEATHER_OFFSET_X, 144 + offset_y}, {60, 40}};
   GRect rect_wind3 = {{99 + WEATHER_OFFSET_X, 144 + offset_y}, {60, 40}};
 
-  GRect rect_wind_unit = {{56, rect_wind3.origin.y + 24}, {28, 40}};
-
   GRect rect_t1 = {{-25 + WEATHER_OFFSET_X, 51 + offset_y}, {60, 20}};
   GRect rect_t12 = {{-25 + WEATHER_OFFSET_X, 73 + offset_y}, {60, 20}};
   GRect rect_t2 = {{-25 + WEATHER_OFFSET_X, 95 + offset_y}, {60, 20}};
@@ -202,26 +200,57 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_draw_text(ctx, d->winds[3], statusfontsmall, rect_wind3,
                      GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
-  const char *wind_unit = d->is_metric ? "km/h" : "mph";
-  graphics_draw_text(ctx, wind_unit, statusfontsmall, rect_wind_unit,
-                     GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+  const GRect base_rect = {{14, HEIGHT - 38}, {36, 36}};
+  const int spacing = 40;
+  const int icon_count = sizeof(d->icon_ids) / sizeof(d->icon_ids[0]);
 
-  GRect rect_tomorrow_icon = {{4, HEIGHT - 40}, {36, 36}};
-
+#ifdef RESOURCE_ID_POURTOUR2
   GBitmap *pourtour = gbitmap_create_with_resource(RESOURCE_ID_POURTOUR2);
+#else
+  GBitmap *pourtour = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW1);
+#endif
 
-  if (pourtour) {
-    graphics_draw_bitmap_in_rect(ctx, pourtour, rect_tomorrow_icon);
-    gbitmap_destroy(pourtour);
+  const char *locale = i18n_get_system_locale();
+  time_t now = time(NULL);
+  struct tm *current_time = localtime(&now);
+  int today_wday = current_time ? current_time->tm_wday : 0;
+
+  for (int day = 1; day <= 3; day++) {
+    GRect icon_rect = base_rect;
+    icon_rect.origin.x += (day - 1) * spacing;
+
+    if (pourtour) {
+      graphics_draw_bitmap_in_rect(ctx, pourtour, icon_rect);
+    }
+
+    int icon_index = day - 1;
+    int icon_resource = (icon_index < icon_count) ? d->icon_ids[icon_index] : 0;
+    APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: try day %d icon %d", day,
+            icon_resource);
+    int day_wday = (today_wday + day) % 7;
+    const char *weekday_name = weather_utils_get_weekday_name(locale, day_wday);
+    char weekday_abbrev[4] = "";
+    if (weekday_name && weekday_name[0] != '\0') {
+      snprintf(weekday_abbrev, sizeof(weekday_abbrev), "%.3s", weekday_name);
+      GRect label_rect = {{icon_rect.origin.x, icon_rect.origin.y - 16},
+                          {icon_rect.size.w, 12}};
+      graphics_draw_text(ctx, weekday_abbrev, statusfontsmall, label_rect,
+                         GTextOverflowModeTrailingEllipsis,
+                         GTextAlignmentCenter, NULL);
+    }
+    if (icon_resource > 0) {
+      GBitmap *day_icon = gbitmap_create_with_resource(icon_resource);
+      if (day_icon) {
+        graphics_draw_bitmap_in_rect(ctx, day_icon, icon_rect);
+        gbitmap_destroy(day_icon);
+        APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: day %d icon drawn", day);
+      } else {
+        APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: day %d icon load failed", day);
+      }
+    }
   }
 
-  APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: try tomorrow icon %d", d->icon_ids[1]);
-  GBitmap *tomorrow_icon = gbitmap_create_with_resource(d->icon_ids[1]);
-  if (tomorrow_icon) {
-    graphics_draw_bitmap_in_rect(ctx, tomorrow_icon, rect_tomorrow_icon);
-    gbitmap_destroy(tomorrow_icon);
-    APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: tomorrow icon drawn");
-  } else {
-    APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: tomorrow icon load failed");
+  if (pourtour) {
+    gbitmap_destroy(pourtour);
   }
 }

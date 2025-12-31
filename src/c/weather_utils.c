@@ -10,18 +10,15 @@
 #endif
 
 static const char *const s_weekday_lang_fr[] = {
-    "DIMANCHE", "LUNDI",  "MARDI",   "MERCREDI",
-    "JEUDI",    "VENDREDI", "SAMEDI"};
+    "DIMANCHE", "LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI"};
 static const char *const s_weekday_lang_en[] = {
-    "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY",
+    "SUNDAY",   "MONDAY", "TUESDAY", "WEDNESDAY",
     "THURSDAY", "FRIDAY", "SATURDAY"};
 static const char *const s_weekday_lang_de[] = {
-    "SONNTAG", "MONTAG",     "DIENSTAG",
-    "MITTWOCH", "DONNERSTAG", "FREITAG",
-    "SAMSTAG"};
+    "SONNTAG",    "MONTAG",  "DIENSTAG", "MITTWOCH",
+    "DONNERSTAG", "FREITAG", "SAMSTAG"};
 static const char *const s_weekday_lang_es[] = {
-    "DOMINGO", "LUNES",   "MARTES", "MIERCOLES",
-    "JUEVES",  "VIERNES", "SABADO"};
+    "DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"};
 
 static bool prv_locale_matches(const char *locale, const char *prefix) {
   if (!locale || !prefix) {
@@ -35,8 +32,7 @@ static bool prv_use_bw_icon(bool is_bw_icon) {
   return is_bw_icon || !WEATHER_UTILS_IS_COLOR;
 }
 
-const char *weather_utils_get_weekday_name(const char *locale,
-                                           int day_index) {
+const char *weather_utils_get_weekday_name(const char *locale, int day_index) {
   if (day_index < 0 || day_index > 6) {
     return "";
   }
@@ -54,8 +50,7 @@ const char *weather_utils_get_weekday_name(const char *locale,
 }
 
 void weather_utils_create_date_text(const char *locale, int day_index,
-                                    char *out_buffer,
-                                    size_t out_buffer_size) {
+                                    char *out_buffer, size_t out_buffer_size) {
   if (!out_buffer || out_buffer_size == 0) {
     return;
   }

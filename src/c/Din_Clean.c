@@ -655,8 +655,8 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   }
 
 #if WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
-  static const uint8_t s_debug_rain_values[12] = {
-      0, 4, 8, 12, 16, 20, 24, 16, 8, 4, 0, 10};
+  static const uint8_t s_debug_rain_values[12] = {0,  4,  8, 12, 16, 20,
+                                                  24, 16, 8, 4,  0,  10};
   for (int i = 0; i < 12; i++) {
     out->rains[i] = s_debug_rain_values[i];
   }

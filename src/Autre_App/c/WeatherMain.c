@@ -319,14 +319,12 @@ static GFont moon_font;
 
 int scdCounter;
 
-
 int abs(int x) {
   if (x >= 0)
     return x;
   else
     return -x;
 }
-
 
 static void layer_update(Layer *me, GContext *ctx) {
 
@@ -391,11 +389,11 @@ static void layer_update(Layer *me, GContext *ctx) {
       time_t t = time(NULL);
       struct tm now = *(localtime(&t));
 
-        graphics_context_set_text_color(ctx, GColorWhite);
-        const char *weekday_name =
+      graphics_context_set_text_color(ctx, GColorWhite);
+      const char *weekday_name =
           weather_utils_get_weekday_name("en", now.tm_wday);
-        snprintf(status_text, sizeof(status_text), "%s %i", weekday_name,
-             now.tm_mday);
+      snprintf(status_text, sizeof(status_text), "%s %i", weekday_name,
+               now.tm_mday);
 
       // draw icon
       int icon_id;
@@ -735,12 +733,11 @@ static void layer_update(Layer *me, GContext *ctx) {
                          rect_wind3, GTextOverflowModeWordWrap,
                          GTextAlignmentCenter, NULL);
 
-        int ic1 =
+      int ic1 =
           weather_utils_build_icon(icons[page_nb - 2 + index], is_bw_icon);
-        int ic2 =
+      int ic2 =
           weather_utils_build_icon(icons[page_nb - 1 + index], is_bw_icon);
-        int ic3 =
-          weather_utils_build_icon(icons[page_nb + index], is_bw_icon);
+      int ic3 = weather_utils_build_icon(icons[page_nb + index], is_bw_icon);
 
       s_icon = gbitmap_create_with_resource(ic1);
       graphics_draw_bitmap_in_rect(ctx, s_icon, rect_icon1);
@@ -756,7 +753,7 @@ static void layer_update(Layer *me, GContext *ctx) {
     }
 
     else if (page_nb == 2) {
-  // Daily page 1
+      // Daily page 1
       int offsetb1x = 17;
       int offsetb1y = 1;
       int offsetb2x = 17;
@@ -838,14 +835,14 @@ static void layer_update(Layer *me, GContext *ctx) {
 
       if ((day2 >= 0) && (day2 < 7)) {
         weather_utils_create_date_text(pebble_Lang, day2, day_buffer,
-                     sizeof(day_buffer));
+                                       sizeof(day_buffer));
         graphics_draw_text(
             ctx, day_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD),
             rect_day1, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
       }
       if ((day3 >= 0) && (day3 < 7)) {
         weather_utils_create_date_text(pebble_Lang, day3, day_buffer,
-                     sizeof(day_buffer));
+                                       sizeof(day_buffer));
         graphics_draw_text(
             ctx, day_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD),
             rect_day2, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
@@ -947,14 +944,14 @@ static void layer_update(Layer *me, GContext *ctx) {
 
       if ((day4 >= 0) && (day4 < 7)) {
         weather_utils_create_date_text(pebble_Lang, day4, day_buffer,
-                     sizeof(day_buffer));
+                                       sizeof(day_buffer));
         graphics_draw_text(
             ctx, day_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD),
             rect_day1, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
       }
       if ((day5 >= 0) && (day5 < 7)) {
         weather_utils_create_date_text(pebble_Lang, day5, day_buffer,
-                     sizeof(day_buffer));
+                                       sizeof(day_buffer));
         graphics_draw_text(
             ctx, day_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD),
             rect_day2, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
