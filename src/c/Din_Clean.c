@@ -254,18 +254,18 @@ static Layer *layer;
 
 static int hour_part_size = 0;
 static int phone_bat = 0;
-static bool is_phone_charging = false;
+// static bool is_phone_charging = false;  // UNUSED - saves 1 byte
 
 static char week_day[4] = " ";
 static char month[4] = " ";
 static char mday[4] = " ";
-static char tmin[10] = " ";
-static char tmax[10] = " ";
+// static char tmin[10] = " ";  // UNUSED - use tmin_val instead
+// static char tmax[10] = " ";  // UNUSED - use tmax_val instead
 static char weather_temp_char[10] = " ";
-static char weather_hum_char[10] = " ";
-static char minMax[120] = " ";
-static char minTemp[12] = " ";
-static char maxTemp[12] = " ";
+// static char weather_hum_char[10] = " ";  // UNUSED - saves 10 bytes
+static char minMax[40] = " ";   // Reduced from 120 - saves 80 bytes
+static char minTemp[8] = " ";   // Reduced from 12 - saves 4 bytes
+static char maxTemp[8] = " ";   // Reduced from 12 - saves 4 bytes
 
 // POOL DATA
 
@@ -308,29 +308,31 @@ static char icon[20] = " ";
 static char icon1[20] = " ";
 static char icon2[20] = " ";
 static char icon3[20] = " ";
-static char icon4[20] = " ";
-static char icon5[20] = " ";
-static char icon6[20] = " ";
-static char icon7[20] = " ";
+// UNUSED icon4-7 - saves 80 bytes
+// static char icon4[20] = " ";
+// static char icon5[20] = " ";
+// static char icon6[20] = " ";
+// static char icon7[20] = " ";
 
-static char h1[20] = " ";
-static char h2[20] = " ";
-static char h3[20] = " ";
-static char location[100] = " ";
-static char wind1[10] = " ";
-static char wind2[10] = " ";
-static char wind3[10] = " ";
-static char temp1[10] = " ";
-static char temp2[10] = " ";
-static char temp3[10] = " ";
-static char temp4[10] = " ";
-static char temp5[10] = " ";
-static char rain1[10] = " ";
-static char rain2[10] = " ";
-static char rain3[10] = " ";
-static char rain4[10] = " ";
+static char h1[8] = " ";        // Reduced from 20 - saves 12 bytes
+static char h2[8] = " ";        // Reduced from 20 - saves 12 bytes
+static char h3[8] = " ";        // Reduced from 20 - saves 12 bytes
+static char location[40] = " "; // Reduced from 100 - saves 60 bytes
+// UNUSED wind/temp/rain char arrays - we use _val int versions - saves 120 bytes
+// static char wind1[10] = " ";
+// static char wind2[10] = " ";
+// static char wind3[10] = " ";
+// static char temp1[10] = " ";
+// static char temp2[10] = " ";
+// static char temp3[10] = " ";
+// static char temp4[10] = " ";
+// static char temp5[10] = " ";
+// static char rain1[10] = " ";
+// static char rain2[10] = " ";
+// static char rain3[10] = " ";
+// static char rain4[10] = " ";
 static char rain_ico_val;
-static char city[50] = " ";
+static char city[32] = " "; // Reduced from 50 - saves 18 bytes
 
 // Extended hourly forecast data for weather graph (minimized for memory)
 static int graph_temps[5] = {10, 10, 10, 10, 10};
@@ -410,16 +412,17 @@ static void ensure_fontbig_loaded(void);
 int line_interval = 4;
 int segment_thickness = 2;
 
-static int markWidth[12] = {MARK_0,  MARK_5, MARK_5, MARK_15, MARK_5, MARK_5,
-                            MARK_30, MARK_5, MARK_5, MARK_15, MARK_5, MARK_5};
+// UNUSED markWidth array - saves 48 bytes
+// static int markWidth[12] = {MARK_0,  MARK_5, MARK_5, MARK_15, MARK_5, MARK_5,
+//                             MARK_30, MARK_5, MARK_5, MARK_15, MARK_5, MARK_5};
 static int labels_12h[28] = {10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8,  9,  10, 11,
                              12, 1,  2,  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
 static int labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
                          12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0,  1};
 
 static uint8_t battery_level = 0;
-
-static char hour_text[5] = " ";
+// UNUSED hour_text - saves 5 bytes
+// static char hour_text[5] = " ";
 
 static char *weekdayLangFr[7] = {"DIM", "LUN", "MAR", "MER",
                                  "JEU", "VEN", "SAM"};
@@ -554,6 +557,8 @@ static int build_icon(char *text_icon) {
   return RESOURCE_ID_BT;
 }
 
+// UNUSED build_number function - saves ~200 bytes of code
+/*
 static int build_number(char number) {
   if (number == '0') {
     return RESOURCE_ID_0;
@@ -587,6 +592,7 @@ static int build_number(char number) {
   }
   return RESOURCE_ID_0;
 }
+*/
 
 int abs(int x) {
   if (x >= 0)
@@ -877,9 +883,7 @@ static void handle_whiteout_timeout(void *context) {
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: tap axis %d dir %ld", axis,
-          (long)direction);
-
+  // Removed APP_LOG to save memory
   s_whiteout_active = true;
 
   if (timer_short) {
@@ -888,30 +892,20 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   }
 
   timer_short = app_timer_register(10000, handle_whiteout_timeout, NULL);
-  if (!timer_short) {
-    APP_LOG(APP_LOG_LEVEL_WARNING, "WATCH: whiteout timer allocation failed");
-  }
-
   layer_mark_dirty(layer);
 }
 
+// UNUSED handle_battery - battery_state_service not subscribed - saves ~100 bytes
+/*
 static void handle_battery(BatteryChargeState charge) {
   battery_level = charge.charge_percent;
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "handle_battery -> %d", (int)battery_level);
   bool save_state = is_charging;
   is_charging = charge.is_charging;
-  /*
-    if (is_charging){
-      if ((battery_level)<40)
-      battery_level;
-      if(battery_level>100)
-        battery_level=100;
-    }*/
-
   if (is_charging != save_state) {
     layer_mark_dirty(layer);
   }
 }
+*/
 
 static void setHourLinePoints() {
 
@@ -1056,25 +1050,27 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     Tuple *rain3_tuple = dict_find(iterator, KEY_FORECAST_RAIN3);
     Tuple *rain4_tuple = dict_find(iterator, KEY_FORECAST_RAIN4);
 
-    // Extended hourly forecast tuples for weather graph
-    Tuple *temp6_tuple = dict_find(iterator, KEY_FORECAST_TEMP6);
-    Tuple *temp7_tuple = dict_find(iterator, KEY_FORECAST_TEMP7);
-    Tuple *temp8_tuple = dict_find(iterator, KEY_FORECAST_TEMP8);
-    Tuple *temp9_tuple = dict_find(iterator, KEY_FORECAST_TEMP9);
+    // Extended hourly forecast tuples - UNUSED (only 5 temps needed)
+    // Tuple *temp6_tuple = dict_find(iterator, KEY_FORECAST_TEMP6);
+    // Tuple *temp7_tuple = dict_find(iterator, KEY_FORECAST_TEMP7);
+    // Tuple *temp8_tuple = dict_find(iterator, KEY_FORECAST_TEMP8);
+    // Tuple *temp9_tuple = dict_find(iterator, KEY_FORECAST_TEMP9);
     
     Tuple *h0_tuple = dict_find(iterator, KEY_FORECAST_H0);
-    Tuple *h4_tuple = dict_find(iterator, KEY_FORECAST_H4);
-    Tuple *h5_tuple = dict_find(iterator, KEY_FORECAST_H5);
-    Tuple *h6_tuple = dict_find(iterator, KEY_FORECAST_H6);
-    Tuple *h7_tuple = dict_find(iterator, KEY_FORECAST_H7);
-    Tuple *h8_tuple = dict_find(iterator, KEY_FORECAST_H8);
+    // UNUSED h4-h8 tuples
+    // Tuple *h4_tuple = dict_find(iterator, KEY_FORECAST_H4);
+    // Tuple *h5_tuple = dict_find(iterator, KEY_FORECAST_H5);
+    // Tuple *h6_tuple = dict_find(iterator, KEY_FORECAST_H6);
+    // Tuple *h7_tuple = dict_find(iterator, KEY_FORECAST_H7);
+    // Tuple *h8_tuple = dict_find(iterator, KEY_FORECAST_H8);
     
-    Tuple *rain5_tuple = dict_find(iterator, KEY_FORECAST_RAIN5);
-    Tuple *rain6_tuple = dict_find(iterator, KEY_FORECAST_RAIN6);
-    Tuple *rain7_tuple = dict_find(iterator, KEY_FORECAST_RAIN7);
-    Tuple *rain8_tuple = dict_find(iterator, KEY_FORECAST_RAIN8);
+    // UNUSED rain5-8 tuples (only 12 rain values needed)
+    // Tuple *rain5_tuple = dict_find(iterator, KEY_FORECAST_RAIN5);
+    // Tuple *rain6_tuple = dict_find(iterator, KEY_FORECAST_RAIN6);
+    // Tuple *rain7_tuple = dict_find(iterator, KEY_FORECAST_RAIN7);
+    // Tuple *rain8_tuple = dict_find(iterator, KEY_FORECAST_RAIN8);
     
-    // Detailed rain tuples (3 per 3-hour block)
+    // Detailed rain tuples (3 per 3-hour block) - only first 4 blocks used
     Tuple *rain11_tuple = dict_find(iterator, KEY_FORECAST_RAIN11);
     Tuple *rain12_tuple = dict_find(iterator, KEY_FORECAST_RAIN12);
     Tuple *rain21_tuple = dict_find(iterator, KEY_FORECAST_RAIN21);
@@ -1083,26 +1079,29 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     Tuple *rain32_tuple = dict_find(iterator, KEY_FORECAST_RAIN32);
     Tuple *rain41_tuple = dict_find(iterator, KEY_FORECAST_RAIN41);
     Tuple *rain42_tuple = dict_find(iterator, KEY_FORECAST_RAIN42);
-    Tuple *rain51_tuple = dict_find(iterator, KEY_FORECAST_RAIN51);
-    Tuple *rain52_tuple = dict_find(iterator, KEY_FORECAST_RAIN52);
-    Tuple *rain61_tuple = dict_find(iterator, KEY_FORECAST_RAIN61);
-    Tuple *rain62_tuple = dict_find(iterator, KEY_FORECAST_RAIN62);
-    Tuple *rain71_tuple = dict_find(iterator, KEY_FORECAST_RAIN71);
-    Tuple *rain72_tuple = dict_find(iterator, KEY_FORECAST_RAIN72);
-    Tuple *rain81_tuple = dict_find(iterator, KEY_FORECAST_RAIN81);
-    Tuple *rain82_tuple = dict_find(iterator, KEY_FORECAST_RAIN82);
+    // UNUSED rain51-82
+    // Tuple *rain51_tuple = dict_find(iterator, KEY_FORECAST_RAIN51);
+    // Tuple *rain52_tuple = dict_find(iterator, KEY_FORECAST_RAIN52);
+    // Tuple *rain61_tuple = dict_find(iterator, KEY_FORECAST_RAIN61);
+    // Tuple *rain62_tuple = dict_find(iterator, KEY_FORECAST_RAIN62);
+    // Tuple *rain71_tuple = dict_find(iterator, KEY_FORECAST_RAIN71);
+    // Tuple *rain72_tuple = dict_find(iterator, KEY_FORECAST_RAIN72);
+    // Tuple *rain81_tuple = dict_find(iterator, KEY_FORECAST_RAIN81);
+    // Tuple *rain82_tuple = dict_find(iterator, KEY_FORECAST_RAIN82);
     
-    Tuple *icon4_tuple = dict_find(iterator, KEY_FORECAST_ICON4);
-    Tuple *icon5_tuple = dict_find(iterator, KEY_FORECAST_ICON5);
-    Tuple *icon6_tuple = dict_find(iterator, KEY_FORECAST_ICON6);
-    Tuple *icon7_tuple = dict_find(iterator, KEY_FORECAST_ICON7);
+    // UNUSED icon4-7 (only 3 icons in graph)
+    // Tuple *icon4_tuple = dict_find(iterator, KEY_FORECAST_ICON4);
+    // Tuple *icon5_tuple = dict_find(iterator, KEY_FORECAST_ICON5);
+    // Tuple *icon6_tuple = dict_find(iterator, KEY_FORECAST_ICON6);
+    // Tuple *icon7_tuple = dict_find(iterator, KEY_FORECAST_ICON7);
     
     Tuple *wind0_tuple = dict_find(iterator, KEY_FORECAST_WIND0);
-    Tuple *wind4_tuple = dict_find(iterator, KEY_FORECAST_WIND4);
-    Tuple *wind5_tuple = dict_find(iterator, KEY_FORECAST_WIND5);
-    Tuple *wind6_tuple = dict_find(iterator, KEY_FORECAST_WIND6);
-    Tuple *wind7_tuple = dict_find(iterator, KEY_FORECAST_WIND7);
-    Tuple *wind8_tuple = dict_find(iterator, KEY_FORECAST_WIND8);
+    // UNUSED wind4-8 (only wind0-3 needed)
+    // Tuple *wind4_tuple = dict_find(iterator, KEY_FORECAST_WIND4);
+    // Tuple *wind5_tuple = dict_find(iterator, KEY_FORECAST_WIND5);
+    // Tuple *wind6_tuple = dict_find(iterator, KEY_FORECAST_WIND6);
+    // Tuple *wind7_tuple = dict_find(iterator, KEY_FORECAST_WIND7);
+    // Tuple *wind8_tuple = dict_find(iterator, KEY_FORECAST_WIND8);
 
     // Récupération des tuples
     Tuple *poolTemp_tuple = dict_find(iterator, KEY_POOLTEMP);
@@ -1265,7 +1264,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     Tuple *radio_tuple = dict_find(iterator, KEY_RADIO_UNITS);
     Tuple *refresh_tuple = dict_find(iterator, KEY_RADIO_REFRESH);
     Tuple *vibration_tuple = dict_find(iterator, KEY_TOGGLE_VIBRATION);
-    Tuple *bw_icon_tuple = dict_find(iterator, KEY_TOGGLE_BW_ICONS);
+    // UNUSED - is_bw_icon is hardcoded
+    // Tuple *bw_icon_tuple = dict_find(iterator, KEY_TOGGLE_BW_ICONS);
     Tuple *gradiant_tuple = dict_find(iterator, KEY_TOGGLE_GRADIANT);
     Tuple *gradiant_ruler_large_tuple =
         dict_find(iterator, KEY_TOGGLE_RULER_LARGE);
