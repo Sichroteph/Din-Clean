@@ -6,7 +6,7 @@
 #define WIDTH 144
 #define HEIGHT 168
 #define WEATHER_OFFSET_X -14
-#define WEATHER_OFFSET_Y -55
+#define WEATHER_OFFSET_Y -60
 #define MAXRAIN 40
 #define LINE_THICK 3
 
@@ -38,13 +38,6 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
 
   const int offset_y = s_weather_graph_offset_y;
-
-  // On Aplite, draw simple lines instead of bitmap to save heap memory
-  graphics_context_set_stroke_color(ctx, GColorWhite);
-  graphics_draw_line(ctx, GPoint(23, 59 + offset_y),
-                     GPoint(144, 59 + offset_y));
-  graphics_draw_line(ctx, GPoint(23, 120 + offset_y),
-                     GPoint(144, 120 + offset_y));
 
   GRect rect_h0 = {{6 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
   GRect rect_h1 = {{37 + WEATHER_OFFSET_X, 116 + offset_y}, {60, 40}};
@@ -232,7 +225,7 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     char weekday_abbrev[4] = "";
     if (weekday_name && weekday_name[0] != '\0') {
       snprintf(weekday_abbrev, sizeof(weekday_abbrev), "%.3s", weekday_name);
-      GRect label_rect = {{icon_rect.origin.x, icon_rect.origin.y - 16},
+      GRect label_rect = {{icon_rect.origin.x - 1, icon_rect.origin.y - 16},
                           {icon_rect.size.w, 12}};
       graphics_draw_text(ctx, weekday_abbrev, statusfontsmall, label_rect,
                          GTextOverflowModeTrailingEllipsis,
@@ -252,5 +245,19 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 
   if (pourtour) {
     gbitmap_destroy(pourtour);
+  }
+
+  graphics_context_set_stroke_width(ctx, 1);
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_draw_line(ctx, GPoint(23, 1), GPoint(143, 1));
+  graphics_draw_line(ctx, GPoint(23, 1), GPoint(23, 122 + offset_y));
+  graphics_draw_line(ctx, GPoint(143, 1), GPoint(143, 122 + offset_y));
+
+  graphics_draw_line(ctx, GPoint(23, 122 + offset_y),
+                     GPoint(143, 122 + offset_y));
+
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  for (int x = 0; x <= 143; x += 6) {
+    graphics_fill_circle(ctx, GPoint(x, 168 + offset_y), 1);
   }
 }

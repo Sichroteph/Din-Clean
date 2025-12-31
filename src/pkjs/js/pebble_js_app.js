@@ -185,7 +185,7 @@ function processWeatherResponse(responseText) {
       } else {
         windValue = Math.round(windSpeedMps * 3.6);
       }
-      hourlyWind['hour' + j] = humidityHour + "%\n" + windValue;
+      hourlyWind['hour' + j] = windValue + "\n";
 
       if (jsonWeather.properties.timeseries[j].data.next_1_hours && jsonWeather.properties.timeseries[j].data.next_1_hours.summary) {
         hourly_icons['hour' + j] = jsonWeather.properties.timeseries[j].data.next_1_hours.summary.symbol_code;
