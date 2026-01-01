@@ -55,13 +55,8 @@ static bool show_second_panel = true;
 #define STATUS_FONT FONT_KEY_GOTHIC_14
 
 #define KEY_TEMPERATURE 0
-
-#define KEY_DESCRIPTION 2
 #define KEY_WIND_SPEED 3
-#define KEY_CLOUDS 4
 #define KEY_HUMIDITY 5
-#define KEY_SUNRISE 6
-#define KEY_SUNSET 7
 #define KEY_TMIN 8
 #define KEY_TMAX 9
 #define KEY_ICON 10
@@ -78,7 +73,6 @@ static bool show_second_panel = true;
 #define KEY_FORECAST_RAIN2 22
 #define KEY_FORECAST_RAIN3 23
 #define KEY_FORECAST_RAIN4 24
-#define KEY_FORECAST_RAIN5 25
 #define KEY_FORECAST_ICON1 26
 #define KEY_FORECAST_ICON2 27
 #define KEY_FORECAST_ICON3 28
@@ -87,32 +81,8 @@ static bool show_second_panel = true;
 #define KEY_FORECAST_WIND3 31
 #define KEY_LOCATION 32
 
-#define KEY_GPS 33
-
-// Extended hourly forecast keys (for weather graph)
-#define KEY_FORECAST_TEMP6 116
-#define KEY_FORECAST_TEMP7 117
-#define KEY_FORECAST_TEMP8 118
-#define KEY_FORECAST_TEMP9 119
 #define KEY_FORECAST_H0 120
-#define KEY_FORECAST_H4 121
-#define KEY_FORECAST_H5 122
-#define KEY_FORECAST_H6 123
-#define KEY_FORECAST_H7 124
-#define KEY_FORECAST_H8 125
-#define KEY_FORECAST_RAIN6 136
-#define KEY_FORECAST_RAIN7 139
-#define KEY_FORECAST_RAIN8 142
-#define KEY_FORECAST_ICON4 145
-#define KEY_FORECAST_ICON5 146
-#define KEY_FORECAST_ICON6 147
-#define KEY_FORECAST_ICON7 148
 #define KEY_FORECAST_WIND0 149
-#define KEY_FORECAST_WIND4 150
-#define KEY_FORECAST_WIND5 151
-#define KEY_FORECAST_WIND6 152
-#define KEY_FORECAST_WIND7 153
-#define KEY_FORECAST_WIND8 154
 
 // Detailed rain keys (3 per 3-hour block)
 #define KEY_FORECAST_RAIN11 126
@@ -123,69 +93,19 @@ static bool show_second_panel = true;
 #define KEY_FORECAST_RAIN32 131
 #define KEY_FORECAST_RAIN41 132
 #define KEY_FORECAST_RAIN42 133
-#define KEY_FORECAST_RAIN51 134
-#define KEY_FORECAST_RAIN52 135
-#define KEY_FORECAST_RAIN61 137
-#define KEY_FORECAST_RAIN62 138
-#define KEY_FORECAST_RAIN71 140
-#define KEY_FORECAST_RAIN72 141
-#define KEY_FORECAST_RAIN81 143
-#define KEY_FORECAST_RAIN82 144
-#define KEY_INPUT_CITY 34
-#define KEY_SELECT_UTC 35
+
 #define KEY_RADIO_UNITS 36
 #define KEY_RADIO_REFRESH 54
 #define KEY_TOGGLE_VIBRATION 37
-#define KEY_TOGGLE_BW_ICONS 38
 #define KEY_COLOR_RIGHT_R 39
 #define KEY_COLOR_RIGHT_G 40
 #define KEY_COLOR_RIGHT_B 41
 #define KEY_COLOR_LEFT_R 42
 #define KEY_COLOR_LEFT_G 43
 #define KEY_COLOR_LEFT_B 44
-#define KEY_COLOR_HOURS_R 45
-#define KEY_COLOR_HOURS_G 46
-#define KEY_COLOR_HOURS_B 47
 
-#define KEY_COLOR_RULER_R 48
-#define KEY_COLOR_RULER_G 49
-#define KEY_COLOR_RULER_B 50
-#define KEY_COLOR_TEMPERATURES_R 51
-#define KEY_COLOR_TEMPERATURES_G 52
-#define KEY_COLOR_TEMPERATURES_B 53
-#define KEY_RADIO_REFRESH 54
-#define KEY_LAST_REFRESH 55
-#define KEY_COLOR_LINE_R 56
-#define KEY_COLOR_LINE_G 57
-#define KEY_COLOR_LINE_B 58
-#define KEY_TOGGLE_GRADIANT 59
-#define KEY_SELECT_SCREEN 60
-#define KEY_FORCE_GRAPH 155
-#define KEY_COLOR_2ND_BACK_R 61
-#define KEY_COLOR_2ND_BACK_G 62
-#define KEY_COLOR_2ND_BACK_B 63
-#define KEY_COLOR_2ND_TEMP_R 64
-#define KEY_COLOR_2ND_TEMP_G 65
-#define KEY_COLOR_2ND_TEMP_B 66
-#define KEY_TOGGLE_RULER_LARGE 67
-#define KEY_TOGGLE_CENTERED 68
-
-#define KEY_SELECT_GOAL 69
-#define KEY_SELECT_FONTS 102
 #define KEY_TOGGLE_BT 103
-#define KEY_TOGGLE_MONTH 104
-#define KEY_PHONE_BAT 105
-#define KEY_PHONE_CHARGE 106
-#define KEY_TOGGLE_100 107
-#define KEY_TOGGLE_80 108
-#define KEY_TOGGLE_INV 109
-#define KEY_TOGGLE_TG 110
-#define KEY_TOGGLE_PC 111
-#define KEY_SELECT_PROVIDER 112
-
-#define KEY_TOGGLE_TG 110
-#define KEY_TOGGLE_PC 111
-#define KEY_SELECT_PROVIDER 112
+#define KEY_LAST_REFRESH 55
 
 #define KEY_POOLTEMP 113
 #define KEY_POOLPH 114
@@ -267,19 +187,11 @@ static bool show_second_panel = true;
 #define QUIET_TIME_START 22
 #define QUIET_TIME_END 10
 
-static bool is_vibration = false;
-static bool is_inv = true;
-// Is time graph
-static bool is_tg = false;
-// is notif when Phone Charge
-static bool is_pc = false;
 static Window *s_main_window;
 static Layer *s_canvas_layer;
 static Layer *layer;
 
 static int hour_part_size = 0;
-static int phone_bat = 0;
-// static bool is_phone_charging = false;  // UNUSED - saves 1 byte
 
 static char week_day[4] = " ";
 static char month[4] = " ";
@@ -354,7 +266,6 @@ static char location[20] = " "; // Reduced from 100 - saves 80 bytes
 // static char rain3[10] = " ";
 // static char rain4[10] = " ";
 static char rain_ico_val;
-static char city[16] = " "; // Reduced from 50 - saves 34 bytes
 
 // Extended hourly forecast data for weather graph (minimized for memory)
 static int8_t graph_temps[5] = {10, 10, 10, 10, 10};
@@ -385,32 +296,14 @@ typedef enum {
 static WhiteoutScreenMode s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
 
 // Config data
-static bool is_gps;
-static bool is_centered = false;
-static bool is_month = false;
-
-static int utc = 1;
-static int select_screen = 2;
 static bool is_metric = 1;
 static bool is_30mn = 1;
 static bool is_bt = 0;
-static bool is_phone_100 = 0;
-static bool is_phone_80 = 0;
-static int select_fonts = 0;
-static int select_provider = 0;
-static int select_goal = 0;
+static bool is_vibration = 0;
 
-static bool is_bw_icon = 1;
-static bool is_gradiant = 0;
-static bool is_ruler_large = 1;
 static GColor color_right;
 static GColor color_left;
-static GColor color_hours;
-static GColor color_ruler;
 static GColor color_temp;
-static GColor color_line;
-static GColor color_2nd_back;
-static GColor color_2nd_temp;
 static bool s_whiteout_active = false;
 
 static GPoint line1_p1 = {0, 84};
@@ -506,85 +399,85 @@ static int build_icon(char *text_icon) {
 
   // APP_LOG(APP_LOG_LEVEL_INFO, "texte ICONE  %s", text_icon);
   if ((strcmp(text_icon, "clearsky_day") == 0)) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_ENSOLEILLE_W;
     else
       return RESOURCE_ID_ENSOLEILLE;
   }
   if ((strcmp(text_icon, "clearsky_night") == 0)) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_NUIT_CLAIRE_W;
     else
       return RESOURCE_ID_NUIT_CLAIRE;
   }
   if ((strcmp(text_icon, "fair_day") == 0) ||
       (strcmp(text_icon, "fair_polartwilight") == 0)) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX_W;
     else
       return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX;
   }
   if (strcmp(text_icon, "fair_night") == 0) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_NUIT_BIEN_DEGAGEE_W;
     else
       return RESOURCE_ID_NUIT_BIEN_DEGAGEE;
   }
   if (strcmp(text_icon, "wind") == 0) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_WIND;
     else
       return RESOURCE_ID_WIND;
   }
   if ((strcmp(text_icon, "partlycloudy_day") == 0) ||
       (strcmp(text_icon, "partlycloudy_polartwilight") == 0)) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX_W;
     else
       return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX;
   }
   if ((strcmp(text_icon, "partlycloudy_night") == 0) ||
       (strncmp(text_icon, "partlycloudy_ni", 15) == 0)) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W;
     else
       return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX;
   }
   if ((strcmp(text_icon, "cloudy") == 0)) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_FORTEMENT_NUAGEUX_W;
     else
       return RESOURCE_ID_FORTEMENT_NUAGEUX;
   }
 
   if (strstr(text_icon, "rain") != NULL) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W;
     else
       return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE;
   }
   if (strcmp(text_icon, "rainshowers_night") == 0) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_NUIT_AVEC_AVERSES_W;
     else
       return RESOURCE_ID_NUIT_AVEC_AVERSES;
   }
 
   if (strstr(text_icon, "thunder") != NULL) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_FORTEMENT_ORAGEUX_W;
     else
       return RESOURCE_ID_FORTEMENT_ORAGEUX;
   }
 
   if (strstr(text_icon, "snow") || (strstr(text_icon, "sleet")) != NULL) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_NEIGE_FORTE_W;
     else
       return RESOURCE_ID_NEIGE_FORTE;
   }
   if (strcmp(text_icon, "fog") == 0) {
-    if ((is_bw_icon) || (!IS_COLOR))
+    if (true)
       return RESOURCE_ID_BROUILLARD_W;
     else
       return RESOURCE_ID_BROUILLARD;
@@ -723,13 +616,9 @@ static void update_proc(Layer *layer, GContext *ctx) {
     first_draw_logged = true;
   }
 
-  if (is_ruler_large) {
-    line_interval = 5;
-    segment_thickness = 3;
-  } else {
-    line_interval = 4;
-    segment_thickness = 2;
-  }
+  // ruler_large is always true now
+  line_interval = 5;
+  segment_thickness = 3;
 
   // DRAW DIAL
   GRect rect_text_day = {{TEXT_DAY_STATUS_OFFSET_X + status_offset_x,
@@ -823,7 +712,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .has_fresh_weather = has_fresh_weather,
                            .is_connected = is_connected,
                            .is_quiet_time = quiet_time_is_active(),
-                           .is_bw_icon = is_bw_icon,
+                           .is_bw_icon = true,
                            .is_color = IS_COLOR,
 
                            .is_metric = is_metric,
@@ -906,9 +795,8 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
 
   // Get weather update every 30 minutes
   if ((is_connected) && (!quiet_time_is_active())) {
-    if (((select_provider != 0) &&
-         (((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) ||
-          ((mktime(&now) - last_refresh) > duration)))) {
+    if ((((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) ||
+          ((mktime(&now) - last_refresh) > duration))) {
       // Begin dictionary
       DictionaryIterator *iter;
       app_message_outbox_begin(&iter);
@@ -1003,42 +891,17 @@ static void initBatteryLevel() {
 
 static void assign_fonts() {
 
-  if (select_fonts == 0) {
-    fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-    fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-    fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-    fontbig = fonts_get_system_font(
-        FONT_KEY_GOTHIC_28_BOLD); // fallback until custom loaded
-    fontbig_loaded = false;
-    fontbig_resource_id = 0;
-    hour_offset_x = 5;
-    hour_offset_y = 0;
-    status_offset_x = 1;
-    status_offset_y = 0;
-  } else if (select_fonts == 1) {
-
-    fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-    fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-    fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-    fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-    fontbig_loaded = false;
-    fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
-    hour_offset_x = 1;
-    hour_offset_y = 9;
-    status_offset_x = 1;
-    status_offset_y = 0;
-  } else if (select_fonts == 2) {
-    fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-    fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-    fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-    fontbig = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-    fontbig_loaded = false;
-    fontbig_resource_id = 0;
-    hour_offset_x = 1;
-    hour_offset_y = 11;
-    status_offset_x = 1;
-    status_offset_y = 0;
-  }
+  // Font configuration is now fixed to style 1 (CLEARVIEW_45)
+  fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+  fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  fontbig_loaded = false;
+  fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
+  hour_offset_x = 1;
+  hour_offset_y = 9;
+  status_offset_x = 1;
+  status_offset_y = 0;
 
   APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: assign_fonts resource_id=%d",
           fontbig_resource_id);
@@ -1058,11 +921,10 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: inbox_received %lu",
           (unsigned long)time(NULL));
   // pour test
-  Tuple *gps_tuple = dict_find(iterator, KEY_GPS);
+  Tuple *radio_tuple = dict_find(iterator, KEY_RADIO_UNITS);
   Tuple *temp_tuple = dict_find(iterator, KEY_TEMPERATURE);
-  Tuple *force_graph_tuple = dict_find(iterator, KEY_FORCE_GRAPH);
 
-  if (force_graph_tuple && force_graph_tuple->value->int32 != 0) {
+  if (0) {
     handle_wrist_tap(ACCEL_AXIS_X, 1);
   }
 
@@ -1370,13 +1232,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 
     // Persist extended forecast data for weather graph (minimal)
     persist_write_int(KEY_FORECAST_H0, graph_h0);
-    persist_write_string(KEY_FORECAST_ICON4, graph_icon1);
-    persist_write_string(KEY_FORECAST_ICON5, graph_icon2);
-    persist_write_string(KEY_FORECAST_ICON6, graph_icon3);
-    persist_write_string(KEY_FORECAST_WIND0, graph_wind0);
-    persist_write_string(KEY_FORECAST_WIND4, graph_wind1);
-    persist_write_string(KEY_FORECAST_WIND5, graph_wind2);
-    persist_write_string(KEY_FORECAST_WIND6, graph_wind3);
 
     // Persist 3-day forecast data
     persist_write_string(KEY_DAY1_TEMP, days_temp[0]);
@@ -1396,34 +1251,11 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     layer_mark_dirty(layer);
   }
 
-  if (gps_tuple) {
-
-    Tuple *tg_tuple = dict_find(iterator, KEY_TOGGLE_TG);
-    Tuple *pc_tuple = dict_find(iterator, KEY_TOGGLE_PC);
-
-    Tuple *centered_tuple = dict_find(iterator, KEY_TOGGLE_CENTERED);
-    Tuple *month_tuple = dict_find(iterator, KEY_TOGGLE_MONTH);
-    Tuple *city_tuple = dict_find(iterator, KEY_INPUT_CITY);
-    Tuple *utc_tuple = dict_find(iterator, KEY_SELECT_UTC);
-    Tuple *screen_tuple = dict_find(iterator, KEY_SELECT_SCREEN);
-
-    Tuple *radio_tuple = dict_find(iterator, KEY_RADIO_UNITS);
+  // Configuration message received
+  if (radio_tuple) {
     Tuple *refresh_tuple = dict_find(iterator, KEY_RADIO_REFRESH);
     Tuple *vibration_tuple = dict_find(iterator, KEY_TOGGLE_VIBRATION);
-    // UNUSED - is_bw_icon is hardcoded
-    // Tuple *bw_icon_tuple = dict_find(iterator, KEY_TOGGLE_BW_ICONS);
-    Tuple *gradiant_tuple = dict_find(iterator, KEY_TOGGLE_GRADIANT);
-    Tuple *gradiant_ruler_large_tuple =
-        dict_find(iterator, KEY_TOGGLE_RULER_LARGE);
-
-    Tuple *goal_tuple = dict_find(iterator, KEY_SELECT_GOAL);
-    Tuple *fonts_tuple = dict_find(iterator, KEY_SELECT_FONTS);
-    Tuple *provider_tuple = dict_find(iterator, KEY_SELECT_PROVIDER);
-
     Tuple *bt_tuple = dict_find(iterator, KEY_TOGGLE_BT);
-    Tuple *inv_tuple = dict_find(iterator, KEY_TOGGLE_INV);
-    Tuple *phone_100_tuple = dict_find(iterator, KEY_TOGGLE_100);
-    Tuple *phone_80_tuple = dict_find(iterator, KEY_TOGGLE_80);
 
     Tuple *color_right_r_tuple = dict_find(iterator, KEY_COLOR_RIGHT_R);
     Tuple *color_right_g_tuple = dict_find(iterator, KEY_COLOR_RIGHT_G);
@@ -1433,198 +1265,47 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     Tuple *color_left_g_tuple = dict_find(iterator, KEY_COLOR_LEFT_G);
     Tuple *color_left_b_tuple = dict_find(iterator, KEY_COLOR_LEFT_B);
 
-    Tuple *color_hours_r_tuple = dict_find(iterator, KEY_COLOR_HOURS_R);
-    Tuple *color_hours_g_tuple = dict_find(iterator, KEY_COLOR_HOURS_G);
-    Tuple *color_hours_b_tuple = dict_find(iterator, KEY_COLOR_HOURS_B);
-
-    Tuple *color_ruler_r_tuple = dict_find(iterator, KEY_COLOR_RULER_R);
-    Tuple *color_ruler_g_tuple = dict_find(iterator, KEY_COLOR_RULER_G);
-    Tuple *color_ruler_b_tuple = dict_find(iterator, KEY_COLOR_RULER_B);
-
-    Tuple *color_temp_r_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_R);
-    Tuple *color_temp_g_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_G);
-    Tuple *color_temp_b_tuple = dict_find(iterator, KEY_COLOR_TEMPERATURES_B);
-
-    Tuple *color_line_r_tuple = dict_find(iterator, KEY_COLOR_LINE_R);
-    Tuple *color_line_g_tuple = dict_find(iterator, KEY_COLOR_LINE_G);
-    Tuple *color_line_b_tuple = dict_find(iterator, KEY_COLOR_LINE_B);
-
-    Tuple *color_2nd_back_r_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_R);
-    Tuple *color_2nd_back_g_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_G);
-    Tuple *color_2nd_back_b_tuple = dict_find(iterator, KEY_COLOR_2ND_BACK_B);
-
-    Tuple *color_2nd_temp_r_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_R);
-    Tuple *color_2nd_temp_g_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_G);
-    Tuple *color_2nd_temp_b_tuple = dict_find(iterator, KEY_COLOR_2ND_TEMP_B);
-
     int red;
     int green;
     int blue;
 
-    is_gps = gps_tuple->value->int32;
-    is_centered = centered_tuple->value->int32;
-    is_month = month_tuple->value->int32;
+    is_bt = bt_tuple ? bt_tuple->value->int32 : is_bt;
+    is_metric = radio_tuple ? !(radio_tuple->value->int32) : is_metric;
+    is_30mn = refresh_tuple ? refresh_tuple->value->int32 : is_30mn;
+    is_vibration = vibration_tuple ? vibration_tuple->value->int32 : is_vibration;
 
-    is_tg = tg_tuple->value->int32;
-    is_pc = pc_tuple->value->int32;
-    snprintf(city, sizeof(city), "%s", city_tuple->value->cstring);
-
-    char utc_char[10];
-    char screen_mode_char[10];
-    snprintf(utc_char, sizeof(utc_char), "%s", utc_tuple->value->cstring);
-    snprintf(screen_mode_char, sizeof(screen_mode_char), "%s",
-             screen_tuple->value->cstring);
-    utc = atoi(utc_char);
-    select_screen = atoi(screen_mode_char);
-
-    char goal_char[10];
-    char fonts_char[10];
-    char provider_char[10];
-
-    snprintf(goal_char, sizeof(goal_char), "%s", goal_tuple->value->cstring);
-    snprintf(fonts_char, sizeof(fonts_char), "%s", fonts_tuple->value->cstring);
-    snprintf(provider_char, sizeof(provider_char), "%s",
-             provider_tuple->value->cstring);
-
-    select_goal = atoi(goal_char);
-    select_fonts = atoi(fonts_char);
-    select_provider = atoi(provider_char);
-
-    assign_fonts();
-    is_bt = bt_tuple->value->int32;
-    is_inv = inv_tuple->value->int32;
-    is_phone_100 = phone_100_tuple->value->int32;
-    is_phone_80 = phone_80_tuple->value->int32;
-
-    is_metric = !(radio_tuple->value->int32);
-    is_30mn = refresh_tuple->value->int32;
-
-    is_vibration = vibration_tuple->value->int32;
-    is_bw_icon = true;
-
-    is_ruler_large = gradiant_ruler_large_tuple->value->int32;
-    is_gradiant = gradiant_tuple->value->int32;
-
-    red = color_right_r_tuple->value->int32;
-    green = color_right_g_tuple->value->int32;
-    blue = color_right_b_tuple->value->int32;
-    // Persist values
-    persist_write_int(KEY_COLOR_RIGHT_R, red);
-    persist_write_int(KEY_COLOR_RIGHT_G, green);
-    persist_write_int(KEY_COLOR_RIGHT_B, blue);
-    color_right = GColorFromRGB(red, green, blue);
-
-    red = color_left_r_tuple->value->int32;
-    green = color_left_g_tuple->value->int32;
-    blue = color_left_b_tuple->value->int32;
-    // Persist values
-    persist_write_int(KEY_COLOR_LEFT_R, red);
-    persist_write_int(KEY_COLOR_LEFT_G, green);
-    persist_write_int(KEY_COLOR_LEFT_B, blue);
-    color_left = GColorFromRGB(red, green, blue);
-
-    red = color_line_r_tuple->value->int32;
-    green = color_line_g_tuple->value->int32;
-    blue = color_line_b_tuple->value->int32;
-    // Persist values
-    persist_write_int(KEY_COLOR_LINE_R, red);
-    persist_write_int(KEY_COLOR_LINE_G, green);
-    persist_write_int(KEY_COLOR_LINE_B, blue);
-    color_line = GColorFromRGB(red, green, blue);
-
-    red = color_2nd_back_r_tuple->value->int32;
-    green = color_2nd_back_g_tuple->value->int32;
-    blue = color_2nd_back_b_tuple->value->int32;
-    // Persist values
-    persist_write_int(KEY_COLOR_2ND_BACK_R, red);
-    persist_write_int(KEY_COLOR_2ND_BACK_G, green);
-    persist_write_int(KEY_COLOR_2ND_BACK_B, blue);
-    color_2nd_back = GColorFromRGB(red, green, blue);
-
-    red = color_2nd_temp_r_tuple->value->int32;
-    green = color_2nd_temp_g_tuple->value->int32;
-    blue = color_2nd_temp_b_tuple->value->int32;
-    // Persist values
-    persist_write_int(KEY_COLOR_2ND_TEMP_R, red);
-    persist_write_int(KEY_COLOR_2ND_TEMP_G, green);
-    persist_write_int(KEY_COLOR_2ND_TEMP_B, blue);
-    color_2nd_temp = GColorFromRGB(red, green, blue);
-
-    red = color_hours_r_tuple->value->int32;
-    green = color_hours_g_tuple->value->int32;
-    blue = color_hours_b_tuple->value->int32;
-    //   APP_LOG(APP_LOG_LEVEL_DEBUG, "RGB color temp %i %i %i", red, green,
-    //   blue);
-    // Persist values
-    persist_write_int(KEY_COLOR_HOURS_R, red);
-    persist_write_int(KEY_COLOR_HOURS_G, green);
-    persist_write_int(KEY_COLOR_HOURS_B, blue);
-    color_hours = GColorFromRGB(red, green, blue);
-
-    red = color_ruler_r_tuple->value->int32;
-    green = color_ruler_g_tuple->value->int32;
-    blue = color_ruler_b_tuple->value->int32;
-    // Persist values
-    persist_write_int(KEY_COLOR_RULER_R, red);
-    persist_write_int(KEY_COLOR_RULER_G, green);
-    persist_write_int(KEY_COLOR_RULER_B, blue);
-    color_ruler = GColorFromRGB(red, green, blue);
-
-    red = color_temp_r_tuple->value->int32;
-    green = color_temp_g_tuple->value->int32;
-    blue = color_temp_b_tuple->value->int32;
-    color_temp = GColorFromRGB(red, green, blue);
-    color_temp = GColorWhite;
-    // Colors for OG pebbles
-    if (!IS_COLOR) {
-      color_temp = GColorWhite;
-      color_ruler = GColorWhite;
-      color_hours = GColorWhite;
-      color_left = GColorBlack;
-      color_line = GColorWhite;
-      color_right = GColorBlack;
-      color_2nd_back = GColorBlack;
-      color_2nd_temp = GColorWhite;
+    if (color_right_r_tuple && color_right_g_tuple && color_right_b_tuple) {
+      red = color_right_r_tuple->value->int32;
+      green = color_right_g_tuple->value->int32;
+      blue = color_right_b_tuple->value->int32;
+      persist_write_int(KEY_COLOR_RIGHT_R, red);
+      persist_write_int(KEY_COLOR_RIGHT_G, green);
+      persist_write_int(KEY_COLOR_RIGHT_B, blue);
+      color_right = GColorFromRGB(red, green, blue);
     }
 
-    // Persist values
-    persist_write_int(KEY_COLOR_TEMPERATURES_R, red);
-    persist_write_int(KEY_COLOR_TEMPERATURES_G, green);
-    persist_write_int(KEY_COLOR_TEMPERATURES_B, blue);
+    if (color_left_r_tuple && color_left_g_tuple && color_left_b_tuple) {
+      red = color_left_r_tuple->value->int32;
+      green = color_left_g_tuple->value->int32;
+      blue = color_left_b_tuple->value->int32;
+      persist_write_int(KEY_COLOR_LEFT_R, red);
+      persist_write_int(KEY_COLOR_LEFT_G, green);
+      persist_write_int(KEY_COLOR_LEFT_B, blue);
+      color_left = GColorFromRGB(red, green, blue);
+    }
 
-    persist_write_bool(KEY_GPS, is_gps);
-    persist_write_bool(KEY_TOGGLE_CENTERED, is_centered);
-    persist_write_bool(KEY_TOGGLE_MONTH, is_month);
-    persist_write_bool(KEY_TOGGLE_RULER_LARGE, is_ruler_large);
-    persist_write_string(KEY_INPUT_CITY, city);
-    persist_write_int(KEY_SELECT_UTC, utc);
-    persist_write_int(KEY_SELECT_SCREEN, select_screen);
-    persist_write_int(KEY_SELECT_GOAL, select_goal);
-    persist_write_int(KEY_SELECT_FONTS, select_fonts);
-    persist_write_int(KEY_SELECT_PROVIDER, select_provider);
+    // Colors for OG pebbles
+    if (!IS_COLOR) {
+      color_left = GColorBlack;
+      color_right = GColorBlack;
+    }
+
     persist_write_bool(KEY_RADIO_UNITS, is_metric);
     persist_write_bool(KEY_RADIO_REFRESH, is_30mn);
     persist_write_bool(KEY_TOGGLE_BT, is_bt);
-    persist_write_bool(KEY_TOGGLE_TG, is_tg);
-    persist_write_bool(KEY_TOGGLE_PC, is_pc);
-    persist_write_bool(KEY_TOGGLE_INV, is_inv);
-    persist_write_bool(KEY_TOGGLE_100, is_phone_100);
-    persist_write_bool(KEY_TOGGLE_80, is_phone_80);
-
     persist_write_bool(KEY_TOGGLE_VIBRATION, is_vibration);
-    persist_write_bool(KEY_TOGGLE_BW_ICONS, is_bw_icon);
-    persist_write_bool(KEY_TOGGLE_GRADIANT, is_gradiant);
-    //   APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty inbox_received_callback+ settings");
-    // Begin dictionary
+
     vibes_double_pulse();
-    if (select_provider != 0) {
-      DictionaryIterator *iter;
-      app_message_outbox_begin(&iter);
-      // Add a key-value pair
-      dict_write_uint8(iter, 0, 0);
-      // Send the message!
-      app_message_outbox_send();
-    }
   }
 }
 
@@ -1656,50 +1337,15 @@ static void init_var() {
   fontbig_loaded = false;
   fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
 
-  if (persist_exists(KEY_GPS)) {
-    phone_bat = persist_read_int(KEY_PHONE_BAT);
-  } else {
-    phone_bat = 0;
-  }
-
-  if (persist_exists(KEY_GPS) && persist_exists(KEY_SELECT_UTC) &&
-      persist_exists(KEY_RADIO_UNITS) && persist_exists(KEY_RADIO_REFRESH) &&
-      persist_exists(KEY_TOGGLE_VIBRATION) &&
-      persist_exists(KEY_TOGGLE_BW_ICONS) &&
-      persist_exists(KEY_TOGGLE_GRADIANT) &&
-      persist_exists(KEY_SELECT_SCREEN) && persist_exists(KEY_SELECT_FONTS) &&
-      persist_exists(KEY_SELECT_PROVIDER) && persist_exists(KEY_SELECT_GOAL) &&
-      persist_exists(KEY_TOGGLE_RULER_LARGE) &&
-      persist_exists(KEY_TOGGLE_CENTERED) && persist_exists(KEY_TOGGLE_MONTH) &&
-      persist_exists(KEY_TOGGLE_BT) && persist_exists(KEY_TOGGLE_TG)) {
-
-    is_gps = persist_read_bool(KEY_GPS);
-    is_centered = persist_read_bool(KEY_TOGGLE_CENTERED);
-    is_month = persist_read_bool(KEY_TOGGLE_MONTH);
-    is_ruler_large = persist_read_bool(KEY_TOGGLE_RULER_LARGE);
-    utc = persist_read_int(KEY_SELECT_UTC);
-    select_screen = persist_read_int(KEY_SELECT_SCREEN);
-    select_fonts = persist_read_int(KEY_SELECT_FONTS);
-    select_provider = persist_read_int(KEY_SELECT_PROVIDER);
-    select_goal = persist_read_int(KEY_SELECT_GOAL);
+  if (persist_exists(KEY_RADIO_UNITS) && persist_exists(KEY_RADIO_REFRESH) &&
+      persist_exists(KEY_TOGGLE_VIBRATION) && persist_exists(KEY_TOGGLE_BT)) {
 
     is_metric = persist_read_bool(KEY_RADIO_UNITS);
     is_30mn = persist_read_bool(KEY_RADIO_REFRESH);
     is_bt = persist_read_bool(KEY_TOGGLE_BT);
-    is_tg = persist_read_bool(KEY_TOGGLE_TG);
-    is_pc = persist_read_bool(KEY_TOGGLE_PC);
-    is_inv = persist_read_bool(KEY_TOGGLE_INV);
-    is_phone_100 = persist_read_bool(KEY_TOGGLE_100);
-    is_phone_80 = persist_read_bool(KEY_TOGGLE_80);
-
     is_vibration = persist_read_bool(KEY_TOGGLE_VIBRATION);
-    is_bw_icon = persist_read_bool(KEY_TOGGLE_BW_ICONS);
 
-    is_bw_icon = true;
-    is_gradiant = persist_read_bool(KEY_TOGGLE_GRADIANT);
-    int red;
-    int green;
-    int blue;
+    int red, green, blue;
     red = persist_read_int(KEY_COLOR_RIGHT_R);
     green = persist_read_int(KEY_COLOR_RIGHT_G);
     blue = persist_read_int(KEY_COLOR_RIGHT_B);
@@ -1709,61 +1355,16 @@ static void init_var() {
     green = persist_read_int(KEY_COLOR_LEFT_G);
     blue = persist_read_int(KEY_COLOR_LEFT_B);
     color_left = GColorFromRGB(red, green, blue);
-
-    red = persist_read_int(KEY_COLOR_LINE_R);
-    green = persist_read_int(KEY_COLOR_LINE_G);
-    blue = persist_read_int(KEY_COLOR_LINE_B);
-    color_line = GColorFromRGB(red, green, blue);
-
-    red = persist_read_int(KEY_COLOR_2ND_BACK_R);
-    green = persist_read_int(KEY_COLOR_2ND_BACK_G);
-    blue = persist_read_int(KEY_COLOR_2ND_BACK_B);
-    color_2nd_back = GColorFromRGB(red, green, blue);
-
-    red = persist_read_int(KEY_COLOR_2ND_TEMP_R);
-    green = persist_read_int(KEY_COLOR_2ND_TEMP_G);
-    blue = persist_read_int(KEY_COLOR_2ND_TEMP_B);
-    color_2nd_temp = GColorFromRGB(red, green, blue);
-
-    red = persist_read_int(KEY_COLOR_HOURS_R);
-    green = persist_read_int(KEY_COLOR_HOURS_G);
-    blue = persist_read_int(KEY_COLOR_HOURS_B);
-    color_hours = GColorFromRGB(red, green, blue);
-
-    red = persist_read_int(KEY_COLOR_RULER_R);
-    green = persist_read_int(KEY_COLOR_RULER_G);
-    blue = persist_read_int(KEY_COLOR_RULER_B);
-    color_ruler = GColorFromRGB(red, green, blue);
-
-    red = persist_read_int(KEY_COLOR_TEMPERATURES_R);
-    green = persist_read_int(KEY_COLOR_TEMPERATURES_G);
-    blue = persist_read_int(KEY_COLOR_TEMPERATURES_B);
-    color_temp = GColorFromRGB(red, green, blue);
   } else {
-    is_gps = true;
-    is_centered = false;
-    is_month = false;
-    utc = 0;
-    select_screen = 2;
-    select_fonts = 0;
-    select_provider = 2;
-    is_ruler_large = true;
-
     is_metric = true;
     is_vibration = false;
-    is_bw_icon = true;
-
-    is_gradiant = false;
+    is_bt = false;
+    is_30mn = true;
     color_right = GColorBlack;
     color_left = GColorBlack;
-    color_line = GColorWhite;
-    color_hours = GColorWhite;
-    color_ruler = GColorWhite;
-    color_2nd_back = GColorBlack;
-    color_2nd_temp = GColorWhite;
-    color_temp = GColorWhite;
   }
-  if (persist_exists(KEY_LAST_REFRESH) && persist_exists(KEY_WIND_SPEED) &&
+
+  if (persist_exists(KEY_WIND_SPEED) &&
       persist_exists(KEY_TMIN) && persist_exists(KEY_TMAX) &&
       persist_exists(KEY_FORECAST_WIND1) &&
       persist_exists(KEY_FORECAST_WIND2) &&
@@ -1849,15 +1450,6 @@ static void init_var() {
     graph_rains[10] = persist_read_int(KEY_FORECAST_RAIN41);
     graph_rains[11] = persist_read_int(KEY_FORECAST_RAIN42);
 
-    persist_read_string(KEY_FORECAST_ICON4, graph_icon1, sizeof(graph_icon1));
-    persist_read_string(KEY_FORECAST_ICON5, graph_icon2, sizeof(graph_icon2));
-    persist_read_string(KEY_FORECAST_ICON6, graph_icon3, sizeof(graph_icon3));
-
-    persist_read_string(KEY_FORECAST_WIND0, graph_wind0, sizeof(graph_wind0));
-    persist_read_string(KEY_FORECAST_WIND4, graph_wind1, sizeof(graph_wind1));
-    persist_read_string(KEY_FORECAST_WIND5, graph_wind2, sizeof(graph_wind2));
-    persist_read_string(KEY_FORECAST_WIND6, graph_wind3, sizeof(graph_wind3));
-
     // Load 3-day forecast data from persistence
     if (persist_exists(KEY_DAY1_TEMP)) {
       persist_read_string(KEY_DAY1_TEMP, days_temp[0], sizeof(days_temp[0]));
@@ -1925,14 +1517,8 @@ static void init_var() {
 
   color_temp = GColorWhite;
   if (!IS_COLOR) {
-
-    color_ruler = GColorWhite;
-    color_hours = GColorWhite;
     color_left = GColorBlack;
-    color_line = GColorWhite;
     color_right = GColorBlack;
-    color_2nd_temp = GColorWhite;
-    color_2nd_back = GColorBlack;
   }
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "select_fonts %d", select_fonts);
 
@@ -1950,13 +1536,9 @@ static void init_var() {
   is_charging = charge_state.is_charging;
   is_connected = connection_service_peek_pebble_app_connection();
 
-  if (is_ruler_large) {
-    line_interval = 5;
-    segment_thickness = 2;
-  } else {
-    line_interval = 4;
-    segment_thickness = 2;
-  }
+  // Fixed ruler settings
+  line_interval = 4;
+  segment_thickness = 2;
 
   if (!clock_is_24h_style()) {
     for (i = 0; i < 28; i++) {

@@ -574,8 +574,8 @@ Pebble.addEventListener('webviewclosed', function (e) {
   dict['KEY_COLOR_LEFT_BACK_G'] = safeColorComponent(color_left_back, 4, 6);
   dict['KEY_COLOR_LEFT_BACK_B'] = safeColorComponent(color_left_back, 6, 8);
 
-  // Pebble.sendAppMessage(dict, function () {
-  // }, function () {
-  // });
+  Pebble.sendAppMessage(dict, function () {
+  }, function () {
+  });
 
 });
