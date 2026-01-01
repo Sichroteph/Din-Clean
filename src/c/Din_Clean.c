@@ -796,7 +796,7 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
   // Get weather update every 30 minutes
   if ((is_connected) && (!quiet_time_is_active())) {
     if ((((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) ||
-          ((mktime(&now) - last_refresh) > duration))) {
+         ((mktime(&now) - last_refresh) > duration))) {
       // Begin dictionary
       DictionaryIterator *iter;
       app_message_outbox_begin(&iter);
@@ -1090,6 +1090,9 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       graph_h2 = (int)h2_tuple->value->int32;
     if (h3_tuple)
       graph_h3 = (int)h3_tuple->value->int32;
+    
+    APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: Hours received: h0=%d h1=%d h2=%d h3=%d", 
+            graph_h0, graph_h1, graph_h2, graph_h3);
     // h4-h8 not used
 
     // Rain data (12 segments only)
@@ -1272,7 +1275,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     is_bt = bt_tuple ? bt_tuple->value->int32 : is_bt;
     is_metric = radio_tuple ? !(radio_tuple->value->int32) : is_metric;
     is_30mn = refresh_tuple ? refresh_tuple->value->int32 : is_30mn;
-    is_vibration = vibration_tuple ? vibration_tuple->value->int32 : is_vibration;
+    is_vibration =
+        vibration_tuple ? vibration_tuple->value->int32 : is_vibration;
 
     if (color_right_r_tuple && color_right_g_tuple && color_right_b_tuple) {
       red = color_right_r_tuple->value->int32;
@@ -1364,9 +1368,8 @@ static void init_var() {
     color_left = GColorBlack;
   }
 
-  if (persist_exists(KEY_WIND_SPEED) &&
-      persist_exists(KEY_TMIN) && persist_exists(KEY_TMAX) &&
-      persist_exists(KEY_FORECAST_WIND1) &&
+  if (persist_exists(KEY_WIND_SPEED) && persist_exists(KEY_TMIN) &&
+      persist_exists(KEY_TMAX) && persist_exists(KEY_FORECAST_WIND1) &&
       persist_exists(KEY_FORECAST_WIND2) &&
       persist_exists(KEY_FORECAST_WIND3) &&
       persist_exists(KEY_FORECAST_TEMP1) &&

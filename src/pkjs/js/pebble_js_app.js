@@ -106,7 +106,7 @@ function processWeatherResponse(responseText) {
   var tmin = 1000;
   var tmax = -1000;
   for (var i = 0; i <= 24; i++) {
-    var temp = Math.round(jsonWeather.properties.timeseries[i].data.instant.details.air_temperature);
+    var temp = jsonWeather.properties.timeseries[i].data.instant.details.air_temperature;
     if (temp < tmin) {
       tmin = temp;
     }
@@ -115,18 +115,22 @@ function processWeatherResponse(responseText) {
     }
   }
 
-  var rTemperature = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.air_temperature);
+  var rTemperature = jsonWeather.properties.timeseries[0].data.instant.details.air_temperature;
   var humidity = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.relative_humidity);
 
   if (units == 1) {
     rTemperature = celsiusToFahrenheit(rTemperature);
     tmin = celsiusToFahrenheit(tmin);
     tmax = celsiusToFahrenheit(tmax);
+  } else {
+    rTemperature = Math.round(rTemperature);
+    tmin = Math.round(tmin);
+    tmax = Math.round(tmax);
   }
 
+  var temperature = Math.round(rTemperature);
   tmax = Math.round(tmax);
   tmin = Math.round(tmin);
-  var temperature = Math.round(rTemperature);
   var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
 
   if (units == 1) {
@@ -171,11 +175,13 @@ function processWeatherResponse(responseText) {
       var localHour = localTime.getHours();
       hourly_time['hour' + j] = localHour;
 
-      var tempI = Math.round(jsonWeather.properties.timeseries[j].data.instant.details.air_temperature);
+      var tempI = jsonWeather.properties.timeseries[j].data.instant.details.air_temperature;
       if (units_setting == 1) {
         tempI = celsiusToFahrenheit(tempI);
+      } else {
+        tempI = Math.round(tempI);
       }
-      hourlyTemperatures['hour' + j] = tempI;
+      hourlyTemperatures['hour' + j] = Math.round(tempI);
 
       var windSpeedMps = jsonWeather.properties.timeseries[j].data.instant.details.wind_speed;
       var humidityHour = Math.round(jsonWeather.properties.timeseries[j].data.instant.details.relative_humidity);
@@ -221,14 +227,16 @@ function processWeatherResponse(responseText) {
       if (dayData.next_6_hours && dayData.next_6_hours.details) {
         var tMax = dayData.next_6_hours.details.air_temperature_max || dayData.instant.details.air_temperature;
         var tMin = dayData.next_6_hours.details.air_temperature_min || dayData.instant.details.air_temperature;
-        dayTemp = Math.round((tMax + tMin) / 2);
+        dayTemp = (tMax + tMin) / 2;
       } else {
-        dayTemp = Math.round(dayData.instant.details.air_temperature);
+        dayTemp = dayData.instant.details.air_temperature;
       }
       if (units == 1) {
         dayTemp = celsiusToFahrenheit(dayTemp);
+      } else {
+        dayTemp = Math.round(dayTemp);
       }
-      day_temps[d] = dayTemp + "°";
+      day_temps[d] = Math.round(dayTemp) + "°";
 
       // Icon
       if (dayData.next_12_hours && dayData.next_12_hours.summary) {
@@ -256,6 +264,9 @@ function processWeatherResponse(responseText) {
       day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
     }
   }
+
+  console.log("Hours being sent: H0=" + hourly_time.hour0 + " H1=" + hourly_time.hour3 + " H2=" + hourly_time.hour6 + " H3=" + hourly_time.hour9);
+  console.log("Temps being sent: T1=" + hourlyTemperatures.hour0 + " T2=" + hourlyTemperatures.hour3 + " T3=" + hourlyTemperatures.hour6 + " T4=" + hourlyTemperatures.hour9 + " T5=" + hourlyTemperatures.hour12);
 
   var dictionary = {
     "KEY_TEMPERATURE": temperature,
