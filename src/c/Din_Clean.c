@@ -1,4 +1,10 @@
 #include <pebble.h>
+#include <stdbool.h>
+// Nouvelle clé pour l'option d'affichage du deuxième panneau
+#define KEY_SHOW_SECOND_PANEL 170
+// Variable globale pour l'option panneau secondaire
+static bool show_second_panel = true;
+#include <pebble.h>
 
 #include "ui_icon_bar.h"
 #include "ui_time.h"
@@ -10,7 +16,7 @@
 
 // pour afficher les segments
 #define FORCE_REFRESH false
-#define IS_HOUR_FICTIVE true
+#define IS_HOUR_FICTIVE false
 
 #define FICTIVE_HOUR 12
 #define FICTIVE_MINUTE 34
@@ -1068,6 +1074,12 @@ static void assign_fonts() {
 
 static void inbox_received_callback(DictionaryIterator *iterator,
                                     void *context) {
+  // Gestion de l'option panneau secondaire
+  Tuple *show_second_panel_tuple = dict_find(iterator, KEY_SHOW_SECOND_PANEL);
+  if (show_second_panel_tuple) {
+    show_second_panel = show_second_panel_tuple->value->int32;
+    persist_write_bool(KEY_SHOW_SECOND_PANEL, show_second_panel);
+  }
 
   // Read tuples for data
   APP_LOG(APP_LOG_LEVEL_DEBUG, "receiving tuples");
@@ -1654,6 +1666,12 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 }
 
 static void init_var() {
+  // Initialisation de show_second_panel
+  if (persist_exists(KEY_SHOW_SECOND_PANEL)) {
+    show_second_panel = persist_read_bool(KEY_SHOW_SECOND_PANEL);
+  } else {
+    show_second_panel = true;
+  }
   int i;
 
   t = time(NULL);

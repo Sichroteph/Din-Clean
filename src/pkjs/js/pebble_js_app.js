@@ -1,5 +1,5 @@
 // force la météo sur l'émulateur
-var b_force_internet = true;
+var b_force_internet = false;
 var bFakeData = 0;
 var bFakePosition = 0;
 
@@ -576,6 +576,11 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
   var dict = {};
 
+  // Ajout de l'option panneau secondaire
+  var show_second_panel = (typeof configData['show_second_panel'] === 'undefined') ? true : !!configData['show_second_panel'];
+  localStorage.setItem(170, show_second_panel ? 1 : 0); // 170: nouvelle clé pour show_second_panel
+  dict['KEY_SHOW_SECOND_PANEL'] = show_second_panel ? 1 : 0;
+
 
   localStorage.setItem(150, configData['gps'] ? 1 : 0);
   localStorage.setItem(151, configData['input_city']);
@@ -649,8 +654,7 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
   Pebble.sendAppMessage(dict, function () {
   }, function () {
-  }
-  );
+  });
 
 
 });
