@@ -23,7 +23,7 @@ static bool show_second_panel = true;
 
 #define RULER_XOFFSET 36
 #define TEXT_HOUR_OFFSET 56
-#define IS_ROUND false
+
 #define MARK_0 42
 
 #define RULER_SIZE -2
@@ -825,7 +825,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .is_quiet_time = quiet_time_is_active(),
                            .is_bw_icon = is_bw_icon,
                            .is_color = IS_COLOR,
-                           .is_round = IS_ROUND,
+
                            .is_metric = is_metric,
                            .humidity = humidity,
                            .wind_speed_val = wind_speed_val,
@@ -1002,72 +1002,44 @@ static void initBatteryLevel() {
 }
 
 static void assign_fonts() {
-  if (!IS_ROUND) {
-    if (select_fonts == 0) {
-      fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-      fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-      fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-      fontbig = fonts_get_system_font(
-          FONT_KEY_GOTHIC_28_BOLD); // fallback until custom loaded
-      fontbig_loaded = false;
-      fontbig_resource_id = 0;
-      hour_offset_x = 5;
-      hour_offset_y = 0;
-      status_offset_x = 1;
-      status_offset_y = 0;
-    } else if (select_fonts == 1) {
 
-      fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-      fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-      fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-      fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-      fontbig_loaded = false;
-      fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
-      hour_offset_x = 1;
-      hour_offset_y = 9;
-      status_offset_x = 1;
-      status_offset_y = 0;
-    } else if (select_fonts == 2) {
-      fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-      fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-      fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-      fontbig = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-      fontbig_loaded = false;
-      fontbig_resource_id = 0;
-      hour_offset_x = 1;
-      hour_offset_y = 11;
-      status_offset_x = 1;
-      status_offset_y = 0;
-    }
-  } else {
+  if (select_fonts == 0) {
+    fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+    fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+    fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+    fontbig = fonts_get_system_font(
+        FONT_KEY_GOTHIC_28_BOLD); // fallback until custom loaded
+    fontbig_loaded = false;
+    fontbig_resource_id = 0;
+    hour_offset_x = 5;
+    hour_offset_y = 0;
+    status_offset_x = 1;
+    status_offset_y = 0;
+  } else if (select_fonts == 1) {
 
     fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
     fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
     fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-
-    status_offset_x = 0;
+    fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+    fontbig_loaded = false;
+    fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
+    hour_offset_x = 1;
+    hour_offset_y = 9;
+    status_offset_x = 1;
     status_offset_y = 0;
-
-    if (select_fonts == 0) {
-      fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-      fontbig_loaded = false;
-      fontbig_resource_id = 0;
-      hour_offset_x = -6;
-      hour_offset_y = 0;
-    } else if (select_fonts == 1) {
-      fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-      fontbig_loaded = false;
-      fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
-      hour_offset_x = -7;
-      hour_offset_y = 10;
-    } else if (select_fonts == 2) {
-      fontbig = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-      fontbig_loaded = false;
-      fontbig_resource_id = 0;
-      hour_offset_x = -8;
-      hour_offset_y = 11;
-    }
+  } else if (select_fonts == 2) {
+    fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+    fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+    fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+    fontbig = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
+    fontbig_loaded = false;
+    fontbig_resource_id = 0;
+    hour_offset_x = 1;
+    hour_offset_y = 11;
+    status_offset_x = 1;
+    status_offset_y = 0;
   }
+
   APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: assign_fonts resource_id=%d",
           fontbig_resource_id);
 }
