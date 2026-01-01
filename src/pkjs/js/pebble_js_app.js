@@ -532,129 +532,50 @@ Pebble.addEventListener('webviewclosed', function (e) {
   var configData = JSON.parse(decodeURIComponent(e.response));
   console.log('Configuration page returned: ' + JSON.stringify(configData));
 
-  var gps = configData['gps'];
-  gps = 1;
-  var input_city = configData['input_city'];
-  input_city = "";
-  var input_api = configData['input_api'];
-  input_api = "";
+  // Variables actuellement retournées par la page de configuration:
+  // input_iopool_token, radio_units, radio_refresh, toggle_vibration, toggle_bt,
+  // color_right_back, color_left_back, show_second_panel
 
   var input_iopool_token = configData['input_iopool_token'];
-
-  var select_utc = configData['select_utc'];
-  var select_goal = configData['select_goal'];
-  var select_provider = configData['select_provider'];
-  var select_screen = configData['select_screen'];
   var radio_units = configData['radio_units'];
   var radio_refresh = configData['radio_refresh'];
   var toggle_vibration = configData['toggle_vibration'];
-
-  var select_fonts = configData['select_fonts'];
-
   var toggle_bt = configData['toggle_bt'];
-  var toggle_pc = configData['toggle_pc'];
-  var toggle_tg = configData['toggle_tg'];
-  var toggle_inv = configData['toggle_inv'];
-  var toggle_100 = configData['toggle_100'];
-  var toggle_80 = configData['toggle_80'];
-  var toggle_centered = configData['toggle_centered'];
-  var toggle_month = configData['toggle_month'];
-
-
-  var toggle_bw_icons = configData['toggle_bw_icons'];
-  var toggle_gradiant = configData['toggle_gradiant'];
-  var toggle_ruler_large = configData['toggle_ruler_large'];
   var color_right_back = configData['color_right_back'];
   var color_left_back = configData['color_left_back'];
-  var color_hours = configData['color_hours'];
-  var color_ruler = configData['color_ruler'];
-  var color_temperatures = configData['color_temperatures'];
-  var color_line = configData['color_line'];
-  var color_2nd_back = configData['color_2nd_back'];
-  var color_2nd_temp = configData['color_2nd_temp'];
-
 
   var dict = {};
 
   // Ajout de l'option panneau secondaire
   var show_second_panel = (typeof configData['show_second_panel'] === 'undefined') ? true : !!configData['show_second_panel'];
-  localStorage.setItem(170, show_second_panel ? 1 : 0); // 170: nouvelle clé pour show_second_panel
+  localStorage.setItem(170, show_second_panel ? 1 : 0);
   dict['KEY_SHOW_SECOND_PANEL'] = show_second_panel ? 1 : 0;
 
+  localStorage.setItem(152, radio_units ? 1 : 0);
+  localStorage.setItem(158, input_iopool_token);
 
-  localStorage.setItem(150, configData['gps'] ? 1 : 0);
-  localStorage.setItem(151, configData['input_city']);
-  localStorage.setItem(152, configData['radio_units'] ? 1 : 0);
-  localStorage.setItem(153, configData['select_provider']);
-  localStorage.setItem(154, configData['input_city']);
-  localStorage.setItem(157, configData['input_api']);
-  localStorage.setItem(158, configData['input_iopool_token']);
+  dict['KEY_RADIO_UNITS'] = radio_units ? 1 : 0;
+  dict['KEY_RADIO_REFRESH'] = radio_refresh ? 1 : 0;
+  dict['KEY_TOGGLE_VIBRATION'] = toggle_vibration ? 1 : 0;
+  dict['KEY_TOGGLE_BT'] = toggle_bt ? 1 : 0;
 
+  function safeColorComponent(hex, start, end) {
+    if (typeof hex === 'string' && hex.length >= end) {
+      return parseInt(hex.substring(start, end), 16);
+    }
+    return 0;
+  }
 
-  dict['KEY_GPS'] = configData['gps'] ? 1 : 0;
-  dict['KEY_INPUT_CITY'] = configData['input_city'];
-  dict['KEY_SELECT_UTC'] = configData['select_utc'];
-  dict['KEY_SELECT_GOAL'] = configData['select_goal'];
-  dict['KEY_SELECT_SCREEN'] = configData['select_screen'];
-  dict['KEY_SELECT_FONTS'] = configData['select_fonts'];
+  dict['KEY_COLOR_RIGHT_BACK_R'] = safeColorComponent(color_right_back, 2, 4);
+  dict['KEY_COLOR_RIGHT_BACK_G'] = safeColorComponent(color_right_back, 4, 6);
+  dict['KEY_COLOR_RIGHT_BACK_B'] = safeColorComponent(color_right_back, 6, 8);
 
-  dict['KEY_SELECT_PROVIDER'] = configData['select_provider'];
+  dict['KEY_COLOR_LEFT_BACK_R'] = safeColorComponent(color_left_back, 2, 4);
+  dict['KEY_COLOR_LEFT_BACK_G'] = safeColorComponent(color_left_back, 4, 6);
+  dict['KEY_COLOR_LEFT_BACK_B'] = safeColorComponent(color_left_back, 6, 8);
 
-  dict['KEY_RADIO_UNITS'] = configData['radio_units'] ? 1 : 0;
-  dict['KEY_RADIO_REFRESH'] = configData['radio_refresh'] ? 1 : 0;
-
-  dict['KEY_TOGGLE_VIBRATION'] = configData['toggle_vibration'] ? 1 : 0;
-
-  dict['KEY_TOGGLE_BT'] = configData['toggle_bt'] ? 1 : 0;
-  dict['KEY_TOGGLE_PC'] = configData['toggle_pc'] ? 1 : 0;
-  dict['KEY_TOGGLE_TG'] = configData['toggle_tg'] ? 1 : 0;
-  dict['KEY_TOGGLE_INV'] = configData['toggle_inv'] ? 1 : 0;
-  dict['KEY_TOGGLE_100'] = configData['toggle_100'] ? 1 : 0;
-  dict['KEY_TOGGLE_80'] = configData['toggle_80'] ? 1 : 0;
-  dict['KEY_TOGGLE_CENTERED'] = configData['toggle_centered'] ? 1 : 0;
-  dict['KEY_TOGGLE_MONTH'] = configData['toggle_month'] ? 1 : 0;
-
-  dict['KEY_TOGGLE_BW_ICONS'] = configData['toggle_bw_icons'] ? 1 : 0;
-  dict['KEY_TOGGLE_GRADIANT'] = configData['toggle_gradiant'] ? 1 : 0;
-  dict['KEY_TOGGLE_RULER_LARGE'] = configData['toggle_ruler_large'] ? 1 : 0;
-
-  dict['KEY_COLOR_RIGHT_BACK_R'] = parseInt(color_right_back.substring(2, 4), 16);
-  dict['KEY_COLOR_RIGHT_BACK_G'] = parseInt(color_right_back.substring(4, 6), 16);
-  dict['KEY_COLOR_RIGHT_BACK_B'] = parseInt(color_right_back.substring(6, 8), 16);
-
-  dict['KEY_COLOR_LEFT_BACK_R'] = parseInt(color_left_back.substring(2, 4), 16);
-  dict['KEY_COLOR_LEFT_BACK_G'] = parseInt(color_left_back.substring(4, 6), 16);
-  dict['KEY_COLOR_LEFT_BACK_B'] = parseInt(color_left_back.substring(6, 8), 16);
-
-  dict['KEY_COLOR_HOURS_R'] = parseInt(color_hours.substring(2, 4), 16);
-  dict['KEY_COLOR_HOURS_G'] = parseInt(color_hours.substring(4, 6), 16);
-  dict['KEY_COLOR_HOURS_B'] = parseInt(color_hours.substring(6, 8), 16);
-
-  dict['KEY_COLOR_RULER_R'] = parseInt(color_ruler.substring(2, 4), 16);
-  dict['KEY_COLOR_RULER_G'] = parseInt(color_ruler.substring(4, 6), 16);
-  dict['KEY_COLOR_RULER_B'] = parseInt(color_ruler.substring(6, 8), 16);
-
-  dict['KEY_COLOR_LINE_R'] = parseInt(color_line.substring(2, 4), 16);
-  dict['KEY_COLOR_LINE_G'] = parseInt(color_line.substring(4, 6), 16);
-  dict['KEY_COLOR_LINE_B'] = parseInt(color_line.substring(6, 8), 16);
-
-  dict['KEY_COLOR_2ND_BACK_R'] = parseInt(color_2nd_back.substring(2, 4), 16);
-  dict['KEY_COLOR_2ND_BACK_G'] = parseInt(color_2nd_back.substring(4, 6), 16);
-  dict['KEY_COLOR_2ND_BACK_B'] = parseInt(color_2nd_back.substring(6, 8), 16);
-
-  dict['KEY_COLOR_2ND_TEMP_R'] = parseInt(color_2nd_temp.substring(2, 4), 16);
-  dict['KEY_COLOR_2ND_TEMP_G'] = parseInt(color_2nd_temp.substring(4, 6), 16);
-  dict['KEY_COLOR_2ND_TEMP_B'] = parseInt(color_2nd_temp.substring(6, 8), 16);
-
-  dict['KEY_COLOR_TEMPERATURES_R'] = parseInt(color_temperatures.substring(2, 4), 16);
-  dict['KEY_COLOR_TEMPERATURES_G'] = parseInt(color_temperatures.substring(4, 6), 16);
-  dict['KEY_COLOR_TEMPERATURES_B'] = parseInt(color_temperatures.substring(6, 8), 16);
-
-
-
-  Pebble.sendAppMessage(dict, function () {
-  }, function () {
-  });
-
+  // Pebble.sendAppMessage(dict, function () {
+  // }, function () {
+  // });
 
 });
