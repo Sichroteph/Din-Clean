@@ -824,21 +824,13 @@ static void handle_whiteout_timeout(void *context) {
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-#ifdef PBL_COLOR
-  // Color platforms: toggle between graph and 3-day forecast
-  if (s_whiteout_active) {
-    // Second tap: toggle to 3-day forecast
-    s_whiteout_screen = WHITEOUT_SCREEN_DAYS;
-  } else {
-    // First tap: show hourly graph
-    s_whiteout_active = true;
-    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+  // Check if second panel is disabled
+  if (!show_second_panel) {
+    return;
   }
-#else
-  // Aplite: only show simplified graph (no toggle, not enough memory)
+
   s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
-#endif
 
   // Reset timer
   if (timer_short) {
@@ -914,6 +906,16 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   if (show_second_panel_tuple) {
     show_second_panel = show_second_panel_tuple->value->int32;
     persist_write_bool(KEY_SHOW_SECOND_PANEL, show_second_panel);
+
+    // If second panel is now disabled and was active, close it
+    if (!show_second_panel && s_whiteout_active) {
+      s_whiteout_active = false;
+      if (timer_short) {
+        app_timer_cancel(timer_short);
+        timer_short = NULL;
+      }
+      layer_mark_dirty(layer);
+    }
   }
 
   // Read tuples for data
@@ -1090,9 +1092,10 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       graph_h2 = (int)h2_tuple->value->int32;
     if (h3_tuple)
       graph_h3 = (int)h3_tuple->value->int32;
-    
-    APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: Hours received: h0=%d h1=%d h2=%d h3=%d", 
-            graph_h0, graph_h1, graph_h2, graph_h3);
+
+    APP_LOG(APP_LOG_LEVEL_INFO,
+            "WATCH: Hours received: h0=%d h1=%d h2=%d h3=%d", graph_h0,
+            graph_h1, graph_h2, graph_h3);
     // h4-h8 not used
 
     // Rain data (12 segments only)
@@ -1310,6 +1313,14 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_bool(KEY_TOGGLE_VIBRATION, is_vibration);
 
     vibes_double_pulse();
+
+    // Request immediate weather update to apply new units
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+    dict_write_uint8(iter, 0, 0);
+    app_message_outbox_send();
+    APP_LOG(APP_LOG_LEVEL_INFO,
+            "WATCH: Requested weather update after config change");
   }
 }
 
