@@ -3,11 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef PBL_COLOR
-#define WEATHER_UTILS_IS_COLOR true
-#else
+// Unified B&W mode for all platforms (aplite style)
 #define WEATHER_UTILS_IS_COLOR false
-#endif
 
 static const char *const s_weekday_lang_fr[] = {
     "DIMANCHE", "LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI"};

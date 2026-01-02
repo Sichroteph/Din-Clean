@@ -36,21 +36,11 @@ static bool show_second_panel = true;
 #define GRADIANT_X_OFFSET -1
 #define GRADIANT_Y_OFFSET -10
 
-#ifdef PBL_COLOR
-
-#define BLUE_LINE GColorElectricBlue
-#define RED_LINE GColorRed
-#define RAIN_COLOR GColorCobaltBlue
-#define IS_COLOR true
-
-#else
-
+// Unified B&W mode for all platforms (aplite style)
 #define BLUE_LINE GColorWhite
 #define RAIN_COLOR GColorWhite
 #define RED_LINE GColorWhite
 #define IS_COLOR false
-
-#endif
 
 #define STATUS_FONT FONT_KEY_GOTHIC_14
 
@@ -713,7 +703,6 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .is_connected = is_connected,
                            .is_quiet_time = quiet_time_is_active(),
                            .is_bw_icon = true,
-                           .is_color = IS_COLOR,
 
                            .is_metric = is_metric,
                            .humidity = humidity,
@@ -1301,11 +1290,9 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       color_left = GColorFromRGB(red, green, blue);
     }
 
-    // Colors for OG pebbles
-    if (!IS_COLOR) {
-      color_left = GColorBlack;
-      color_right = GColorBlack;
-    }
+    // Force B&W colors for all platforms (aplite style)
+    color_left = GColorBlack;
+    color_right = GColorBlack;
 
     persist_write_bool(KEY_RADIO_UNITS, is_metric);
     persist_write_bool(KEY_RADIO_REFRESH, is_30mn);
@@ -1530,10 +1517,9 @@ static void init_var() {
   }
 
   color_temp = GColorWhite;
-  if (!IS_COLOR) {
-    color_left = GColorBlack;
-    color_right = GColorBlack;
-  }
+  // Force B&W colors for all platforms (aplite style)
+  color_left = GColorBlack;
+  color_right = GColorBlack;
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "select_fonts %d", select_fonts);
 
   assign_fonts();

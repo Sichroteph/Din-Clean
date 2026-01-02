@@ -133,30 +133,29 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
 
   draw_wind_overlays(ctx, d);
 
-  if (!d->is_round) {
-    if (d->wind2_val > d->met_unit) {
-      GBitmap *w1 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW1);
-      graphics_draw_bitmap_in_rect(ctx, w1, d->rect_icon6);
-      gbitmap_destroy(w1);
-    }
+  // Wind indicators for all platforms (no round check)
+  if (d->wind2_val > d->met_unit) {
+    GBitmap *w1 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW1);
+    graphics_draw_bitmap_in_rect(ctx, w1, d->rect_icon6);
+    gbitmap_destroy(w1);
+  }
 
-    if (d->wind2_val > d->met_unit * 2) {
-      GBitmap *w2 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW2);
-      graphics_draw_bitmap_in_rect(ctx, w2, d->rect_icon6);
-      gbitmap_destroy(w2);
-    }
+  if (d->wind2_val > d->met_unit * 2) {
+    GBitmap *w2 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW2);
+    graphics_draw_bitmap_in_rect(ctx, w2, d->rect_icon6);
+    gbitmap_destroy(w2);
+  }
 
-    if (d->wind2_val > d->met_unit * 3) {
-      GBitmap *w3 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW3);
-      graphics_draw_bitmap_in_rect(ctx, w3, d->rect_icon6);
-      gbitmap_destroy(w3);
-    }
+  if (d->wind2_val > d->met_unit * 3) {
+    GBitmap *w3 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW3);
+    graphics_draw_bitmap_in_rect(ctx, w3, d->rect_icon6);
+    gbitmap_destroy(w3);
+  }
 
-    if (d->wind2_val > d->met_unit * 4) {
-      GBitmap *w4 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW4);
-      graphics_draw_bitmap_in_rect(ctx, w4, d->rect_icon6);
-      gbitmap_destroy(w4);
-    }
+  if (d->wind2_val > d->met_unit * 4) {
+    GBitmap *w4 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW4);
+    graphics_draw_bitmap_in_rect(ctx, w4, d->rect_icon6);
+    gbitmap_destroy(w4);
   }
 
   graphics_draw_text(ctx, d->weather_temp_text, d->fontmedium, d->rect_temp,

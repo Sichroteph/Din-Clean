@@ -16,8 +16,6 @@ typedef struct {
   bool is_connected;
   bool is_quiet_time;
   bool is_bw_icon;
-  bool is_color;
-  bool is_round;
   bool is_metric;
   int humidity;
   int wind_speed_val;
