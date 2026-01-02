@@ -376,8 +376,15 @@ static void app_focus_changing(bool focusing) {
 }
 
 static int build_icon(char *text_icon) {
-  // Protection against NULL or empty strings
-  if (text_icon == NULL || text_icon[0] == '\0' || text_icon[0] == ' ') {
+  // Protection against NULL, empty, or whitespace-only strings
+  // This prevents crashes when persistence data is missing or corrupted
+  if (text_icon == NULL || text_icon[0] == '\0' || text_icon[0] == ' ' ||
+      text_icon[0] == '\n' || text_icon[0] == '\t') {
+    return RESOURCE_ID_ENSOLEILLE_W;
+  }
+  // Additional safety: check string length to avoid buffer issues
+  size_t len = strlen(text_icon);
+  if (len == 0 || len > 64) {
     return RESOURCE_ID_ENSOLEILLE_W;
   }
 
@@ -565,6 +572,13 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   snprintf(out->winds[2], sizeof(out->winds[2]), "%s", graph_wind2);
   snprintf(out->winds[3], sizeof(out->winds[3]), "%s", graph_wind3);
 
+  // Build icon resource IDs with validation
+  // Log icon strings for debugging crash reports
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "GRAPH icons: [%s] [%s] [%s]", 
+          graph_icon1[0] ? graph_icon1 : "(empty)",
+          graph_icon2[0] ? graph_icon2 : "(empty)", 
+          graph_icon3[0] ? graph_icon3 : "(empty)");
+
   out->icon_ids[0] = build_icon(graph_icon1);
 
   // Prefer the daily forecast string for tomorrow; fall back to hourly icon.
@@ -572,6 +586,15 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   out->icon_ids[1] = build_icon(tomorrow_icon_str);
 
   out->icon_ids[2] = build_icon(graph_icon3);
+
+  // Validate all icon IDs - set to 0 if invalid to prevent crashes
+  for (int i = 0; i < 3; i++) {
+    if (out->icon_ids[i] < 0 || out->icon_ids[i] > 500) {
+      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: Invalid icon_id[%d]=%d, resetting", 
+              i, out->icon_ids[i]);
+      out->icon_ids[i] = 0;
+    }
+  }
 
   out->is_metric = is_metric;
 }
@@ -1115,15 +1138,24 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // rain5-8 tuples not used (array reduced to 12)
 
     // Icons for graph
-    if (icon1_tuple)
+    if (icon1_tuple) {
       snprintf(graph_icon1, sizeof(graph_icon1), "%s",
                icon1_tuple->value->cstring);
-    if (icon2_tuple)
+      // Also update icon1 for persistence
+      snprintf(icon1, sizeof(icon1), "%s", icon1_tuple->value->cstring);
+    }
+    if (icon2_tuple) {
       snprintf(graph_icon2, sizeof(graph_icon2), "%s",
                icon2_tuple->value->cstring);
-    if (icon3_tuple)
+      // Also update icon2 for persistence
+      snprintf(icon2, sizeof(icon2), "%s", icon2_tuple->value->cstring);
+    }
+    if (icon3_tuple) {
       snprintf(graph_icon3, sizeof(graph_icon3), "%s",
                icon3_tuple->value->cstring);
+      // Also update icon3 for persistence
+      snprintf(icon3, sizeof(icon3), "%s", icon3_tuple->value->cstring);
+    }
     // icon4-7 not used
 
     // Winds for graph
@@ -1425,6 +1457,13 @@ static void init_var() {
     persist_read_string(KEY_FORECAST_ICON1, icon1, sizeof(icon1));
     persist_read_string(KEY_FORECAST_ICON2, icon2, sizeof(icon2));
     persist_read_string(KEY_FORECAST_ICON3, icon3, sizeof(icon3));
+
+    // CRITICAL: Also initialize graph_icon from persisted icon values
+    // Without this, graph_icon1/2/3 remain empty after app restart,
+    // causing crashes when displaying the weather graph
+    snprintf(graph_icon1, sizeof(graph_icon1), "%s", icon1);
+    snprintf(graph_icon2, sizeof(graph_icon2), "%s", icon2);
+    snprintf(graph_icon3, sizeof(graph_icon3), "%s", icon3);
 
     // Initialize graph data from persisted values (minimal)
     graph_temps[0] = temp1_val;

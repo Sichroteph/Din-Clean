@@ -234,7 +234,9 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     int icon_index = day - 1;
     int icon_resource = (icon_index < icon_count) ? d->icon_ids[icon_index] : 0;
 
-    if (icon_resource > 0) {
+    // Validate resource ID before attempting to load bitmap
+    // Invalid resource IDs (0, negative, or very large values) can cause crashes
+    if (icon_resource > 0 && icon_resource < 500) {
       GBitmap *day_icon = gbitmap_create_with_resource(icon_resource);
       if (day_icon) {
         graphics_draw_bitmap_in_rect(ctx, day_icon, icon_rect);
@@ -243,6 +245,9 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
         APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: day %d icon alloc failed (OOM?)",
                 day);
       }
+    } else if (icon_resource != 0) {
+      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: day %d invalid resource id %d",
+              day, icon_resource);
     }
   }
 
