@@ -10,15 +10,10 @@
 #define MAXRAIN 40
 #define LINE_THICK 3
 
-#ifdef PBL_COLOR
-#define BLUE_LINE GColorElectricBlue
-#define RED_LINE GColorRed
-#define RAIN_COLOR GColorCobaltBlue
-#else
+// Force black & white mode on all platforms for memory safety and consistency
 #define BLUE_LINE GColorWhite
 #define RED_LINE GColorWhite
 #define RAIN_COLOR GColorWhite
-#endif
 
 static int s_weather_graph_offset_y = WEATHER_OFFSET_Y;
 
@@ -68,6 +63,7 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 
   graphics_context_set_text_color(ctx, GColorWhite);
 
+  // Draw rain bars with dithered pattern (B&W style) for all platforms
   graphics_context_set_fill_color(ctx, RAIN_COLOR);
   for (int i_segments = 0; i_segments < 12; i_segments++) {
     int rain_pixel = 45 * d->rains[i_segments] / MAXRAIN;
@@ -75,19 +71,13 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
       rain_pixel = 45;
     }
 
-#ifdef PBL_COLOR
-    graphics_fill_rect(ctx,
-                       GRect(37 + WEATHER_OFFSET_X + i_segments * 10,
-                             76 + 45 - rain_pixel + offset_y, 10, rain_pixel),
-                       0, GCornerNone);
-#else
+    // Use dithered lines for memory-safe B&W rendering on all watches
     for (int i = 0; i < 10; i = i + 2) {
       graphics_fill_rect(ctx,
                          GRect(37 + WEATHER_OFFSET_X + i + i_segments * 10,
                                76 + 45 - rain_pixel + offset_y, 1, rain_pixel),
                          0, GCornerNone);
     }
-#endif
   }
 
   int ttmin = d->temps[0];
@@ -104,6 +94,10 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   int echelle = 1;
   while (ttmin < ttmax - echelle * 3) {
     echelle++;
+  }
+  // Protect against division issues if all temps are the same
+  if (echelle <= 0) {
+    echelle = 1;
   }
 
   static char t1[8];
@@ -197,29 +191,34 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   const int spacing = 40;
   const int icon_count = sizeof(d->icon_ids) / sizeof(d->icon_ids[0]);
 
+  const char *locale = i18n_get_system_locale();
+  time_t now = time(NULL);
+  struct tm *current_time = localtime(&now);
+  int today_wday = current_time ? current_time->tm_wday : 0;
+
+  // MEMORY OPTIMIZATION: Draw pourtour for ALL icons first, then destroy it
+  // This avoids holding pourtour in memory while loading weather icons
 #ifdef RESOURCE_ID_POURTOUR2
   GBitmap *pourtour = gbitmap_create_with_resource(RESOURCE_ID_POURTOUR2);
 #else
   GBitmap *pourtour = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW1);
 #endif
 
-  const char *locale = i18n_get_system_locale();
-  time_t now = time(NULL);
-  struct tm *current_time = localtime(&now);
-  int today_wday = current_time ? current_time->tm_wday : 0;
+  if (pourtour) {
+    for (int day = 1; day <= 3; day++) {
+      GRect icon_rect = base_rect;
+      icon_rect.origin.x += (day - 1) * spacing;
+      graphics_draw_bitmap_in_rect(ctx, pourtour, icon_rect);
+    }
+    gbitmap_destroy(pourtour);
+    pourtour = NULL;
+  }
 
+  // Now draw weekday labels and weather icons (pourtour is freed)
   for (int day = 1; day <= 3; day++) {
     GRect icon_rect = base_rect;
     icon_rect.origin.x += (day - 1) * spacing;
 
-    if (pourtour) {
-      graphics_draw_bitmap_in_rect(ctx, pourtour, icon_rect);
-    }
-
-    int icon_index = day - 1;
-    int icon_resource = (icon_index < icon_count) ? d->icon_ids[icon_index] : 0;
-    APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: try day %d icon %d", day,
-            icon_resource);
     int day_wday = (today_wday + day) % 7;
     const char *weekday_name = weather_utils_get_weekday_name(locale, day_wday);
     char weekday_abbrev[4] = "";
@@ -231,20 +230,20 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
                          GTextOverflowModeTrailingEllipsis,
                          GTextAlignmentCenter, NULL);
     }
+
+    int icon_index = day - 1;
+    int icon_resource = (icon_index < icon_count) ? d->icon_ids[icon_index] : 0;
+
     if (icon_resource > 0) {
       GBitmap *day_icon = gbitmap_create_with_resource(icon_resource);
       if (day_icon) {
         graphics_draw_bitmap_in_rect(ctx, day_icon, icon_rect);
         gbitmap_destroy(day_icon);
-        APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: day %d icon drawn", day);
       } else {
-        APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: day %d icon load failed", day);
+        APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: day %d icon alloc failed (OOM?)",
+                day);
       }
     }
-  }
-
-  if (pourtour) {
-    gbitmap_destroy(pourtour);
   }
 
   graphics_context_set_stroke_width(ctx, 1);
