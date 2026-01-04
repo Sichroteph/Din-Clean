@@ -80,13 +80,15 @@
                     "file": "images/WARNING_W",
                     "name": "WARNING_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
                 {
                     "file": "images/NEIGE_FORTE_W",
                     "name": "NEIGE_FORTE_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
                 {
                     "file": "images/DRY",
@@ -100,35 +102,34 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-
                 {
                     "file": "images/NUIT_AVEC_AVERSES_W",
                     "name": "NUIT_AVEC_AVERSES_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W",
                     "name": "NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/NUIT_BIEN_DEGAGEE_W",
                     "name": "NUIT_BIEN_DEGAGEE_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/NUIT_CLAIRE_W",
                     "name": "NUIT_CLAIRE_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "characterRegex": "[0-9:]",
                     "file": "fonts/Clearview_45.ttf",
@@ -196,21 +197,19 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-
-
                 {
                     "file": "images/AVERSES_DE_PLUIE_FORTE_W",
                     "name": "AVERSES_DE_PLUIE_FORTE_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
-
                 {
                     "file": "images/BROUILLARD_W",
                     "name": "BROUILLARD_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
                 {
                     "file": "images/BT",
@@ -224,41 +223,40 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-
-
                 {
                     "file": "images/DEVELOPPEMENT_NUAGEUX_W",
                     "name": "DEVELOPPEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/ENSOLEILLE_W",
                     "name": "ENSOLEILLE_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/FAIBLES_PASSAGES_NUAGEUX_W",
                     "name": "FAIBLES_PASSAGES_NUAGEUX_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/FORTEMENT_NUAGEUX_W",
                     "name": "FORTEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/FORTEMENT_ORAGEUX_W",
                     "name": "FORTEMENT_ORAGEUX_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
                 {
                     "file": "images/BACKGROUND",
@@ -266,21 +264,19 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-
                 {
                     "file": "images/LEAF",
                     "name": "LEAF",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-
                 {
                     "file": "images/NUIT_NUAGEUSE_W",
                     "name": "NUIT_NUAGEUSE_W",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/POURTOURW1",
                     "name": "POURTOURW1",
@@ -315,9 +311,9 @@
                     "file": "images/WIND",
                     "name": "WIND",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 },
-
                 {
                     "file": "images/SILENT",
                     "name": "SILENT",
@@ -337,5 +333,5 @@
             "watchface": true
         }
     },
-    "version": "1.34.0"
+    "version": "1.36.0"
 }
