@@ -100,60 +100,35 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/NUIT_AVEC_AVERSES",
-                    "name": "NUIT_AVEC_AVERSES",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/NUIT_AVEC_AVERSES_W",
                     "name": "NUIT_AVEC_AVERSES_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/NUIT_AVEC_DEVELOPPEMENT_NUAGEUX",
-                    "name": "NUIT_AVEC_DEVELOPPEMENT_NUAGEUX",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W",
                     "name": "NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/NUIT_BIEN_DEGAGEE",
-                    "name": "NUIT_BIEN_DEGAGEE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/NUIT_BIEN_DEGAGEE_W",
                     "name": "NUIT_BIEN_DEGAGEE_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/NUIT_CLAIRE",
-                    "name": "NUIT_CLAIRE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/NUIT_CLAIRE_W",
                     "name": "NUIT_CLAIRE_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/NUIT_NUAGEUSE",
-                    "name": "NUIT_NUAGEUSE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "characterRegex": "[0-9:]",
                     "file": "fonts/Clearview_45.ttf",
@@ -221,48 +196,16 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/AVERSES_DE_PLUIE_FORTE",
-                    "name": "AVERSES_DE_PLUIE_FORTE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/AVERSES_DE_PLUIE_FORTE1",
-                    "name": "AVERSES_DE_PLUIE_FORTE1",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/AVERSES_DE_PLUIE_FORTE2",
-                    "name": "AVERSES_DE_PLUIE_FORTE2",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
+
                 {
                     "file": "images/AVERSES_DE_PLUIE_FORTE_W",
                     "name": "AVERSES_DE_PLUIE_FORTE_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/AVERSES_DE_PLUIE_FORTE_W1",
-                    "name": "AVERSES_DE_PLUIE_FORTE_W1",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/AVERSES_DE_PLUIE_FORTE_W2",
-                    "name": "AVERSES_DE_PLUIE_FORTE_W2",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/BROUILLARD",
-                    "name": "BROUILLARD",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
+
                 {
                     "file": "images/BROUILLARD_W",
                     "name": "BROUILLARD_W",
@@ -281,72 +224,36 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/COUVERT_AVEC_AVERSES",
-                    "name": "COUVERT_AVEC_AVERSES",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/COUVERT_AVEC_AVERSES_W",
-                    "name": "COUVERT_AVEC_AVERSES_W",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/DEVELOPPEMENT_NUAGEUX",
-                    "name": "DEVELOPPEMENT_NUAGEUX",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
+
                 {
                     "file": "images/DEVELOPPEMENT_NUAGEUX_W",
                     "name": "DEVELOPPEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/ENSOLEILLE",
-                    "name": "ENSOLEILLE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/ENSOLEILLE_W",
                     "name": "ENSOLEILLE_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/FAIBLES_PASSAGES_NUAGEUX",
-                    "name": "FAIBLES_PASSAGES_NUAGEUX",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/FAIBLES_PASSAGES_NUAGEUX_W",
                     "name": "FAIBLES_PASSAGES_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/FORTEMENT_NUAGEUX",
-                    "name": "FORTEMENT_NUAGEUX",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/FORTEMENT_NUAGEUX_W",
                     "name": "FORTEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/FORTEMENT_ORAGEUX",
-                    "name": "FORTEMENT_ORAGEUX",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/FORTEMENT_ORAGEUX_W",
                     "name": "FORTEMENT_ORAGEUX_W",
@@ -359,48 +266,21 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/TABLE",
-                    "name": "TABLE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/TABLE_OG",
-                    "name": "TABLE_OG",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/LEAF",
                     "name": "LEAF",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/NEIGE_FORTE",
-                    "name": "NEIGE_FORTE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/NUIT_NUAGEUSE_W",
                     "name": "NUIT_NUAGEUSE_W",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/PLUIE_FORTE",
-                    "name": "PLUIE_FORTE",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/PLUIE_FORTE_W",
-                    "name": "PLUIE_FORTE_W",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/POURTOURW1",
                     "name": "POURTOURW1",
@@ -437,33 +317,11 @@
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
-                {
-                    "file": "images/WIND_S",
-                    "name": "WIND_S",
-                    "targetPlatforms": null,
-                    "type": "bitmap"
-                },
+
                 {
                     "file": "images/SILENT",
                     "name": "SILENT",
                     "targetPlatforms": null,
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/TABLE_OG",
-                    "name": "GRILLE_WEATHER",
-                    "targetPlatforms": [
-                        "aplite"
-                    ],
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/GRILLE_WEATHER",
-                    "name": "GRILLE_WEATHER",
-                    "targetPlatforms": [
-                        "basalt",
-                        "diorite"
-                    ],
                     "type": "bitmap"
                 }
             ]

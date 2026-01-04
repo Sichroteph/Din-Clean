@@ -411,88 +411,49 @@ static int build_icon(char *text_icon) {
 
   // APP_LOG(APP_LOG_LEVEL_INFO, "texte ICONE  %s", text_icon);
   if ((strcmp(text_icon, "clearsky_day") == 0)) {
-    if (true)
-      return RESOURCE_ID_ENSOLEILLE_W;
-    else
-      return RESOURCE_ID_ENSOLEILLE;
+    return RESOURCE_ID_ENSOLEILLE_W;
   }
   if ((strcmp(text_icon, "clearsky_night") == 0)) {
-    if (true)
-      return RESOURCE_ID_NUIT_CLAIRE_W;
-    else
-      return RESOURCE_ID_NUIT_CLAIRE;
+    return RESOURCE_ID_NUIT_CLAIRE_W;
   }
   if ((strcmp(text_icon, "fair_day") == 0) ||
       (strcmp(text_icon, "fair_polartwilight") == 0)) {
-    if (true)
-      return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX_W;
-    else
-      return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX;
+    return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX_W;
   }
   if (strcmp(text_icon, "fair_night") == 0) {
-    if (true)
-      return RESOURCE_ID_NUIT_BIEN_DEGAGEE_W;
-    else
-      return RESOURCE_ID_NUIT_BIEN_DEGAGEE;
+    return RESOURCE_ID_NUIT_BIEN_DEGAGEE_W;
   }
   if (strcmp(text_icon, "wind") == 0) {
-    if (true)
-      return RESOURCE_ID_WIND;
-    else
-      return RESOURCE_ID_WIND;
+    return RESOURCE_ID_WIND;
   }
   if ((strcmp(text_icon, "partlycloudy_day") == 0) ||
       (strcmp(text_icon, "partlycloudy_polartwilight") == 0)) {
-    if (true)
-      return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX_W;
-    else
-      return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX;
+    return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX_W;
   }
   if ((strcmp(text_icon, "partlycloudy_night") == 0) ||
       (strncmp(text_icon, "partlycloudy_ni", 15) == 0)) {
-    if (true)
-      return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W;
-    else
-      return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX;
+    return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W;
   }
   if ((strcmp(text_icon, "cloudy") == 0)) {
-    if (true)
-      return RESOURCE_ID_FORTEMENT_NUAGEUX_W;
-    else
-      return RESOURCE_ID_FORTEMENT_NUAGEUX;
+    return RESOURCE_ID_FORTEMENT_NUAGEUX_W;
   }
 
   if (strstr(text_icon, "rain") != NULL) {
-    if (true)
-      return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W;
-    else
-      return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE;
+    return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W;
   }
   if (strcmp(text_icon, "rainshowers_night") == 0) {
-    if (true)
-      return RESOURCE_ID_NUIT_AVEC_AVERSES_W;
-    else
-      return RESOURCE_ID_NUIT_AVEC_AVERSES;
+    return RESOURCE_ID_NUIT_AVEC_AVERSES_W;
   }
 
   if (strstr(text_icon, "thunder") != NULL) {
-    if (true)
-      return RESOURCE_ID_FORTEMENT_ORAGEUX_W;
-    else
-      return RESOURCE_ID_FORTEMENT_ORAGEUX;
+    return RESOURCE_ID_FORTEMENT_ORAGEUX_W;
   }
 
   if (strstr(text_icon, "snow") || (strstr(text_icon, "sleet")) != NULL) {
-    if (true)
-      return RESOURCE_ID_NEIGE_FORTE_W;
-    else
-      return RESOURCE_ID_NEIGE_FORTE;
+    return RESOURCE_ID_NEIGE_FORTE_W;
   }
   if (strcmp(text_icon, "fog") == 0) {
-    if (true)
-      return RESOURCE_ID_BROUILLARD_W;
-    else
-      return RESOURCE_ID_BROUILLARD;
+    return RESOURCE_ID_BROUILLARD_W;
   }
 
   APP_LOG(APP_LOG_LEVEL_WARNING, "Icon non trouve: %s", text_icon);
