@@ -212,6 +212,12 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     }
     gbitmap_destroy(pourtour);
     pourtour = NULL;
+  } else {
+    APP_LOG(APP_LOG_LEVEL_ERROR,
+            "GRAPH: pourtour alloc failed - skipping icons");
+    // Skip icon rendering entirely if we can't even load the border
+    // This prevents cascading memory failures
+    goto draw_frame;
   }
 
   // Now draw weekday labels and weather icons (pourtour is freed)
@@ -235,21 +241,25 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     int icon_resource = (icon_index < icon_count) ? d->icon_ids[icon_index] : 0;
 
     // Validate resource ID before attempting to load bitmap
-    // Invalid resource IDs (0, negative, or very large values) can cause crashes
+    // Invalid resource IDs (0, negative, or very large values) can cause
+    // crashes
     if (icon_resource > 0 && icon_resource < 500) {
       GBitmap *day_icon = gbitmap_create_with_resource(icon_resource);
       if (day_icon) {
         graphics_draw_bitmap_in_rect(ctx, day_icon, icon_rect);
         gbitmap_destroy(day_icon);
       } else {
-        APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: day %d icon alloc failed (OOM?)",
-                day);
+        // Memory allocation failed - stop trying to load more icons
+        APP_LOG(APP_LOG_LEVEL_WARNING, "GRAPH: day %d OOM - stopping", day);
+        break;
       }
     } else if (icon_resource != 0) {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: day %d invalid resource id %d",
-              day, icon_resource);
+      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: day %d bad res %d", day,
+              icon_resource);
     }
   }
+
+draw_frame:
 
   graphics_context_set_stroke_width(ctx, 1);
   graphics_context_set_stroke_color(ctx, GColorWhite);

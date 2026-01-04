@@ -84,6 +84,17 @@ static bool show_second_panel = true;
 #define KEY_FORECAST_RAIN41 132
 #define KEY_FORECAST_RAIN42 133
 
+// Graph winds (4 blocks)
+#define KEY_GRAPH_WIND0 240
+#define KEY_GRAPH_WIND1 241
+#define KEY_GRAPH_WIND2 242
+#define KEY_GRAPH_WIND3 243
+
+// Graph hours (3 additional hours, h0 already exists)
+#define KEY_GRAPH_H1 250
+#define KEY_GRAPH_H2 251
+#define KEY_GRAPH_H3 252
+
 #define KEY_RADIO_UNITS 36
 #define KEY_RADIO_REFRESH 54
 #define KEY_TOGGLE_VIBRATION 37
@@ -267,6 +278,10 @@ static char graph_wind0[20] = "";
 static char graph_wind1[20] = "";
 static char graph_wind2[20] = "";
 static char graph_wind3[20] = "";
+static uint8_t graph_wind0_val = 0;
+static uint8_t graph_wind1_val = 0;
+static uint8_t graph_wind2_val = 0;
+static uint8_t graph_wind3_val = 0;
 static uint8_t graph_h0 = 0;
 static uint8_t graph_h1 = 0;
 static uint8_t graph_h2 = 0;
@@ -573,24 +588,31 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   snprintf(out->winds[3], sizeof(out->winds[3]), "%s", graph_wind3);
 
   // Build icon resource IDs with validation
-  // Log icon strings for debugging crash reports
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "GRAPH icons: [%s] [%s] [%s]", 
-          graph_icon1[0] ? graph_icon1 : "(empty)",
-          graph_icon2[0] ? graph_icon2 : "(empty)", 
-          graph_icon3[0] ? graph_icon3 : "(empty)");
+  // Safer null checks - avoid logging potentially corrupted strings
 
-  out->icon_ids[0] = build_icon(graph_icon1);
+  // Validate graph_icon strings before use - protect against memory corruption
+  bool icon1_valid = (graph_icon1[0] != '\0' && graph_icon1[0] != ' ');
+  bool icon2_valid = (graph_icon2[0] != '\0' && graph_icon2[0] != ' ');
+  bool icon3_valid = (graph_icon3[0] != '\0' && graph_icon3[0] != ' ');
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "GRAPH icons valid: %d %d %d", icon1_valid,
+          icon2_valid, icon3_valid);
+
+  out->icon_ids[0] = build_icon(icon1_valid ? graph_icon1 : NULL);
 
   // Prefer the daily forecast string for tomorrow; fall back to hourly icon.
-  char *tomorrow_icon_str = days_icon[1][0] ? days_icon[1] : graph_icon2;
+  // Add extra validation for days_icon array access
+  bool days_icon1_valid = (days_icon[1][0] != '\0' && days_icon[1][0] != ' ');
+  char *tomorrow_icon_str =
+      days_icon1_valid ? days_icon[1] : (icon2_valid ? graph_icon2 : NULL);
   out->icon_ids[1] = build_icon(tomorrow_icon_str);
 
-  out->icon_ids[2] = build_icon(graph_icon3);
+  out->icon_ids[2] = build_icon(icon3_valid ? graph_icon3 : NULL);
 
   // Validate all icon IDs - set to 0 if invalid to prevent crashes
   for (int i = 0; i < 3; i++) {
     if (out->icon_ids[i] < 0 || out->icon_ids[i] > 500) {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: Invalid icon_id[%d]=%d, resetting", 
+      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: Invalid icon_id[%d]=%d, resetting",
               i, out->icon_ids[i]);
       out->icon_ids[i] = 0;
     }
@@ -1159,18 +1181,26 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // icon4-7 not used
 
     // Winds for graph
-    if (wind0_tuple)
+    if (wind0_tuple) {
       snprintf(graph_wind0, sizeof(graph_wind0), "%s",
                wind0_tuple->value->cstring);
-    if (wind1_tuple)
+      graph_wind0_val = atoi(wind0_tuple->value->cstring);
+    }
+    if (wind1_tuple) {
       snprintf(graph_wind1, sizeof(graph_wind1), "%s",
                wind1_tuple->value->cstring);
-    if (wind2_tuple)
+      graph_wind1_val = atoi(wind1_tuple->value->cstring);
+    }
+    if (wind2_tuple) {
       snprintf(graph_wind2, sizeof(graph_wind2), "%s",
                wind2_tuple->value->cstring);
-    if (wind3_tuple)
+      graph_wind2_val = atoi(wind2_tuple->value->cstring);
+    }
+    if (wind3_tuple) {
       snprintf(graph_wind3, sizeof(graph_wind3), "%s",
                wind3_tuple->value->cstring);
+      graph_wind3_val = atoi(wind3_tuple->value->cstring);
+    }
     // wind4-8 not used
 
     // Process 3-day forecast data
@@ -1253,6 +1283,25 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_int(KEY_FORECAST_RAIN32, graph_rains[8]);
     persist_write_int(KEY_FORECAST_RAIN41, graph_rains[10]);
     persist_write_int(KEY_FORECAST_RAIN42, graph_rains[11]);
+
+    // Persist only the 5 temperatures used for the graph
+    persist_write_int(KEY_FORECAST_TEMP1, graph_temps[0]);
+    persist_write_int(KEY_FORECAST_TEMP2, graph_temps[1]);
+    persist_write_int(KEY_FORECAST_TEMP3, graph_temps[2]);
+    persist_write_int(KEY_FORECAST_TEMP4, graph_temps[3]);
+    persist_write_int(KEY_FORECAST_TEMP5, graph_temps[4]);
+
+    // Persist all graph winds (4 blocks)
+    persist_write_int(KEY_GRAPH_WIND0, graph_wind0_val);
+    persist_write_int(KEY_GRAPH_WIND1, graph_wind1_val);
+    persist_write_int(KEY_GRAPH_WIND2, graph_wind2_val);
+    persist_write_int(KEY_GRAPH_WIND3, graph_wind3_val);
+
+    // Persist graph hours (h0 already persisted above)
+    persist_write_int(KEY_GRAPH_H1, graph_h1);
+    persist_write_int(KEY_GRAPH_H2, graph_h2);
+    persist_write_int(KEY_GRAPH_H3, graph_h3);
+
     persist_write_int(KEY_POOLTEMP, npoolTemp);
     persist_write_int(KEY_POOLPH, npoolPH);
     persist_write_int(KEY_poolORP, npoolORP);
@@ -1465,17 +1514,39 @@ static void init_var() {
     snprintf(graph_icon2, sizeof(graph_icon2), "%s", icon2);
     snprintf(graph_icon3, sizeof(graph_icon3), "%s", icon3);
 
-    // Initialize graph data from persisted values (minimal)
-    graph_temps[0] = temp1_val;
-    graph_temps[1] = temp2_val;
-    graph_temps[2] = temp3_val;
-    graph_temps[3] = temp4_val;
-    graph_temps[4] = temp5_val;
+    // Restore only the 5 temperatures used for the graph
+    graph_temps[0] = persist_read_int(KEY_FORECAST_TEMP1);
+    graph_temps[1] = persist_read_int(KEY_FORECAST_TEMP2);
+    graph_temps[2] = persist_read_int(KEY_FORECAST_TEMP3);
+    graph_temps[3] = persist_read_int(KEY_FORECAST_TEMP4);
+    graph_temps[4] = persist_read_int(KEY_FORECAST_TEMP5);
 
     graph_h0 = persist_read_int(KEY_FORECAST_H0);
-    graph_h1 = atoi(h1);
-    graph_h2 = atoi(h2);
-    graph_h3 = atoi(h3);
+
+    // Restore hours from persisted integers (more reliable than string
+    // conversion)
+    if (persist_exists(KEY_GRAPH_H1)) {
+      graph_h1 = persist_read_int(KEY_GRAPH_H1);
+      graph_h2 = persist_read_int(KEY_GRAPH_H2);
+      graph_h3 = persist_read_int(KEY_GRAPH_H3);
+    } else {
+      // Fallback to old method
+      graph_h1 = atoi(h1);
+      graph_h2 = atoi(h2);
+      graph_h3 = atoi(h3);
+    }
+
+    // Restore winds
+    if (persist_exists(KEY_GRAPH_WIND0)) {
+      graph_wind0_val = persist_read_int(KEY_GRAPH_WIND0);
+      graph_wind1_val = persist_read_int(KEY_GRAPH_WIND1);
+      graph_wind2_val = persist_read_int(KEY_GRAPH_WIND2);
+      graph_wind3_val = persist_read_int(KEY_GRAPH_WIND3);
+      snprintf(graph_wind0, sizeof(graph_wind0), "%d", graph_wind0_val);
+      snprintf(graph_wind1, sizeof(graph_wind1), "%d", graph_wind1_val);
+      snprintf(graph_wind2, sizeof(graph_wind2), "%d", graph_wind2_val);
+      snprintf(graph_wind3, sizeof(graph_wind3), "%d", graph_wind3_val);
+    }
 
     graph_rains[0] = rain1_val;
     graph_rains[1] = persist_read_int(KEY_FORECAST_RAIN11);
@@ -1535,7 +1606,7 @@ static void init_var() {
     snprintf(icon3, sizeof(icon3), " ");
     snprintf(location, sizeof(location), " ");
 
-    // Initialize graph data to defaults (minimal)
+    // Initialize graph data to defaults
     for (int i = 0; i < 5; i++) {
       graph_temps[i] = 10; // Default temperature
     }
@@ -1549,10 +1620,19 @@ static void init_var() {
     snprintf(graph_wind1, sizeof(graph_wind1), " ");
     snprintf(graph_wind2, sizeof(graph_wind2), " ");
     snprintf(graph_wind3, sizeof(graph_wind3), " ");
+    graph_wind0_val = 0;
+    graph_wind1_val = 0;
+    graph_wind2_val = 0;
+    graph_wind3_val = 0;
     graph_h0 = 0;
     graph_h1 = 3;
     graph_h2 = 6;
     graph_h3 = 9;
+
+    // Initialize days_icon to prevent crashes when accessing uninitialized data
+    snprintf(days_icon[0], sizeof(days_icon[0]), " ");
+    snprintf(days_icon[1], sizeof(days_icon[1]), " ");
+    snprintf(days_icon[2], sizeof(days_icon[2]), " ");
   }
 
   color_temp = GColorWhite;

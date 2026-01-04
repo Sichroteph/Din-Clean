@@ -529,8 +529,6 @@ Pebble.addEventListener('appmessage',
   }
 );
 
-
-
 Pebble.addEventListener('showConfiguration', function () {
 
   var url = 'http://sichroteph.github.io/Impact/';
