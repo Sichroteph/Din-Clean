@@ -81,54 +81,56 @@
                     "name": "WARNING_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/NEIGE_FORTE_W",
                     "name": "NEIGE_FORTE_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/DRY",
                     "name": "DRY",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/HUMIDITY",
                     "name": "HUMIDITY",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/NUIT_AVEC_AVERSES_W",
                     "name": "NUIT_AVEC_AVERSES_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W",
                     "name": "NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/NUIT_BIEN_DEGAGEE_W",
                     "name": "NUIT_BIEN_DEGAGEE_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/NUIT_CLAIRE_W",
                     "name": "NUIT_CLAIRE_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "characterRegex": "[0-9:]",
@@ -141,115 +143,127 @@
                     "file": "images/0",
                     "name": "0",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/1",
                     "name": "1",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/2",
                     "name": "2",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/3",
                     "name": "3",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/4",
                     "name": "4",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/5",
                     "name": "5",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/6",
                     "name": "6",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/7",
                     "name": "7",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/8",
                     "name": "8",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/9",
                     "name": "9",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/AVERSES_DE_PLUIE_FORTE_W",
                     "name": "AVERSES_DE_PLUIE_FORTE_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/BROUILLARD_W",
                     "name": "BROUILLARD_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/BT",
                     "name": "BT",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/BT_DISCONECT",
                     "name": "BT_DISCONECT",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/DEVELOPPEMENT_NUAGEUX_W",
                     "name": "DEVELOPPEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/ENSOLEILLE_W",
                     "name": "ENSOLEILLE_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/FAIBLES_PASSAGES_NUAGEUX_W",
                     "name": "FAIBLES_PASSAGES_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/FORTEMENT_NUAGEUX_W",
                     "name": "FORTEMENT_NUAGEUX_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/FORTEMENT_ORAGEUX_W",
@@ -262,50 +276,57 @@
                     "file": "images/BACKGROUND",
                     "name": "BACKGROUND",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/LEAF",
                     "name": "LEAF",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/NUIT_NUAGEUSE_W",
                     "name": "NUIT_NUAGEUSE_W",
                     "targetPlatforms": null,
                     "type": "bitmap",
-                    "memoryFormat": "2BitPalette"
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/POURTOURW1",
                     "name": "POURTOURW1",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/POURTOUR2",
                     "name": "POURTOUR2",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/POURTOURW2",
                     "name": "POURTOURW2",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/POURTOURW3",
                     "name": "POURTOURW3",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/POURTOURW4",
                     "name": "POURTOURW4",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "1BitPalette"
                 },
                 {
                     "file": "images/WIND",
@@ -318,7 +339,8 @@
                     "file": "images/SILENT",
                     "name": "SILENT",
                     "targetPlatforms": null,
-                    "type": "bitmap"
+                    "type": "bitmap",
+                    "memoryFormat": "2BitPalette"
                 }
             ]
         },

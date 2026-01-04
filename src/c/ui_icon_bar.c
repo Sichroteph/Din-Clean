@@ -89,6 +89,22 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   graphics_context_set_text_color(ctx, d->color_temp);
 
+  if (!d->has_fresh_weather) {
+    return;
+  }
+
+  // Draw background sized to the resource to avoid stretching
+  GBitmap *background = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND);
+  if (background) {
+    GRect bounds = gbitmap_get_bounds(background);
+    GRect draw_rect = {
+        .origin = d->rect_screen.origin,
+        .size = bounds.size,
+    };
+    graphics_draw_bitmap_in_rect(ctx, background, draw_rect);
+    gbitmap_destroy(background);
+  }
+
   // Connection / quiet time status
   if (!d->is_quiet_time) {
     graphics_draw_text(ctx, d->week_day, d->fontsmall, d->rect_text_dayw,
@@ -107,22 +123,6 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
     GBitmap *silent = gbitmap_create_with_resource(RESOURCE_ID_SILENT);
     graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
     gbitmap_destroy(silent);
-  }
-
-  if (!d->has_fresh_weather) {
-    return;
-  }
-
-  // Draw background sized to the resource to avoid stretching
-  GBitmap *background = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND);
-  if (background) {
-    GRect bounds = gbitmap_get_bounds(background);
-    GRect draw_rect = {
-        .origin = d->rect_screen.origin,
-        .size = bounds.size,
-    };
-    graphics_draw_bitmap_in_rect(ctx, background, draw_rect);
-    gbitmap_destroy(background);
   }
 
   draw_humidity_icons(ctx, d);
