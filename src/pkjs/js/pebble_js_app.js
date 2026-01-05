@@ -21,7 +21,7 @@ var RSS_URL = "https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml";
 
 function fetchAndSendNews() {
   var now = Date.now();
-  
+
   // Check if cache is still valid
   if (newsCache.length > 0 && (now - newsCacheTime) < NEWS_CACHE_DURATION) {
     // Use cached data, increment index
@@ -29,10 +29,10 @@ function fetchAndSendNews() {
     sendNewsTitle(newsCache[newsIndex]);
     return;
   }
-  
+
   // Cache expired or empty, fetch new data
   var xhr = new XMLHttpRequest();
-  xhr.onload = function() {
+  xhr.onload = function () {
     if (xhr.status === 200) {
       var titles = [];
       var text = xhr.responseText;
@@ -53,7 +53,7 @@ function fetchAndSendNews() {
           titles.push(title);
         }
       }
-      
+
       if (titles.length > 0) {
         newsCache = titles;
         newsCacheTime = now;
@@ -66,7 +66,7 @@ function fetchAndSendNews() {
       sendNewsTitle("News fetch failed");
     }
   };
-  xhr.onerror = function() {
+  xhr.onerror = function () {
     sendNewsTitle("Network error");
   };
   xhr.open("GET", RSS_URL, true);
@@ -78,8 +78,9 @@ function sendNewsTitle(title) {
   if (title.length > 100) {
     title = title.substring(0, 97) + "...";
   }
-  var dict = { "KEY_NEWS_TITLE": title };
-  Pebble.sendAppMessage(dict, function() {}, function() {});
+  // Use numeric key 172 for KEY_NEWS_TITLE
+  var dict = { 172: title };
+  Pebble.sendAppMessage(dict, function () { }, function () { });
 }
 
 var currentCity;

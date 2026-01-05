@@ -15,7 +15,6 @@ static bool show_news = false;
 #include "ui_time.h"
 #include "ui_weather_graph.h"
 
-
 #ifndef WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
 #define WEATHER_GRAPH_DEBUG_RAIN_SAMPLE 0
 #endif
@@ -307,8 +306,12 @@ static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 static char news_title[104] = "";
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
-static uint16_t news_interval_ms = 2000;
+static uint16_t news_interval_ms = 3000;
 static AppTimer *news_timer = NULL;
+
+// Double-tap detection
+static time_t last_tap_time = 0;
+static uint8_t tap_interval_sec = 3;
 
 // Whiteout screen mode (0=graph, 1=news)
 typedef enum {
@@ -834,7 +837,7 @@ static void request_news_from_js(void) {
 static void news_timer_callback(void *context) {
   news_timer = NULL;
   news_display_count++;
-  
+
   if (news_display_count >= news_max_count) {
     // Done showing news, return to main screen
     s_whiteout_active = false;
@@ -854,7 +857,7 @@ static void start_news_sequence(void) {
   s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
   news_display_count = 0;
   snprintf(news_title, sizeof(news_title), "Loading...");
-  
+
   // Cancel any existing timers
   if (timer_short) {
     app_timer_cancel(timer_short);
@@ -864,64 +867,80 @@ static void start_news_sequence(void) {
     app_timer_cancel(news_timer);
     news_timer = NULL;
   }
-  
+
   // Request first news
   request_news_from_js();
-  
+
   // Safety timeout: if no response in 5s, show error and exit
   news_timer = app_timer_register(5000, news_timer_callback, NULL);
   layer_mark_dirty(layer);
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-  const uint16_t timeout_ms = 10000;
+  const uint16_t timeout_ms = 8000;
 
   // Neither option enabled: do nothing
   if (!show_weather && !show_news) {
     return;
   }
 
-  // Only weather enabled
-  if (show_weather && !show_news) {
-    s_whiteout_active = true;
-    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
-    if (timer_short) {
-      app_timer_cancel(timer_short);
-      timer_short = NULL;
-    }
-    timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
-    layer_mark_dirty(layer);
+  // Double-tap detection
+  time_t now = time(NULL);
+  if ((now - last_tap_time) > tap_interval_sec) {
+    // First tap - just record time
+    last_tap_time = now;
     return;
   }
-  
-  // Only news enabled
-  if (!show_weather && show_news) {
-    start_news_sequence();
-    return;
-  }
-  
-  // Both options enabled
-  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
-    // Second tap while on graph: switch to news
-    if (timer_short) {
-      app_timer_cancel(timer_short);
-      timer_short = NULL;
-    }
-    start_news_sequence();
-  } else {
-    // First tap or from news: show graph
+  // Second tap within interval - reset and proceed
+  last_tap_time = 0;
+
+  // If already showing news, switch to weather (if enabled) or exit
+  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
     if (news_timer) {
       app_timer_cancel(news_timer);
       news_timer = NULL;
     }
-    s_whiteout_active = true;
-    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    if (show_weather) {
+      s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+      if (timer_short) {
+        app_timer_cancel(timer_short);
+      }
+      timer_short =
+          app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
+      layer_mark_dirty(layer);
+    } else {
+      s_whiteout_active = false;
+      layer_mark_dirty(layer);
+    }
+    return;
+  }
+
+  // If already showing weather, switch to news (if enabled) or exit
+  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
     if (timer_short) {
       app_timer_cancel(timer_short);
       timer_short = NULL;
     }
+    if (show_news) {
+      start_news_sequence();
+    } else {
+      s_whiteout_active = false;
+      layer_mark_dirty(layer);
+    }
+    return;
+  }
+
+  // Not showing any panel - show first available
+  if (show_weather) {
+    s_whiteout_active = true;
+    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    if (timer_short) {
+      app_timer_cancel(timer_short);
+    }
     timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
     layer_mark_dirty(layer);
+  } else if (show_news) {
+    start_news_sequence();
   }
 }
 
@@ -984,14 +1003,16 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   // Handle news title reception
   Tuple *news_title_tuple = dict_find(iterator, KEY_NEWS_TITLE);
   if (news_title_tuple) {
-    snprintf(news_title, sizeof(news_title), "%s", news_title_tuple->value->cstring);
+    snprintf(news_title, sizeof(news_title), "%s",
+             news_title_tuple->value->cstring);
     layer_mark_dirty(layer);
     // Schedule next news after interval
     if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
       if (news_timer) {
         app_timer_cancel(news_timer);
       }
-      news_timer = app_timer_register(news_interval_ms, news_timer_callback, NULL);
+      news_timer =
+          app_timer_register(news_interval_ms, news_timer_callback, NULL);
     }
     return;
   }
