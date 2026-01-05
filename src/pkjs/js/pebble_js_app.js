@@ -1,6 +1,6 @@
 // force la météo sur l'émulateur
 var b_force_internet = false;
-var bFakeData = 1;
+var bFakeData = 0;
 var bFakePosition = 0;
 
 var myGoogleAPIKey = '';
@@ -66,21 +66,64 @@ var xhrRequest = function (url, type, callback) {
 function buildFakeResponse() {
   var timeseries = [];
   var baseTime = Date.UTC(2024, 11, 16, 9, 0, 0);
+
+  // Icônes variées : matin clair → nuageux → pluie → orage → neige → brouillard → clair
+  var icons = [
+    "clearsky_day", "fair_day", "partlycloudy_day", "cloudy",
+    "rainshowers_day", "rain", "heavyrain", "heavyrainandthunder",
+    "sleet", "snow", "fog", "partlycloudy_day",
+    "fair_day", "clearsky_day", "clearsky_night", "fair_night",
+    "partlycloudy_night", "cloudy", "rainshowers_night", "lightrainshowers_night",
+    "clearsky_night", "fair_night", "partlycloudy_night", "cloudy", "clearsky_night"
+  ];
+
   for (var i = 0; i <= 24; i++) {
+    var temp, rainAmount;
+
+    if (i <= 12) {
+      // Sur les 12 premières heures : courbe en U (commence haut, descend, remonte)
+      var t = i / 12.0; // normaliser 0-1 sur 12h
+      // Température : commence à 18°C, descend à 8°C à 6h, remonte à 18°C à 12h
+      temp = 18 - 10 * Math.sin(Math.PI * t);
+
+      // Pluie : cloche avec pic à 6h (milieu de 12h)
+      rainAmount = 2.0 * Math.sin(Math.PI * t); // Max 2mm à t=0.5 (6h)
+    } else {
+      // Après 12h : stabiliser les valeurs
+      temp = 18;
+      rainAmount = 0;
+    }
+
+    // Vitesse du vent : varie légèrement
+    var windSpeed = 2 + 3 * Math.sin(Math.PI * i / 12.0);
+
     timeseries.push({
       time: new Date(baseTime + (i * 3600000)).toISOString(),
       data: {
         instant: {
           details: {
-            air_temperature: 12 + (i % 6),
-            relative_humidity: 55 + (i % 5),
-            wind_speed: 3 + (i % 2),
-            wind_from_direction: (90 + (i * 10)) % 360
+            air_temperature: Math.round(temp * 10) / 10,
+            relative_humidity: 50 + Math.round(10 * Math.sin(Math.PI * i / 12.0)),
+            wind_speed: Math.round(windSpeed * 10) / 10,
+            wind_from_direction: (180 + (i * 15)) % 360
           }
         },
-        next_12_hours: { summary: { symbol_code: "clearsky_day" }, details: {} },
-        next_1_hours: { summary: { symbol_code: "clearsky_day" }, details: { precipitation_amount: (i % 3) * 0.1 } },
-        next_6_hours: { summary: { symbol_code: "clearsky_day" }, details: { air_temperature_max: 18, air_temperature_min: 10, precipitation_amount: 0 } }
+        next_12_hours: {
+          summary: { symbol_code: icons[i] },
+          details: {}
+        },
+        next_1_hours: {
+          summary: { symbol_code: icons[i] },
+          details: { precipitation_amount: Math.round(rainAmount * 100) / 100 }
+        },
+        next_6_hours: {
+          summary: { symbol_code: icons[i] },
+          details: {
+            air_temperature_max: Math.round(temp + 2),
+            air_temperature_min: Math.round(temp - 2),
+            precipitation_amount: Math.round(rainAmount * 6 * 100) / 100
+          }
+        }
       }
     });
   }
