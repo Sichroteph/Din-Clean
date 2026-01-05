@@ -11,9 +11,10 @@ static bool show_news = false;
 #include <pebble.h>
 
 #include "ui_icon_bar.h"
+#include "ui_news_feed.h"
 #include "ui_time.h"
 #include "ui_weather_graph.h"
-#include "ui_news_feed.h"
+
 
 #ifndef WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
 #define WEATHER_GRAPH_DEBUG_RAIN_SAMPLE 0
@@ -116,6 +117,10 @@ static bool show_news = false;
 #define KEY_POOLTEMP 113
 #define KEY_POOLPH 114
 #define KEY_poolORP 115
+
+// News feed keys
+#define KEY_NEWS_TITLE 172
+#define KEY_REQUEST_NEWS 173
 
 // 3-day forecast keys (for ui_weather_days)
 #define KEY_DAY1_TEMP 200
@@ -297,6 +302,13 @@ static char days_temp[3][12] = {"--", "--", "--"};
 static char days_icon[3][32] = {"", "", ""};
 static char days_rain[3][6] = {"0mm", "0mm", "0mm"};
 static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
+
+// News feed data
+static char news_title[104] = "";
+static uint8_t news_display_count = 0;
+static uint8_t news_max_count = 5;
+static uint16_t news_interval_ms = 2000;
+static AppTimer *news_timer = NULL;
 
 // Whiteout screen mode (0=graph, 1=news)
 typedef enum {
@@ -597,7 +609,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-      ui_draw_news_feed(ctx);
+      ui_draw_news_feed(ctx, news_title);
     } else {
       fill_weather_graph_data(&s_graph_data);
       ui_draw_weather_graph(ctx, &s_graph_data);
@@ -809,6 +821,58 @@ static void handle_whiteout_timeout(void *context) {
   layer_mark_dirty(layer);
 }
 
+// Request next news title from JS
+static void request_news_from_js(void) {
+  DictionaryIterator *iter;
+  if (app_message_outbox_begin(&iter) == APP_MSG_OK) {
+    dict_write_uint8(iter, KEY_REQUEST_NEWS, 1);
+    app_message_outbox_send();
+  }
+}
+
+// Timer callback for news rotation
+static void news_timer_callback(void *context) {
+  news_timer = NULL;
+  news_display_count++;
+  
+  if (news_display_count >= news_max_count) {
+    // Done showing news, return to main screen
+    s_whiteout_active = false;
+    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    news_display_count = 0;
+    layer_mark_dirty(layer);
+  } else {
+    // Request next news
+    request_news_from_js();
+    // Timer will be reset when news arrives
+  }
+}
+
+// Start news display sequence
+static void start_news_sequence(void) {
+  s_whiteout_active = true;
+  s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
+  news_display_count = 0;
+  snprintf(news_title, sizeof(news_title), "Loading...");
+  
+  // Cancel any existing timers
+  if (timer_short) {
+    app_timer_cancel(timer_short);
+    timer_short = NULL;
+  }
+  if (news_timer) {
+    app_timer_cancel(news_timer);
+    news_timer = NULL;
+  }
+  
+  // Request first news
+  request_news_from_js();
+  
+  // Safety timeout: if no response in 5s, show error and exit
+  news_timer = app_timer_register(5000, news_timer_callback, NULL);
+  layer_mark_dirty(layer);
+}
+
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   const uint16_t timeout_ms = 10000;
 
@@ -817,32 +881,48 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
     return;
   }
 
-  // Only one option enabled
+  // Only weather enabled
   if (show_weather && !show_news) {
     s_whiteout_active = true;
     s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
-  } else if (!show_weather && show_news) {
-    s_whiteout_active = true;
-    s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
-  } else {
-    // Both options enabled
-    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
-      // Second tap while on graph: switch to news
-      s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
-    } else {
-      // First tap or from news: show graph
-      s_whiteout_active = true;
-      s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    if (timer_short) {
+      app_timer_cancel(timer_short);
+      timer_short = NULL;
     }
+    timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
+    layer_mark_dirty(layer);
+    return;
   }
-
-  if (timer_short) {
-    app_timer_cancel(timer_short);
-    timer_short = NULL;
+  
+  // Only news enabled
+  if (!show_weather && show_news) {
+    start_news_sequence();
+    return;
   }
-
-  timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
-  layer_mark_dirty(layer);
+  
+  // Both options enabled
+  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
+    // Second tap while on graph: switch to news
+    if (timer_short) {
+      app_timer_cancel(timer_short);
+      timer_short = NULL;
+    }
+    start_news_sequence();
+  } else {
+    // First tap or from news: show graph
+    if (news_timer) {
+      app_timer_cancel(news_timer);
+      news_timer = NULL;
+    }
+    s_whiteout_active = true;
+    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    if (timer_short) {
+      app_timer_cancel(timer_short);
+      timer_short = NULL;
+    }
+    timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
+    layer_mark_dirty(layer);
+  }
 }
 
 // UNUSED handle_battery - battery_state_service not subscribed - saves ~100
@@ -901,6 +981,21 @@ static void assign_fonts() {
 
 static void inbox_received_callback(DictionaryIterator *iterator,
                                     void *context) {
+  // Handle news title reception
+  Tuple *news_title_tuple = dict_find(iterator, KEY_NEWS_TITLE);
+  if (news_title_tuple) {
+    snprintf(news_title, sizeof(news_title), "%s", news_title_tuple->value->cstring);
+    layer_mark_dirty(layer);
+    // Schedule next news after interval
+    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
+      if (news_timer) {
+        app_timer_cancel(news_timer);
+      }
+      news_timer = app_timer_register(news_interval_ms, news_timer_callback, NULL);
+    }
+    return;
+  }
+
   // Gestion de l'option graphique météo
   Tuple *show_weather_tuple = dict_find(iterator, KEY_SHOW_WEATHER);
   if (show_weather_tuple) {
@@ -1663,6 +1758,10 @@ static void deinit() {
   if (timer_short) {
     app_timer_cancel(timer_short);
     timer_short = NULL;
+  }
+  if (news_timer) {
+    app_timer_cancel(news_timer);
+    news_timer = NULL;
   }
   s_whiteout_active = false;
   app_message_deregister_callbacks();

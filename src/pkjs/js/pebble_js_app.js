@@ -12,6 +12,76 @@ var KEY_LAST_UPDATE = 158;
 
 var bIsImperial;
 
+// RSS News cache
+var newsCache = [];
+var newsCacheTime = 0;
+var newsIndex = 0;
+var NEWS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in ms
+var RSS_URL = "https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml";
+
+function fetchAndSendNews() {
+  var now = Date.now();
+  
+  // Check if cache is still valid
+  if (newsCache.length > 0 && (now - newsCacheTime) < NEWS_CACHE_DURATION) {
+    // Use cached data, increment index
+    newsIndex = (newsIndex + 1) % newsCache.length;
+    sendNewsTitle(newsCache[newsIndex]);
+    return;
+  }
+  
+  // Cache expired or empty, fetch new data
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var titles = [];
+      var text = xhr.responseText;
+      // Parse titles from XML using regex
+      var regex = /<title>\s*<!\[CDATA\[\s*([^\]]+?)\s*\]\]>\s*<\/title>/g;
+      var match;
+      while ((match = regex.exec(text)) !== null) {
+        var title = match[1].trim();
+        if (title && title.length > 0) {
+          titles.push(title);
+        }
+      }
+      // Also try without CDATA
+      var regex2 = /<title>([^<]+)<\/title>/g;
+      while ((match = regex2.exec(text)) !== null) {
+        var title = match[1].trim();
+        if (title && title.length > 0 && titles.indexOf(title) === -1) {
+          titles.push(title);
+        }
+      }
+      
+      if (titles.length > 0) {
+        newsCache = titles;
+        newsCacheTime = now;
+        newsIndex = 0;
+        sendNewsTitle(newsCache[newsIndex]);
+      } else {
+        sendNewsTitle("No news available");
+      }
+    } else {
+      sendNewsTitle("News fetch failed");
+    }
+  };
+  xhr.onerror = function() {
+    sendNewsTitle("Network error");
+  };
+  xhr.open("GET", RSS_URL, true);
+  xhr.send();
+}
+
+function sendNewsTitle(title) {
+  // Truncate to 100 chars max for Pebble memory
+  if (title.length > 100) {
+    title = title.substring(0, 97) + "...";
+  }
+  var dict = { "KEY_NEWS_TITLE": title };
+  Pebble.sendAppMessage(dict, function() {}, function() {});
+}
+
 var currentCity;
 var current_Latitude;
 var current_Longitude;
@@ -563,7 +633,12 @@ Pebble.addEventListener('ready',
 
 
 Pebble.addEventListener('appmessage',
-  function () {
+  function (e) {
+    // Check if this is a news request (KEY_REQUEST_NEWS = 173)
+    if (e.payload && (e.payload.KEY_REQUEST_NEWS !== undefined || e.payload[173] !== undefined)) {
+      fetchAndSendNews();
+      return;
+    }
 
     if ((navigator.onLine) || (b_force_internet)) {
       console.log("Appel météo !!");
