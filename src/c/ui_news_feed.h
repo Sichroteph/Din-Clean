@@ -2,4 +2,4 @@
 
 #include <pebble.h>
 
-void ui_draw_news_feed(GContext *ctx, const char *title);
+void ui_draw_news_feed(GContext *ctx, const char *word, bool show_splash);

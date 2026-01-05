@@ -55,6 +55,10 @@ function fetchAndSendNews() {
       }
 
       if (titles.length > 0) {
+        // Remove first title if it's the RSS feed title
+        if (titles[0].indexOf("Reuters") !== -1 && titles[0].indexOf("Breaking") !== -1) {
+          titles.shift();
+        }
         newsCache = titles;
         newsCacheTime = now;
         newsIndex = 0;
@@ -80,7 +84,7 @@ function sendNewsTitle(title) {
   }
   // Use numeric key 172 for KEY_NEWS_TITLE
   var dict = { 172: title };
-  Pebble.sendAppMessage(dict, function () {}, function () {});
+  Pebble.sendAppMessage(dict, function () { }, function () { });
 }
 
 var currentCity;

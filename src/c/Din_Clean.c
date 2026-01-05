@@ -315,6 +315,7 @@ static char rsvp_word[32] = "";     // Current word being displayed
 static uint8_t rsvp_word_index = 0; // Current word position in title
 static uint16_t rsvp_wpm_ms = 250;  // 200ms per word (~300 WPM)
 static AppTimer *rsvp_timer = NULL;
+static bool s_news_splash_active = false; // Show Reuters splash screen
 
 // Double-tap detection
 static time_t last_tap_time = 0;
@@ -619,7 +620,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-      ui_draw_news_feed(ctx, rsvp_word); // RSVP: display current word
+      ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active);
     } else {
       fill_weather_graph_data(&s_graph_data);
       ui_draw_weather_graph(ctx, &s_graph_data);
@@ -831,9 +832,6 @@ static void handle_whiteout_timeout(void *context) {
   layer_mark_dirty(layer);
 }
 
-// Forward declaration for retry
-static void request_news_retry_callback(void *context);
-
 // Actually send the news request
 static void do_send_news_request(void) {
   DictionaryIterator *iter;
@@ -851,12 +849,6 @@ static void do_send_news_request(void) {
 static void request_news_from_js(void) {
   s_news_request_pending = true;
   do_send_news_request();
-}
-
-static void request_news_retry_callback(void *context) {
-  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-    request_news_from_js();
-  }
 }
 
 // Extract next word from news_title starting at rsvp_word_index
@@ -953,6 +945,11 @@ static void news_timer_callback(void *context) {
     return;
   }
 
+  // If splash was active, now request first news
+  if (s_news_splash_active) {
+    s_news_splash_active = false;
+  }
+
   // Request next news
   request_news_from_js();
   // Safety timeout
@@ -976,7 +973,8 @@ static void start_news_sequence(void) {
   s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
   news_display_count = 0;
-  snprintf(rsvp_word, sizeof(rsvp_word), "..."); // Show dots while loading
+  s_news_splash_active = true;  // Show splash first
+  rsvp_word[0] = '\0';  // Clear word for splash display
 
   // Cancel any existing timers
   if (timer_short) {
@@ -992,12 +990,10 @@ static void start_news_sequence(void) {
     rsvp_timer = NULL;
   }
 
-  // Request first news
-  request_news_from_js();
-
-  // Safety timeout: if no response in 5s, exit
-  news_timer = app_timer_register(5000, news_timer_callback, NULL);
   layer_mark_dirty(layer);
+
+  // Show splash for 3 seconds, then request first news
+  news_timer = app_timer_register(3000, news_timer_callback, NULL);
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
