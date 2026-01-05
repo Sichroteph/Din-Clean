@@ -100,6 +100,5 @@ int weather_utils_build_icon(const char *text_icon, bool is_bw_icon) {
     return RESOURCE_ID_BROUILLARD_W;
   }
 
-  APP_LOG(APP_LOG_LEVEL_WARNING, "Icon non trouve: %s", text_icon);
   return RESOURCE_ID_BT;
 }

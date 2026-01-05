@@ -244,8 +244,6 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
     gbitmap_destroy(pourtour);
     pourtour = NULL;
   } else {
-    APP_LOG(APP_LOG_LEVEL_ERROR,
-            "GRAPH: pourtour alloc failed - skipping icons");
     // Skip icon rendering entirely if we can't even load the border
     // This prevents cascading memory failures
     goto draw_frame;
@@ -284,9 +282,6 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
         // Memory allocation failed - stop trying to load more icons
         break;
       }
-    } else if (icon_resource != 0) {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: day %d bad res %d", day,
-              icon_resource);
     }
   }
 
@@ -305,7 +300,4 @@ draw_frame:
   for (int x = 0; x <= 143; x += 6) {
     graphics_fill_circle(ctx, GPoint(x, 168 + offset_y), 1);
   }
-
-  APP_LOG(APP_LOG_LEVEL_INFO,
-          "GRAPH: ui_draw_weather_graph() COMPLETED SUCCESSFULLY");
 }

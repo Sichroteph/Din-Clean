@@ -411,7 +411,6 @@ static int build_icon(char *text_icon) {
     }
   }
 
-  // APP_LOG(APP_LOG_LEVEL_INFO, "texte ICONE  %s", text_icon);
   if ((strcmp(text_icon, "clearsky_day") == 0)) {
     return RESOURCE_ID_ENSOLEILLE_W;
   }
@@ -458,7 +457,6 @@ static int build_icon(char *text_icon) {
     return RESOURCE_ID_BROUILLARD_W;
   }
 
-  APP_LOG(APP_LOG_LEVEL_WARNING, "Icon non trouve: %s", text_icon);
   return RESOURCE_ID_BT;
 }
 
@@ -558,9 +556,6 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   bool icon2_valid = (graph_icon2[0] != '\0' && graph_icon2[0] != ' ');
   bool icon3_valid = (graph_icon3[0] != '\0' && graph_icon3[0] != ' ');
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "GRAPH icons valid: %d %d %d", icon1_valid,
-          icon2_valid, icon3_valid);
-
   out->icon_ids[0] = build_icon(icon1_valid ? graph_icon1 : NULL);
 
   // Prefer the daily forecast string for tomorrow; fall back to hourly icon.
@@ -575,8 +570,6 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   // Validate all icon IDs - set to 0 if invalid to prevent crashes
   for (int i = 0; i < 3; i++) {
     if (out->icon_ids[i] < 0 || out->icon_ids[i] > 500) {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "GRAPH: Invalid icon_id[%d]=%d, resetting",
-              i, out->icon_ids[i]);
       out->icon_ids[i] = 0;
     }
   }
@@ -611,8 +604,6 @@ static void update_proc(Layer *layer, GContext *ctx) {
   ensure_fontbig_loaded();
 
   if (!first_draw_logged) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: first_draw %lu",
-            (unsigned long)time(NULL));
     first_draw_logged = true;
   }
 
@@ -651,7 +642,6 @@ static void update_proc(Layer *layer, GContext *ctx) {
 
   int icon_id;
   int icon_id6;
-  //  APP_LOG(APP_LOG_LEVEL_INFO, "2");
   rain_ico_val = rain1_val;
   icon_id = build_icon(icon);
   rain_ico_val = rain3_val;
@@ -780,11 +770,8 @@ static void update_proc(Layer *layer, GContext *ctx) {
 }
 
 static void handle_tick(struct tm *cur, TimeUnits units_changed) {
-  // APP_LOG(APP_LOG_LEVEL_INFO, "tick start");
-  // APP_LOG(APP_LOG_LEVEL_INFO, "t1");
   t = time(NULL);
   now = *(localtime(&t));
-  // APP_LOG(APP_LOG_LEVEL_INFO, "t2");
   if (is_vibration) {
     if (now.tm_min == 0 && now.tm_hour >= QUIET_TIME_END &&
         now.tm_hour <= QUIET_TIME_START) {
@@ -806,13 +793,7 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
     }
   }
 
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Time now: %d", (int)mktime(&now));
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Last refresh: %d", (int)last_refresh);
-
-  // APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty tick");
-
   layer_mark_dirty(layer);
-  // APP_LOG(APP_LOG_LEVEL_INFO, "tick end");
 }
 
 static void handle_whiteout_timeout(void *context) {
@@ -867,7 +848,6 @@ void bt_handler(bool connected) {
   } else {
     is_connected = false;
   }
-  // APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty handler bt");
   if (is_bt) {
     vibes_double_pulse();
   }
@@ -892,9 +872,6 @@ static void assign_fonts() {
   hour_offset_y = 9;
   status_offset_x = 1;
   status_offset_y = 0;
-
-  APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: assign_fonts resource_id=%d",
-          fontbig_resource_id);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator,
@@ -917,9 +894,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   }
 
   // Read tuples for data
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "receiving tuples");
-  APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: inbox_received %lu",
-          (unsigned long)time(NULL));
   // pour test
   Tuple *radio_tuple = dict_find(iterator, KEY_RADIO_UNITS);
   Tuple *temp_tuple = dict_find(iterator, KEY_TEMPERATURE);
@@ -1034,10 +1008,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     npoolPH = (int)poolPH_tuple->value->int32;     // x100
     npoolORP = (int)poolORP_tuple->value->int32;   // entier
 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "poolTemp_tuple : %d", npoolTemp);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "poolPH_tuple : %d", npoolPH);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "poolORP_tuple : %d", npoolORP);
-
     // Buffers pour les chaînes
 
     // Conversion manuelle sans float
@@ -1052,22 +1022,15 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     snprintf(poolPH, sizeof(poolPH), "%d.%02d", ph_int, ph_dec); // 2 décimales
     snprintf(poolORP, sizeof(poolORP), "%d", npoolORP); // entier simple
 
-    // Exemple d'affichage
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Température: %s", poolTemp);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "pH: %s", poolPH);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "ORP: %s", poolORP);
-
     snprintf(icon, sizeof(icon), "%s", icon_tuple->value->cstring);
 
     weather_temp = (int)temp_tuple->value->int32;
 
-    // APP_LOG(APP_LOG_LEVEL_DEBUG, "humidity now: %d", humidity);
     tmin_val = (int)tmin_tuple->value->int32;
     tmax_val = (int)tmax_tuple->value->int32;
 
     wind_speed_val = (int)wind_speed_tuple->value->int32;
     humidity = (int)humidity_tuple->value->int32;
-    // APP_LOG(APP_LOG_LEVEL_DEBUG, "tmin_val now: %d", tmin_val);
 
     // Process extended hourly forecast data for weather graph (only 5 temps)
     if (temp1_tuple)
@@ -1091,9 +1054,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     if (h3_tuple)
       graph_h3 = (int)h3_tuple->value->int32;
 
-    APP_LOG(APP_LOG_LEVEL_INFO,
-            "WATCH: Hours received: h0=%d h1=%d h2=%d h3=%d", graph_h0,
-            graph_h1, graph_h2, graph_h3);
     // h4-h8 not used
 
     // Rain data (12 segments only)
@@ -1287,7 +1247,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_string(KEY_DAY2_WIND, days_wind[1]);
     persist_write_string(KEY_DAY3_WIND, days_wind[2]);
 
-    //   APP_LOG(APP_LOG_LEVEL_DEBUG,"dirty inbox_received_callback + weather");
     layer_mark_dirty(layer);
   }
 
@@ -1351,18 +1310,14 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     app_message_outbox_begin(&iter);
     dict_write_uint8(iter, 0, 0);
     app_message_outbox_send();
-    APP_LOG(APP_LOG_LEVEL_INFO,
-            "WATCH: Requested weather update after config change");
   }
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {
-  // APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  // APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
 static void init_var() {
@@ -1457,10 +1412,6 @@ static void init_var() {
     npoolTemp = persist_read_int(KEY_POOLTEMP);
     npoolPH = persist_read_int(KEY_POOLPH);
     npoolORP = persist_read_int(KEY_poolORP);
-
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolTemp memorisé %d", npoolTemp);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolPH memorisé %d", npoolPH);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "npoolORP memorisé %d", npoolORP);
 
     persist_read_string(KEY_FORECAST_H1, h1, sizeof(h1));
     persist_read_string(KEY_FORECAST_H2, h2, sizeof(h2));
@@ -1603,15 +1554,8 @@ static void init_var() {
   // Force B&W colors for all platforms (aplite style)
   color_left = GColorBlack;
   color_right = GColorBlack;
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "select_fonts %d", select_fonts);
 
   assign_fonts();
-  APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: after init_var %lu",
-          (unsigned long)time(NULL));
-
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "\n\nselect screen %d\nis_30mn %d \n is_gps
-  // %d\n utc %d\nis_metric %d\nis_vibration %d\nis_bw_icon %d\n",
-  // select_screen, is_30mn, is_gps, utc, is_metric, is_vibration, is_bw_icon);
 
   snprintf(pebble_Lang, sizeof(pebble_Lang), "%s", i18n_get_system_locale());
 
@@ -1697,11 +1641,7 @@ static void deinit() {
 }
 
 int main(void) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: main start %lu",
-          (unsigned long)time(NULL));
   init();
-  APP_LOG(APP_LOG_LEVEL_INFO, "WATCH: after init %lu",
-          (unsigned long)time(NULL));
   app_event_loop();
   deinit();
 }
