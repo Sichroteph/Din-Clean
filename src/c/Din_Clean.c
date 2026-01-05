@@ -4,13 +4,16 @@
 
 // Nouvelle clé pour l'option d'affichage du graphique météo
 #define KEY_SHOW_WEATHER 170
+#define KEY_SHOW_NEWS 171
 // Variable globale pour l'option graphique météo
 static bool show_weather = true;
+static bool show_news = false;
 #include <pebble.h>
 
 #include "ui_icon_bar.h"
 #include "ui_time.h"
 #include "ui_weather_graph.h"
+#include "ui_news_feed.h"
 
 #ifndef WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
 #define WEATHER_GRAPH_DEBUG_RAIN_SAMPLE 0
@@ -295,10 +298,10 @@ static char days_icon[3][32] = {"", "", ""};
 static char days_rain[3][6] = {"0mm", "0mm", "0mm"};
 static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 
-// Whiteout screen mode (0=graph, 1=days)
+// Whiteout screen mode (0=graph, 1=news)
 typedef enum {
   WHITEOUT_SCREEN_GRAPH = 0,
-  WHITEOUT_SCREEN_DAYS = 1
+  WHITEOUT_SCREEN_NEWS = 1
 } WhiteoutScreenMode;
 static WhiteoutScreenMode s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
 
@@ -593,9 +596,12 @@ static void update_proc(Layer *layer, GContext *ctx) {
       fontbig_loaded = false;
     }
 
-    // Always render the hourly graph; 3-day view removed
-    fill_weather_graph_data(&s_graph_data);
-    ui_draw_weather_graph(ctx, &s_graph_data);
+    if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
+      ui_draw_news_feed(ctx);
+    } else {
+      fill_weather_graph_data(&s_graph_data);
+      ui_draw_weather_graph(ctx, &s_graph_data);
+    }
     return;
   }
 
@@ -804,19 +810,38 @@ static void handle_whiteout_timeout(void *context) {
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-  if (!show_weather) {
+  const uint16_t timeout_ms = 10000;
+
+  // Neither option enabled: do nothing
+  if (!show_weather && !show_news) {
     return;
   }
 
-  s_whiteout_active = true;
-  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+  // Only one option enabled
+  if (show_weather && !show_news) {
+    s_whiteout_active = true;
+    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+  } else if (!show_weather && show_news) {
+    s_whiteout_active = true;
+    s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
+  } else {
+    // Both options enabled
+    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
+      // Second tap while on graph: switch to news
+      s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
+    } else {
+      // First tap or from news: show graph
+      s_whiteout_active = true;
+      s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    }
+  }
 
   if (timer_short) {
     app_timer_cancel(timer_short);
     timer_short = NULL;
   }
 
-  timer_short = app_timer_register(10000, handle_whiteout_timeout, NULL);
+  timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
   layer_mark_dirty(layer);
 }
 
@@ -881,16 +906,23 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   if (show_weather_tuple) {
     show_weather = show_weather_tuple->value->int32;
     persist_write_bool(KEY_SHOW_WEATHER, show_weather);
+  }
 
-    // If weather graph is now disabled and was active, close it
-    if (!show_weather && s_whiteout_active) {
-      s_whiteout_active = false;
-      if (timer_short) {
-        app_timer_cancel(timer_short);
-        timer_short = NULL;
-      }
-      layer_mark_dirty(layer);
+  // Gestion de l'option news feed
+  Tuple *show_news_tuple = dict_find(iterator, KEY_SHOW_NEWS);
+  if (show_news_tuple) {
+    show_news = show_news_tuple->value->int32;
+    persist_write_bool(KEY_SHOW_NEWS, show_news);
+  }
+
+  // If both options are now disabled and whiteout was active, close it
+  if (!show_weather && !show_news && s_whiteout_active) {
+    s_whiteout_active = false;
+    if (timer_short) {
+      app_timer_cancel(timer_short);
+      timer_short = NULL;
     }
+    layer_mark_dirty(layer);
   }
 
   // Read tuples for data
@@ -1324,6 +1356,12 @@ static void init_var() {
     show_weather = persist_read_bool(KEY_SHOW_WEATHER);
   } else {
     show_weather = true;
+  }
+  // Initialisation de show_news
+  if (persist_exists(KEY_SHOW_NEWS)) {
+    show_news = persist_read_bool(KEY_SHOW_NEWS);
+  } else {
+    show_news = false;
   }
   int i;
 

@@ -602,6 +602,11 @@ Pebble.addEventListener('webviewclosed', function (e) {
   localStorage.setItem(170, show_weather ? 1 : 0);
   dict['KEY_SHOW_WEATHER'] = show_weather ? 1 : 0;
 
+  // Ajout de l'option news feed
+  var show_news = !!configData['show_news'];
+  localStorage.setItem(171, show_news ? 1 : 0);
+  dict['KEY_SHOW_NEWS'] = show_news ? 1 : 0;
+
   localStorage.setItem(152, radio_units ? 1 : 0);
   localStorage.setItem(158, input_iopool_token);
 

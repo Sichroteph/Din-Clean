@@ -68,6 +68,14 @@
       <div class='item-container-footer'>
         Enabled by default. Uncheck to hide the weather graph.
       </div>
+      <!-- Option news feed -->
+      <label class='item'>
+        Show News Feed
+        <input type='checkbox' class='item-toggle' input id='show_news'>
+      </label>
+      <div class='item-container-footer'>
+        Reuters | Breaking International News & Views
+      </div>
     </div>
   </div>
 
@@ -85,7 +93,7 @@
     </div>
   </div>
 
-  <div class='item-container'style="display:none;">
+  <div class='item-container' style="display:none;">
     <div class='item-container-header'>Background color</div>
     <div class='item-container-content'>
       <label class='item'>
@@ -102,12 +110,12 @@
   <div class='item-container'>
     <div class='item-container-header'>iopool API (Option)</div>
     <div class='item-container-content'>
-        Your io-pool token :
-        <label class='item'>
-          <div class='item-input-wrapper'>
-            <input type='text' class='item-input' input id='input_iopool_token' placeholder='Input field'>
-          </div>
-        </label>
+      Your io-pool token :
+      <label class='item'>
+        <div class='item-input-wrapper'>
+          <input type='text' class='item-input' input id='input_iopool_token' placeholder='Input field'>
+        </div>
+      </label>
     </div>
   </div>
 
@@ -136,6 +144,7 @@
     var color_right_back = document.getElementById('color_right_back');
     var color_left_back = document.getElementById('color_left_back');
     var show_weather = document.getElementById('show_weather');
+    var show_news = document.getElementById('show_news');
 
     var options = {
       'input_iopool_token': input_iopool_token.value,
@@ -145,7 +154,8 @@
       'toggle_bt': toggle_bt.checked,
       'color_right_back': color_right_back.value,
       'color_left_back': color_left_back.value,
-      'show_weather': show_weather.checked
+      'show_weather': show_weather.checked,
+      'show_news': show_news.checked
     };
 
     // Save for next launch
@@ -157,7 +167,8 @@
     localStorage['color_right_back'] = options['color_right_back'];
     localStorage['color_left_back'] = options['color_left_back'];
     localStorage['show_weather'] = options['show_weather'];
-    
+    localStorage['show_news'] = options['show_news'];
+
     console.log('Got options: ' + JSON.stringify(options));
     return options;
   }
@@ -192,7 +203,8 @@
     var color_right_back = document.getElementById('color_right_back');
     var color_left_back = document.getElementById('color_left_back');
     var show_weather = document.getElementById('show_weather');
-    
+    var show_news = document.getElementById('show_news');
+
     input_iopool_token.value = localStorage['input_iopool_token'] || '';
     radio_units.checked = JSON.parse(localStorage['radio_units'] || 'false');
     radio_refresh.checked = JSON.parse(localStorage['radio_refresh'] || 'false');
@@ -201,6 +213,7 @@
     color_right_back.value = localStorage['color_right_back'] || '0x000000';
     color_left_back.value = localStorage['color_left_back'] || '0x000000';
     show_weather.checked = (localStorage['show_weather'] === undefined) ? true : JSON.parse(localStorage['show_weather']);
+    show_news.checked = JSON.parse(localStorage['show_news'] || 'false');
   })();
 </script>
 
