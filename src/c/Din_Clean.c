@@ -1024,13 +1024,13 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
 
   // Double-tap detection
   time_t now = time(NULL);
-  /*
+
   if ((now - last_tap_time) > tap_interval_sec) {
     // First tap - just record time
     last_tap_time = now;
     return;
   }
-  */
+
   // Second tap within interval - reset and proceed
   last_tap_time = 0;
 
