@@ -1,6 +1,7 @@
+#include <inttypes.h>
 #include <pebble.h>
 #include <stdbool.h>
-#include <inttypes.h>
+
 // Nouvelle clé pour l'option d'affichage du deuxième panneau
 #define KEY_SHOW_SECOND_PANEL 170
 // Variable globale pour l'option panneau secondaire
@@ -833,7 +834,7 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
     app_timer_cancel(timer_short);
     timer_short = NULL;
   }
-  
+
   timer_short = app_timer_register(10000, handle_whiteout_timeout, NULL);
   layer_mark_dirty(layer);
 }

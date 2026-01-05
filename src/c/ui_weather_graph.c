@@ -25,7 +25,7 @@ void ui_weather_graph_set_vertical_offset(int offset_y) {
 }
 
 // Helper: Draw rain bars - reduces main function stack usage
-static void draw_rain_bars(GContext *ctx, const WeatherGraphData *d, 
+static void draw_rain_bars(GContext *ctx, const WeatherGraphData *d,
                            int offset_x, int offset_y) {
   graphics_context_set_fill_color(ctx, RAIN_COLOR);
   for (int i_segments = 0; i_segments < 12; i_segments++) {
@@ -43,8 +43,8 @@ static void draw_rain_bars(GContext *ctx, const WeatherGraphData *d,
 }
 
 // Helper: Draw temperature labels - reduces main function stack usage
-static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin,
-                             int offset_x, int offset_y) {
+static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin, int offset_x,
+                             int offset_y) {
   static char t1[8];
   static char t12[8];
   static char t2[8];
@@ -56,58 +56,63 @@ static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin,
 
   GFont statusfontdate = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   graphics_context_set_text_color(ctx, GColorWhite);
-  
-  graphics_draw_text(ctx, t1, statusfontdate, 
-                     GRect(-25 + offset_x, 51 + offset_y, 60, 20),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
-  
-  graphics_draw_text(ctx, t12, statusfontdate,
-                     GRect(-25 + offset_x, 73 + offset_y, 60, 20),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
-  
-  graphics_draw_text(ctx, t2, statusfontdate,
-                     GRect(-25 + offset_x, 95 + offset_y, 60, 20),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
+
+  graphics_draw_text(
+      ctx, t1, statusfontdate, GRect(-25 + offset_x, 51 + offset_y, 60, 20),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
+
+  graphics_draw_text(
+      ctx, t12, statusfontdate, GRect(-25 + offset_x, 73 + offset_y, 60, 20),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
+
+  graphics_draw_text(
+      ctx, t2, statusfontdate, GRect(-25 + offset_x, 95 + offset_y, 60, 20),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
 }
 
 // Helper: Draw hour and wind labels - reduces main function stack usage
 static void draw_hour_wind_labels(GContext *ctx, const WeatherGraphData *d,
-                                   const char *h0, const char *h1, 
-                                   const char *h2, const char *h3,
-                                   int offset_x, int offset_y) {
+                                  const char *h0, const char *h1,
+                                  const char *h2, const char *h3, int offset_x,
+                                  int offset_y) {
   GFont statusfontdate = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   GFont statusfontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-  
+
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   graphics_context_set_fill_color(ctx, GColorBlack);
-  graphics_fill_rect(ctx, GRect(offset_x, 150 + offset_y, 80, 20), 0, GCornerNone);
+  graphics_fill_rect(ctx, GRect(offset_x, 150 + offset_y, 80, 20), 0,
+                     GCornerNone);
 
   graphics_context_set_text_color(ctx, GColorWhite);
-  graphics_draw_text(ctx, h0, statusfontdate, 
-                     GRect(6 + offset_x, 116 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, h1, statusfontdate,
-                     GRect(37 + offset_x, 116 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, h2, statusfontdate,
-                     GRect(68 + offset_x, 116 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, h3, statusfontdate,
-                     GRect(97 + offset_x, 116 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(
+      ctx, h0, statusfontdate, GRect(6 + offset_x, 116 + offset_y, 60, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(
+      ctx, h1, statusfontdate, GRect(37 + offset_x, 116 + offset_y, 60, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(
+      ctx, h2, statusfontdate, GRect(68 + offset_x, 116 + offset_y, 60, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(
+      ctx, h3, statusfontdate, GRect(97 + offset_x, 116 + offset_y, 60, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
   graphics_draw_text(ctx, d->winds[0], statusfontsmall,
                      GRect(6 + offset_x, 144 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
+                     NULL);
   graphics_draw_text(ctx, d->winds[1], statusfontsmall,
                      GRect(37 + offset_x, 144 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
+                     NULL);
   graphics_draw_text(ctx, d->winds[2], statusfontsmall,
                      GRect(68 + offset_x, 144 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
+                     NULL);
   graphics_draw_text(ctx, d->winds[3], statusfontsmall,
                      GRect(97 + offset_x, 144 + offset_y, 60, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
+                     NULL);
 }
 
 void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
@@ -139,7 +144,7 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   // Calculate temperature range
   int ttmin = d->temps[0];
   int ttmax = d->temps[0];
-  
+
   for (int k = 0; k < 5; k++) {
     if (ttmin >= d->temps[k]) {
       ttmin = d->temps[k];
@@ -178,21 +183,37 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
   int freezing_temp = d->is_metric ? 0 : 32;
   int decallage_y = -7;
 
+  // Segment 1: y1 → y2
   if ((d->temps[0] < freezing_temp) && (d->temps[1] < freezing_temp))
     graphics_context_set_stroke_color(ctx, BLUE_LINE);
   else
     graphics_context_set_stroke_color(ctx, RED_LINE);
-  graphics_draw_line(
-      ctx, GPoint(37 + offset_x, y1 + offset_y + decallage_y),
-      GPoint(67 + offset_x, y2 + offset_y + decallage_y));
+  graphics_draw_line(ctx, GPoint(37 + offset_x, y1 + offset_y + decallage_y),
+                     GPoint(67 + offset_x, y2 + offset_y + decallage_y));
 
+  // Segment 2: y2 → y3
   if ((d->temps[1] < freezing_temp) && (d->temps[2] < freezing_temp))
     graphics_context_set_stroke_color(ctx, BLUE_LINE);
   else
     graphics_context_set_stroke_color(ctx, RED_LINE);
-  graphics_draw_line(
-      ctx, GPoint(67 + offset_x, y2 + offset_y + decallage_y),
-      GPoint(97 + offset_x, y3 + offset_y + decallage_y));
+  graphics_draw_line(ctx, GPoint(67 + offset_x, y2 + offset_y + decallage_y),
+                     GPoint(97 + offset_x, y3 + offset_y + decallage_y));
+
+  // Segment 3: y3 → y4
+  if ((d->temps[2] < freezing_temp) && (d->temps[3] < freezing_temp))
+    graphics_context_set_stroke_color(ctx, BLUE_LINE);
+  else
+    graphics_context_set_stroke_color(ctx, RED_LINE);
+  graphics_draw_line(ctx, GPoint(97 + offset_x, y3 + offset_y + decallage_y),
+                     GPoint(127 + offset_x, y4 + offset_y + decallage_y));
+
+  // Segment 4: y4 → y5
+  if ((d->temps[3] < freezing_temp) && (d->temps[4] < freezing_temp))
+    graphics_context_set_stroke_color(ctx, BLUE_LINE);
+  else
+    graphics_context_set_stroke_color(ctx, RED_LINE);
+  graphics_draw_line(ctx, GPoint(127 + offset_x, y4 + offset_y + decallage_y),
+                     GPoint(157 + offset_x, y5 + offset_y + decallage_y));
 
   // Draw hour and wind labels using helper function (reduces stack)
   draw_hour_wind_labels(ctx, d, h0_buffer, h1_buffer, h2_buffer, h3_buffer,
@@ -235,7 +256,7 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 
   // Now draw weekday labels and weather icons (pourtour is freed)
   for (int day = 1; day <= 3; day++) {
-    
+
     GRect icon_rect = base_rect;
     icon_rect.origin.x += (day - 1) * spacing;
 
@@ -287,6 +308,7 @@ draw_frame:
   for (int x = 0; x <= 143; x += 6) {
     graphics_fill_circle(ctx, GPoint(x, 168 + offset_y), 1);
   }
-  
-  APP_LOG(APP_LOG_LEVEL_INFO, "GRAPH: ui_draw_weather_graph() COMPLETED SUCCESSFULLY");
+
+  APP_LOG(APP_LOG_LEVEL_INFO,
+          "GRAPH: ui_draw_weather_graph() COMPLETED SUCCESSFULLY");
 }
