@@ -80,7 +80,7 @@ function sendNewsTitle(title) {
   }
   // Use numeric key 172 for KEY_NEWS_TITLE
   var dict = { 172: title };
-  Pebble.sendAppMessage(dict, function () { }, function () { });
+  Pebble.sendAppMessage(dict, function () {}, function () {});
 }
 
 var currentCity;
@@ -437,11 +437,53 @@ function processWeatherResponse(responseText) {
   Pebble.sendAppMessage(dictionary,
     function () {
       console.log("Weather info sent to Pebble successfully!");
+      // Pre-fetch news for later use
+      prefetchNewsCache();
     },
     function () {
       console.log("Error sending weather info to Pebble!");
     }
   );
+}
+
+// Pre-fetch news and store in cache (no sending)
+function prefetchNewsCache() {
+  var now = Date.now();
+  if (newsCache.length > 0 && (now - newsCacheTime) < NEWS_CACHE_DURATION) {
+    console.log("News cache already valid");
+    return;
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      var titles = [];
+      var text = xhr.responseText;
+      var regex = /<title>\s*<!\[CDATA\[\s*([^\]]+?)\s*\]\]>\s*<\/title>/g;
+      var match;
+      while ((match = regex.exec(text)) !== null) {
+        var title = match[1].trim();
+        if (title && title.length > 0) {
+          titles.push(title);
+        }
+      }
+      var regex2 = /<title>([^<]+)<\/title>/g;
+      while ((match = regex2.exec(text)) !== null) {
+        var title = match[1].trim();
+        if (title && title.length > 0 && titles.indexOf(title) === -1) {
+          titles.push(title);
+        }
+      }
+      if (titles.length > 0) {
+        newsCache = titles;
+        newsCacheTime = now;
+        newsIndex = 0;
+        console.log("News cache prefetched: " + titles.length + " titles");
+      }
+    }
+  };
+  xhr.open("GET", RSS_URL, true);
+  xhr.send();
 }
 
 function getIOPoolData() {

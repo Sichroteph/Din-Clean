@@ -306,8 +306,15 @@ static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 static char news_title[104] = "";
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
-static uint16_t news_interval_ms = 3000;
+static uint16_t news_interval_ms = 1000; // Pause between titles
 static AppTimer *news_timer = NULL;
+static bool s_news_request_pending = false; // Flag for pending news request
+
+// RSVP (Rapid Serial Visual Presentation)
+static char rsvp_word[32] = "";     // Current word being displayed
+static uint8_t rsvp_word_index = 0; // Current word position in title
+static uint16_t rsvp_wpm_ms = 250;  // 200ms per word (~300 WPM)
+static AppTimer *rsvp_timer = NULL;
 
 // Double-tap detection
 static time_t last_tap_time = 0;
@@ -612,7 +619,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-      ui_draw_news_feed(ctx, news_title);
+      ui_draw_news_feed(ctx, rsvp_word); // RSVP: display current word
     } else {
       fill_weather_graph_data(&s_graph_data);
       ui_draw_weather_graph(ctx, &s_graph_data);
@@ -824,30 +831,143 @@ static void handle_whiteout_timeout(void *context) {
   layer_mark_dirty(layer);
 }
 
-// Request next news title from JS
-static void request_news_from_js(void) {
+// Forward declaration for retry
+static void request_news_retry_callback(void *context);
+
+// Actually send the news request
+static void do_send_news_request(void) {
   DictionaryIterator *iter;
-  if (app_message_outbox_begin(&iter) == APP_MSG_OK) {
+  AppMessageResult result = app_message_outbox_begin(&iter);
+  if (result == APP_MSG_OK) {
     dict_write_uint8(iter, KEY_REQUEST_NEWS, 1);
-    app_message_outbox_send();
+    result = app_message_outbox_send();
+    if (result == APP_MSG_OK) {
+      s_news_request_pending = false;
+    }
   }
 }
 
-// Timer callback for news rotation
+// Request next news title from JS
+static void request_news_from_js(void) {
+  s_news_request_pending = true;
+  do_send_news_request();
+}
+
+static void request_news_retry_callback(void *context) {
+  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
+    request_news_from_js();
+  }
+}
+
+// Extract next word from news_title starting at rsvp_word_index
+// Returns true if a word was found, false if end of title
+static bool extract_next_word(void) {
+  const char *p = news_title;
+  uint8_t word_count = 0;
+  uint8_t word_start = 0;
+  uint8_t word_len = 0;
+  uint8_t i = 0;
+  bool in_word = false;
+
+  // Find the word at rsvp_word_index
+  while (p[i] != '\0') {
+    if (p[i] == ' ' || p[i] == '\t' || p[i] == '\n') {
+      if (in_word) {
+        if (word_count == rsvp_word_index) {
+          // Found our word
+          if (word_len > sizeof(rsvp_word) - 1) {
+            word_len = sizeof(rsvp_word) - 1;
+          }
+          memcpy(rsvp_word, &p[word_start], word_len);
+          rsvp_word[word_len] = '\0';
+          return true;
+        }
+        word_count++;
+        in_word = false;
+      }
+    } else {
+      if (!in_word) {
+        word_start = i;
+        word_len = 0;
+        in_word = true;
+      }
+      word_len++;
+    }
+    i++;
+  }
+
+  // Handle last word
+  if (in_word && word_count == rsvp_word_index) {
+    if (word_len > sizeof(rsvp_word) - 1) {
+      word_len = sizeof(rsvp_word) - 1;
+    }
+    memcpy(rsvp_word, &p[word_start], word_len);
+    rsvp_word[word_len] = '\0';
+    return true;
+  }
+
+  return false; // No more words
+}
+
+// Forward declaration
+static void news_timer_callback(void *context);
+
+// RSVP timer callback - displays next word
+static void rsvp_timer_callback(void *context) {
+  rsvp_timer = NULL;
+
+  if (!s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
+    return;
+  }
+
+  rsvp_word_index++;
+  if (extract_next_word()) {
+    // Show next word
+    layer_mark_dirty(layer);
+    rsvp_timer = app_timer_register(rsvp_wpm_ms, rsvp_timer_callback, NULL);
+  } else {
+    // End of title - pause then request next
+    rsvp_word[0] = '\0'; // Clear word
+    layer_mark_dirty(layer);
+    news_display_count++;
+
+    if (news_display_count >= news_max_count) {
+      // Done showing news
+      s_whiteout_active = false;
+      s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+      news_display_count = 0;
+      layer_mark_dirty(layer);
+    } else {
+      // Request next news after pause
+      news_timer =
+          app_timer_register(news_interval_ms, news_timer_callback, NULL);
+    }
+  }
+}
+
+// Timer callback for news rotation (between titles)
 static void news_timer_callback(void *context) {
   news_timer = NULL;
-  news_display_count++;
 
-  if (news_display_count >= news_max_count) {
-    // Done showing news, return to main screen
-    s_whiteout_active = false;
-    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
-    news_display_count = 0;
+  if (!s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
+    return;
+  }
+
+  // Request next news
+  request_news_from_js();
+  // Safety timeout
+  news_timer = app_timer_register(5000, news_timer_callback, NULL);
+}
+
+// Start RSVP display for current news_title
+static void start_rsvp_for_title(void) {
+  rsvp_word_index = 0;
+  if (extract_next_word()) {
     layer_mark_dirty(layer);
-  } else {
-    // Request next news
-    request_news_from_js();
-    // Timer will be reset when news arrives
+    if (rsvp_timer) {
+      app_timer_cancel(rsvp_timer);
+    }
+    rsvp_timer = app_timer_register(rsvp_wpm_ms, rsvp_timer_callback, NULL);
   }
 }
 
@@ -856,7 +976,7 @@ static void start_news_sequence(void) {
   s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
   news_display_count = 0;
-  snprintf(news_title, sizeof(news_title), "Loading...");
+  snprintf(rsvp_word, sizeof(rsvp_word), "..."); // Show dots while loading
 
   // Cancel any existing timers
   if (timer_short) {
@@ -867,11 +987,15 @@ static void start_news_sequence(void) {
     app_timer_cancel(news_timer);
     news_timer = NULL;
   }
+  if (rsvp_timer) {
+    app_timer_cancel(rsvp_timer);
+    rsvp_timer = NULL;
+  }
 
   // Request first news
   request_news_from_js();
 
-  // Safety timeout: if no response in 5s, show error and exit
+  // Safety timeout: if no response in 5s, exit
   news_timer = app_timer_register(5000, news_timer_callback, NULL);
   layer_mark_dirty(layer);
 }
@@ -886,11 +1010,13 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
 
   // Double-tap detection
   time_t now = time(NULL);
+  /*
   if ((now - last_tap_time) > tap_interval_sec) {
     // First tap - just record time
     last_tap_time = now;
     return;
   }
+  */
   // Second tap within interval - reset and proceed
   last_tap_time = 0;
 
@@ -899,6 +1025,10 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
     if (news_timer) {
       app_timer_cancel(news_timer);
       news_timer = NULL;
+    }
+    if (rsvp_timer) {
+      app_timer_cancel(rsvp_timer);
+      rsvp_timer = NULL;
     }
     if (show_weather) {
       s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
@@ -1005,14 +1135,14 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   if (news_title_tuple) {
     snprintf(news_title, sizeof(news_title), "%s",
              news_title_tuple->value->cstring);
-    layer_mark_dirty(layer);
-    // Schedule next news after interval
+    // Cancel safety timer
+    if (news_timer) {
+      app_timer_cancel(news_timer);
+      news_timer = NULL;
+    }
+    // Start RSVP for this title
     if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-      if (news_timer) {
-        app_timer_cancel(news_timer);
-      }
-      news_timer =
-          app_timer_register(news_interval_ms, news_timer_callback, NULL);
+      start_rsvp_for_title();
     }
     return;
   }
@@ -1461,10 +1591,18 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   }
 }
 
+// Forward declaration for news request
+static void do_send_news_request(void);
+
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {}
 
-static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {}
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  // If there's a pending news request, send it now
+  if (s_news_request_pending) {
+    do_send_news_request();
+  }
+}
 
 static void init_var() {
   // Initialisation de show_weather
@@ -1765,9 +1903,12 @@ static void init() {
   app_focus_service_subscribe_handlers((AppFocusHandlers){
       .did_focus = app_focus_changed, .will_focus = app_focus_changing});
 
-  // Begin dictionary
+  // Trigger initial weather fetch from JS
   DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
+  if (app_message_outbox_begin(&iter) == APP_MSG_OK) {
+    dict_write_uint8(iter, 0, 0);
+    app_message_outbox_send();
+  }
 }
 
 static void deinit() {
@@ -1783,6 +1924,10 @@ static void deinit() {
   if (news_timer) {
     app_timer_cancel(news_timer);
     news_timer = NULL;
+  }
+  if (rsvp_timer) {
+    app_timer_cancel(rsvp_timer);
+    rsvp_timer = NULL;
   }
   s_whiteout_active = false;
   app_message_deregister_callbacks();
