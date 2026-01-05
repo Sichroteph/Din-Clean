@@ -3,6 +3,9 @@
 #include "ui_weather_graph.h"
 #include "weather_utils.h"
 
+// mv ~/.pebble-sdk/4.9.77/basalt/qemu_spi_flash.bin
+// ~/.pebble-sdk/4.9.77/basalt/qemu_spi_flash.bin.backup
+
 #define WIDTH 144
 #define HEIGHT 168
 #define WEATHER_OFFSET_X -14
