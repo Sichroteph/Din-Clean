@@ -1,7 +1,7 @@
 // force la météo sur l'émulateur
 var b_force_internet = false;
-var bFakeData = 0;
-var bFakePosition = 1;
+var bFakeData = 1;
+var bFakePosition = 0;
 
 var myGoogleAPIKey = '';
 

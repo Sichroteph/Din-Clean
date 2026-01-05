@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include <stdbool.h>
+#include <inttypes.h>
 // Nouvelle clé pour l'option d'affichage du deuxième panneau
 #define KEY_SHOW_SECOND_PANEL 170
 // Variable globale pour l'option panneau secondaire
@@ -585,6 +586,9 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
 // Draw weather graph screen (hourly forecast with temperature curve and rain
 // bars)
 
+// Static buffer for weather graph data to avoid stack overflow
+static WeatherGraphData s_graph_data;
+
 static void update_proc(Layer *layer, GContext *ctx) {
 
   // Weather screen mode: temporarily unload heavy custom font to free memory
@@ -596,9 +600,8 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
 
     // Always render the hourly graph; 3-day view removed
-    WeatherGraphData graph_data;
-    fill_weather_graph_data(&graph_data);
-    ui_draw_weather_graph(ctx, &graph_data);
+    fill_weather_graph_data(&s_graph_data);
+    ui_draw_weather_graph(ctx, &s_graph_data);
     return;
   }
 
@@ -813,13 +816,12 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
 
 static void handle_whiteout_timeout(void *context) {
   s_whiteout_active = false;
-  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH; // Reset to graph for next time
+  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
   timer_short = NULL;
   layer_mark_dirty(layer);
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-  // Check if second panel is disabled
   if (!show_second_panel) {
     return;
   }
@@ -827,11 +829,11 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
 
-  // Reset timer
   if (timer_short) {
     app_timer_cancel(timer_short);
     timer_short = NULL;
   }
+  
   timer_short = app_timer_register(10000, handle_whiteout_timeout, NULL);
   layer_mark_dirty(layer);
 }
