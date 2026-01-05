@@ -51,37 +51,40 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
 
   // Focal point indicator (small lines to guide the eye)
   int center_y = HEIGHT / 2 - 5;
-  graphics_draw_line(ctx, GPoint(5, center_y), GPoint(15, center_y));
-  graphics_draw_line(ctx, GPoint(WIDTH - 15, center_y),
-                     GPoint(WIDTH - 5, center_y));
+  graphics_draw_line(ctx, GPoint(5, center_y + 6), GPoint(15, center_y + 6));
+  graphics_draw_line(ctx, GPoint(WIDTH - 15, center_y + 6),
+                     GPoint(WIDTH - 5, center_y + 6));
 
-  // Word display - large and centered
+  // Word display - large and centered, never wrapped
   const char *display_text = (word && word[0] != '\0') ? word : "";
 
-  // Choose font based on word length
-  GFont font;
-  int y_offset;
-  /*
-  if (strlen(display_text) <= 6) {
-    font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
-    y_offset = HEIGHT / 2 - 30;
-  } else if (strlen(display_text) <= 10) {
-    font = fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK);
-    y_offset = HEIGHT / 2 - 22;
-  } else {
-    font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-    y_offset = HEIGHT / 2 - 18;
-  }
-*/
-  font = fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK);
-  graphics_draw_text(ctx, display_text, font, GRect(0, y_offset, WIDTH, 60),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
-                     NULL);
+  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  int y_offset = HEIGHT / 2 - 20;
+
+  // Use a very wide rect centered on screen to prevent wrapping
+  // Text will overflow left/right but stay on one line
+  int wide_width = 500;
+  int x_offset = (WIDTH - wide_width) / 2; // Centers the wide rect
+
+  graphics_draw_text(
+      ctx, display_text, font, GRect(x_offset, y_offset, wide_width, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
-void ui_draw_news_feed(GContext *ctx, const char *word, bool show_splash) {
+void ui_draw_news_feed(GContext *ctx, const char *word, bool show_splash,
+                       bool show_end) {
   if (show_splash) {
     draw_splash_screen(ctx);
+  } else if (show_end) {
+    // Show END screen - similar to RSVP but with END text
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
+    graphics_context_set_text_color(ctx, GColorWhite);
+
+    GFont font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
+    graphics_draw_text(ctx, "END", font, GRect(0, HEIGHT / 2 - 25, WIDTH, 50),
+                       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
+                       NULL);
   } else {
     draw_rsvp_word(ctx, word);
   }

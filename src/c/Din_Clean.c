@@ -313,9 +313,10 @@ static bool s_news_request_pending = false; // Flag for pending news request
 // RSVP (Rapid Serial Visual Presentation)
 static char rsvp_word[32] = "";     // Current word being displayed
 static uint8_t rsvp_word_index = 0; // Current word position in title
-static uint16_t rsvp_wpm_ms = 250;  // 200ms per word (~300 WPM)
+static uint16_t rsvp_wpm_ms = 200;  // 200ms per word (~200 WPM)
 static AppTimer *rsvp_timer = NULL;
 static bool s_news_splash_active = false; // Show Reuters splash screen
+static bool s_news_end_screen = false;    // Show END screen
 
 // Double-tap detection
 static time_t last_tap_time = 0;
@@ -620,7 +621,8 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-      ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active);
+      ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active,
+                        s_news_end_screen);
     } else {
       fill_weather_graph_data(&s_graph_data);
       ui_draw_weather_graph(ctx, &s_graph_data);
@@ -924,11 +926,8 @@ static void rsvp_timer_callback(void *context) {
     news_display_count++;
 
     if (news_display_count >= news_max_count) {
-      // Done showing news
-      s_whiteout_active = false;
-      s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
-      news_display_count = 0;
-      layer_mark_dirty(layer);
+      // Done showing news - show black screen 500ms then END screen
+      news_timer = app_timer_register(500, news_timer_callback, NULL);
     } else {
       // Request next news after pause
       news_timer =
@@ -948,6 +947,25 @@ static void news_timer_callback(void *context) {
   // If splash was active, now request first news
   if (s_news_splash_active) {
     s_news_splash_active = false;
+  }
+
+  // If END screen was active, now exit news mode
+  if (s_news_end_screen) {
+    s_news_end_screen = false;
+    s_whiteout_active = false;
+    s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+    news_display_count = 0;
+    layer_mark_dirty(layer);
+    return;
+  }
+
+  // Check if we just finished all news (black screen after last word)
+  if (news_display_count >= news_max_count) {
+    // Show END screen for 1 second
+    s_news_end_screen = true;
+    layer_mark_dirty(layer);
+    news_timer = app_timer_register(1000, news_timer_callback, NULL);
+    return;
   }
 
   // Request next news
@@ -973,8 +991,8 @@ static void start_news_sequence(void) {
   s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
   news_display_count = 0;
-  s_news_splash_active = true;  // Show splash first
-  rsvp_word[0] = '\0';  // Clear word for splash display
+  s_news_splash_active = true; // Show splash first
+  rsvp_word[0] = '\0';         // Clear word for splash display
 
   // Cancel any existing timers
   if (timer_short) {
@@ -993,7 +1011,7 @@ static void start_news_sequence(void) {
   layer_mark_dirty(layer);
 
   // Show splash for 3 seconds, then request first news
-  news_timer = app_timer_register(3000, news_timer_callback, NULL);
+  news_timer = app_timer_register(1500, news_timer_callback, NULL);
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
