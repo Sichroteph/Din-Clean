@@ -154,9 +154,12 @@ Just install, allow location access, and enjoy!
 - **Multi-language support** (EN, FR, DE, ES)
 
 ---
+## Installation
 
-**Link:** [Pebble App Store - Coming Soon]
+**Link:** [Pebble App Store](https://apps.rebble.io/applications/63555cd1b9710000096ea5f8)
 
 *Feedback and bug reports welcome!*
 
 ---
+
+
