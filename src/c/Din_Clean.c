@@ -1314,11 +1314,9 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator,
-                                   AppMessageResult reason, void *context) {
-}
+                                   AppMessageResult reason, void *context) {}
 
-static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-}
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {}
 
 static void init_var() {
   // Initialisation de show_second_panel
