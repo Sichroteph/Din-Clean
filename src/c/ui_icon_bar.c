@@ -52,7 +52,8 @@ static void draw_humidity_icons(GContext *ctx, const IconBarData *d) {
   }
 }
 
-static void draw_wind_overlays_for_rect(GContext *ctx, int wind_val, int met_unit, GRect rect) {
+static void draw_wind_overlays_for_rect(GContext *ctx, int wind_val,
+                                        int met_unit, GRect rect) {
   // Load each wind overlay only if needed, each is a different image
   if (wind_val > met_unit) {
     GBitmap *w1 = gbitmap_create_with_resource(RESOURCE_ID_POURTOURW1);
@@ -85,7 +86,8 @@ static void draw_wind_overlays_for_rect(GContext *ctx, int wind_val, int met_uni
 }
 
 static void draw_wind_overlays(GContext *ctx, const IconBarData *d) {
-  draw_wind_overlays_for_rect(ctx, d->wind_speed_val, d->met_unit, d->rect_icon);
+  draw_wind_overlays_for_rect(ctx, d->wind_speed_val, d->met_unit,
+                              d->rect_icon);
 }
 
 void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {

@@ -585,7 +585,7 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
   // Variables actuellement retournées par la page de configuration:
   // input_iopool_token, radio_units, radio_refresh, toggle_vibration, toggle_bt,
-  // color_right_back, color_left_back, show_second_panel
+  // color_right_back, color_left_back, show_weather
 
   var input_iopool_token = configData['input_iopool_token'];
   var radio_units = configData['radio_units'];
@@ -597,10 +597,10 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
   var dict = {};
 
-  // Ajout de l'option panneau secondaire
-  var show_second_panel = (typeof configData['show_second_panel'] === 'undefined') ? true : !!configData['show_second_panel'];
-  localStorage.setItem(170, show_second_panel ? 1 : 0);
-  dict['KEY_SHOW_SECOND_PANEL'] = show_second_panel ? 1 : 0;
+  // Ajout de l'option graphique météo
+  var show_weather = (typeof configData['show_weather'] === 'undefined') ? true : !!configData['show_weather'];
+  localStorage.setItem(170, show_weather ? 1 : 0);
+  dict['KEY_SHOW_WEATHER'] = show_weather ? 1 : 0;
 
   localStorage.setItem(152, radio_units ? 1 : 0);
   localStorage.setItem(158, input_iopool_token);

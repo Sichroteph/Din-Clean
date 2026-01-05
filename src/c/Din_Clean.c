@@ -2,10 +2,10 @@
 #include <pebble.h>
 #include <stdbool.h>
 
-// Nouvelle clé pour l'option d'affichage du deuxième panneau
-#define KEY_SHOW_SECOND_PANEL 170
-// Variable globale pour l'option panneau secondaire
-static bool show_second_panel = true;
+// Nouvelle clé pour l'option d'affichage du graphique météo
+#define KEY_SHOW_WEATHER 170
+// Variable globale pour l'option graphique météo
+static bool show_weather = true;
 #include <pebble.h>
 
 #include "ui_icon_bar.h"
@@ -804,7 +804,7 @@ static void handle_whiteout_timeout(void *context) {
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
-  if (!show_second_panel) {
+  if (!show_weather) {
     return;
   }
 
@@ -876,14 +876,14 @@ static void assign_fonts() {
 
 static void inbox_received_callback(DictionaryIterator *iterator,
                                     void *context) {
-  // Gestion de l'option panneau secondaire
-  Tuple *show_second_panel_tuple = dict_find(iterator, KEY_SHOW_SECOND_PANEL);
-  if (show_second_panel_tuple) {
-    show_second_panel = show_second_panel_tuple->value->int32;
-    persist_write_bool(KEY_SHOW_SECOND_PANEL, show_second_panel);
+  // Gestion de l'option graphique météo
+  Tuple *show_weather_tuple = dict_find(iterator, KEY_SHOW_WEATHER);
+  if (show_weather_tuple) {
+    show_weather = show_weather_tuple->value->int32;
+    persist_write_bool(KEY_SHOW_WEATHER, show_weather);
 
-    // If second panel is now disabled and was active, close it
-    if (!show_second_panel && s_whiteout_active) {
+    // If weather graph is now disabled and was active, close it
+    if (!show_weather && s_whiteout_active) {
       s_whiteout_active = false;
       if (timer_short) {
         app_timer_cancel(timer_short);
@@ -1319,11 +1319,11 @@ static void outbox_failed_callback(DictionaryIterator *iterator,
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {}
 
 static void init_var() {
-  // Initialisation de show_second_panel
-  if (persist_exists(KEY_SHOW_SECOND_PANEL)) {
-    show_second_panel = persist_read_bool(KEY_SHOW_SECOND_PANEL);
+  // Initialisation de show_weather
+  if (persist_exists(KEY_SHOW_WEATHER)) {
+    show_weather = persist_read_bool(KEY_SHOW_WEATHER);
   } else {
-    show_second_panel = true;
+    show_weather = true;
   }
   int i;
 

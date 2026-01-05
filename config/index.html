@@ -1,74 +1,207 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Din-Clean - Configuration</title>
-  <meta charset="utf-8">
+  <title>Impact</title>
+  <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
+  <script src='js/slate.min.js'></script>
   <style>
-    body { font-family: sans-serif; background: #222; color: #eee; }
-    .container { max-width: 500px; margin: 40px auto; background: #333; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px #0008; }
-    h1 { text-align: center; font-size: 1.5em; margin-bottom: 1em; }
-    label { display: block; margin: 1.2em 0 0.5em; }
-    .option-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1em; }
-    .option-row input[type="checkbox"] { transform: scale(1.3); }
-    .button-row { text-align: center; margin-top: 2em; }
-    button { font-size: 1.1em; padding: 0.5em 2em; border-radius: 4px; border: none; background: #4caf50; color: #fff; cursor: pointer; }
-    button:hover { background: #388e3c; }
+    .title {
+      padding: 15px 10px;
+      text-transform: uppercase;
+      font-family: 'PT Sans', sans-serif;
+      font-size: 1.2em;
+      font-weight: 500;
+      color: #888888;
+      text-align: center;
+    }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>Din-Clean - Réglages</h1>
-    <form id="config-form">
-      <div class="option-row">
-        <label for="show_second_panel">Afficher le deuxième panneau</label>
-        <input type="checkbox" id="show_second_panel">
+  <h1 class='title'>Settings</h1>
+
+  <div class='item-container'>
+    <div class='item-container-content'>
+      <div class='item-container-footer'>
       </div>
-      <!-- Ajoutez ici d'autres options si besoin -->
-      <div class="button-row">
-        <button type="submit">Enregistrer</button>
-      </div>
-    </form>
+    </div>
   </div>
-  <script>
-    // Liste des clés supportées (à compléter selon vos besoins)
-    const PARAM_KEYS = [
-      'show_second_panel',
-      // Ajoutez ici les autres clés de configuration à gérer côté JS/C
-    ];
 
-    // Charger la config existante
-    function loadConfig() {
-      let config = {};
-      try {
-        config = JSON.parse(localStorage.getItem('din_clean_config')) || {};
-      } catch (e) {}
-      // Valeur par défaut : panneau activé
-      if (typeof config.show_second_panel === 'undefined') config.show_second_panel = true;
-      return config;
-    }
+  <div class='item-container'>
+    <div class='item-container-header'>Units</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Imperial
+        <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='a'>
+      </label>
+      <label class='item'>
+        Metric
+        <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='b' checked>
+      </label>
+    </div>
+  </div>
 
-    // Remplir le formulaire avec la config existante
-    document.addEventListener('DOMContentLoaded', function() {
-      const config = loadConfig();
-      document.getElementById('show_second_panel').checked = !!config.show_second_panel;
-    });
+  <div class='item-container'>
+    <div class='item-container-header'>Others</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Bluetooth disconnection vibration
+        <input type='checkbox' class='item-toggle' input id='toggle_bt'>
+      </label>
 
-    // Soumission du formulaire
-    document.getElementById('config-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      let config = loadConfig();
-      // Met à jour uniquement les champs présents dans le formulaire
-      config.show_second_panel = document.getElementById('show_second_panel').checked;
-      // Ajoutez ici la récupération d'autres champs si besoin
-      localStorage.setItem('din_clean_config', JSON.stringify(config));
-      // Pour Pebble: renvoyer toute la config à l'app
-      var return_to = document.location.search.match(/\breturn_to=([^&]+)/);
-      if (return_to) {
-        document.location = decodeURIComponent(return_to[1]) + '#' + encodeURIComponent(JSON.stringify(config));
-      } else {
-        alert('Configuration enregistrée !');
-      }
-    });
-  </script>
+      <label class='item'>
+        Hourly vibrations
+        <input type='checkbox' class='item-toggle' input id='toggle_vibration'>
+      </label>
+      <div class='item-container-footer'>
+        Starts at 10am - Ends at 10pm
+      </div>
+      <div class='item-container-footer'>
+        Only applies to Pebble Time.
+      </div>
+      <!-- Option graphique météo -->
+      <label class='item'>
+        Show weather graph
+        <input type='checkbox' class='item-toggle' input id='show_weather'>
+      </label>
+      <div class='item-container-footer'>
+        Enabled by default. Uncheck to hide the weather graph.
+      </div>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>Weather update</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        30 mn
+        <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='a'>
+      </label>
+      <label class='item'>
+        60 mn
+        <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='b' checked>
+      </label>
+    </div>
+  </div>
+
+  <div class='item-container'style="display:none;">
+    <div class='item-container-header'>Background color</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Temperatures - Background color
+        <input type='text' class='item-color item-color-normal' input id='color_left_back' value='0x000000'>
+      </label>
+      <label class='item'>
+        Hours - Background color
+        <input type='text' class='item-color item-color-normal' input id='color_right_back' value='0x000000'>
+      </label>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>iopool API (Option)</div>
+    <div class='item-container-content'>
+        Your io-pool token :
+        <label class='item'>
+          <div class='item-input-wrapper'>
+            <input type='text' class='item-input' input id='input_iopool_token' placeholder='Input field'>
+          </div>
+        </label>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='button-container'>
+      <input id='submit_button' type='button' class='item-button' value='SUBMIT'>
+    </div>
+  </div>
+
+  <div class='item-container-footer'>
+    If you REALLY like this app <br>
+    you can give me a little something on Paypal <a href='https://paypal.me/ChrJeannette'>here</a>. <br>
+    - Otherwise just enjoy it, it's free !<br><br><br>
+  </div>
+
 </body>
+
+<script>
+
+  function getConfigData() {
+    var input_iopool_token = document.getElementById('input_iopool_token');
+    var radio_units = document.getElementById('radio_units');
+    var radio_refresh = document.getElementById('radio_refresh');
+    var toggle_vibration = document.getElementById('toggle_vibration');
+    var toggle_bt = document.getElementById('toggle_bt');
+    var color_right_back = document.getElementById('color_right_back');
+    var color_left_back = document.getElementById('color_left_back');
+    var show_weather = document.getElementById('show_weather');
+
+    var options = {
+      'input_iopool_token': input_iopool_token.value,
+      'radio_units': radio_units.checked,
+      'radio_refresh': radio_refresh.checked,
+      'toggle_vibration': toggle_vibration.checked,
+      'toggle_bt': toggle_bt.checked,
+      'color_right_back': color_right_back.value,
+      'color_left_back': color_left_back.value,
+      'show_weather': show_weather.checked
+    };
+
+    // Save for next launch
+    localStorage['input_iopool_token'] = options['input_iopool_token'];
+    localStorage['radio_units'] = options['radio_units'];
+    localStorage['radio_refresh'] = options['radio_refresh'];
+    localStorage['toggle_vibration'] = options['toggle_vibration'];
+    localStorage['toggle_bt'] = options['toggle_bt'];
+    localStorage['color_right_back'] = options['color_right_back'];
+    localStorage['color_left_back'] = options['color_left_back'];
+    localStorage['show_weather'] = options['show_weather'];
+    
+    console.log('Got options: ' + JSON.stringify(options));
+    return options;
+  }
+
+  function getQueryParam(variable, defaultValue) {
+    var query = location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (pair[0] === variable) {
+        return decodeURIComponent(pair[1]);
+      }
+    }
+    return defaultValue || false;
+  }
+
+  var submitButton = document.getElementById('submit_button');
+  submitButton.addEventListener('click', function () {
+    console.log('Submit');
+
+    // Set the return URL depending on the runtime environment
+    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
+  });
+
+  (function () {
+    var input_iopool_token = document.getElementById('input_iopool_token');
+    var radio_units = document.getElementById('radio_units');
+    var radio_refresh = document.getElementById('radio_refresh');
+    var toggle_vibration = document.getElementById('toggle_vibration');
+    var toggle_bt = document.getElementById('toggle_bt');
+    var color_right_back = document.getElementById('color_right_back');
+    var color_left_back = document.getElementById('color_left_back');
+    var show_weather = document.getElementById('show_weather');
+    
+    input_iopool_token.value = localStorage['input_iopool_token'] || '';
+    radio_units.checked = JSON.parse(localStorage['radio_units'] || 'false');
+    radio_refresh.checked = JSON.parse(localStorage['radio_refresh'] || 'false');
+    toggle_vibration.checked = JSON.parse(localStorage['toggle_vibration'] || 'false');
+    toggle_bt.checked = JSON.parse(localStorage['toggle_bt'] || 'false');
+    color_right_back.value = localStorage['color_right_back'] || '0x000000';
+    color_left_back.value = localStorage['color_left_back'] || '0x000000';
+    show_weather.checked = (localStorage['show_weather'] === undefined) ? true : JSON.parse(localStorage['show_weather']);
+  })();
+</script>
+
 </html>
