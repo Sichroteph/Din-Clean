@@ -390,7 +390,7 @@ function processWeatherResponse(responseText) {
   var h1 = hourly_time.hour3;
   var h2 = hourly_time.hour6;
   var h3 = hourly_time.hour9;
-  
+
   if (units_setting == 1) {
     h0 = h0 % 12;
     if (h0 === 0) h0 = 12;
