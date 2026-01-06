@@ -8,6 +8,7 @@
 // Variable globale pour l'option graphique météo
 static bool show_weather = true;
 static bool show_news = false;
+static bool require_double_tap = true;
 #include <pebble.h>
 
 #include "ui_icon_bar.h"
@@ -120,6 +121,7 @@ static bool show_news = false;
 // News feed keys
 #define KEY_NEWS_TITLE 172
 #define KEY_REQUEST_NEWS 173
+#define KEY_DOUBLE_TAP 174
 
 // 3-day forecast keys (for ui_weather_days)
 #define KEY_DAY1_TEMP 200
@@ -1087,17 +1089,20 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
     return;
   }
 
-  // Double-tap detection
-  time_t now = time(NULL);
+  // Double-tap detection (only if enabled)
+  if (require_double_tap) {
+    time_t now = time(NULL);
+    
+    if ((now - last_tap_time) > tap_interval_sec) {
+      // First tap - just record time
+      last_tap_time = now;
+      return;
+    }
 
-  if ((now - last_tap_time) > tap_interval_sec) {
-    // First tap - just record time
-    last_tap_time = now;
-    return;
+    // Second tap within interval - reset and proceed
+    last_tap_time = 0;
   }
-
-  // Second tap within interval - reset and proceed
-  last_tap_time = 0;
+  // If single tap mode (require_double_tap == false), skip double-tap check entirely
 
   // If already showing news, switch to weather (if enabled) or exit
   if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
@@ -1240,6 +1245,13 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   if (show_news_tuple) {
     show_news = show_news_tuple->value->int32;
     persist_write_bool(KEY_SHOW_NEWS, show_news);
+  }
+
+  // Gestion de l'option double tap
+  Tuple *double_tap_tuple = dict_find(iterator, KEY_DOUBLE_TAP);
+  if (double_tap_tuple) {
+    require_double_tap = double_tap_tuple->value->int32;
+    persist_write_bool(KEY_DOUBLE_TAP, require_double_tap);
   }
 
   // If both options are now disabled and whiteout was active, close it
@@ -1697,6 +1709,12 @@ static void init_var() {
     show_news = persist_read_bool(KEY_SHOW_NEWS);
   } else {
     show_news = false;
+  }
+  // Initialisation de require_double_tap
+  if (persist_exists(KEY_DOUBLE_TAP)) {
+    require_double_tap = persist_read_bool(KEY_DOUBLE_TAP);
+  } else {
+    require_double_tap = true;
   }
   int i;
 

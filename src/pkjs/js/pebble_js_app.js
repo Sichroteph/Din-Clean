@@ -775,12 +775,17 @@ Pebble.addEventListener('webviewclosed', function (e) {
   // Ajout de l'option graphique météo
   var show_weather = (typeof configData['show_weather'] === 'undefined') ? true : !!configData['show_weather'];
   localStorage.setItem(170, show_weather ? 1 : 0);
-  dict['KEY_SHOW_WEATHER'] = show_weather ? 1 : 0;
+  dict[170] = show_weather ? 1 : 0;
 
   // Ajout de l'option news feed
   var show_news = !!configData['show_news'];
   localStorage.setItem(171, show_news ? 1 : 0);
-  dict['KEY_SHOW_NEWS'] = show_news ? 1 : 0;
+  dict[171] = show_news ? 1 : 0;
+
+  // Ajout de l'option double tap
+  var double_tap = (typeof configData['double_tap'] === 'undefined') ? true : !!configData['double_tap'];
+  localStorage.setItem(174, double_tap ? 1 : 0);
+  dict[174] = double_tap ? 1 : 0;
 
   localStorage.setItem(152, radio_units ? 1 : 0);
   localStorage.setItem(158, input_iopool_token);
