@@ -385,6 +385,23 @@ function processWeatherResponse(responseText) {
   console.log("Hours being sent: H0=" + hourly_time.hour0 + " H1=" + hourly_time.hour3 + " H2=" + hourly_time.hour6 + " H3=" + hourly_time.hour9);
   console.log("Temps being sent: T1=" + hourlyTemperatures.hour0 + " T2=" + hourlyTemperatures.hour3 + " T3=" + hourlyTemperatures.hour6 + " T4=" + hourlyTemperatures.hour9 + " T5=" + hourlyTemperatures.hour12);
 
+  // Convert hours to 12-hour format for imperial units
+  var h0 = hourly_time.hour0;
+  var h1 = hourly_time.hour3;
+  var h2 = hourly_time.hour6;
+  var h3 = hourly_time.hour9;
+  
+  if (units_setting == 1) {
+    h0 = h0 % 12;
+    if (h0 === 0) h0 = 12;
+    h1 = h1 % 12;
+    if (h1 === 0) h1 = 12;
+    h2 = h2 % 12;
+    if (h2 === 0) h2 = 12;
+    h3 = h3 % 12;
+    if (h3 === 0) h3 = 12;
+  }
+
   var dictionary = {
     "KEY_TEMPERATURE": temperature,
     "KEY_HUMIDITY": humidity,
@@ -397,10 +414,10 @@ function processWeatherResponse(responseText) {
     "KEY_FORECAST_TEMP3": hourlyTemperatures.hour6,
     "KEY_FORECAST_TEMP4": hourlyTemperatures.hour9,
     "KEY_FORECAST_TEMP5": hourlyTemperatures.hour12,
-    "KEY_FORECAST_H0": hourly_time.hour0,
-    "KEY_FORECAST_H1": hourly_time.hour3,
-    "KEY_FORECAST_H2": hourly_time.hour6,
-    "KEY_FORECAST_H3": hourly_time.hour9,
+    "KEY_FORECAST_H0": h0,
+    "KEY_FORECAST_H1": h1,
+    "KEY_FORECAST_H2": h2,
+    "KEY_FORECAST_H3": h3,
     "KEY_FORECAST_WIND0": hourlyWind.hour0,
     "KEY_FORECAST_WIND1": hourlyWind.hour3,
     "KEY_FORECAST_WIND2": hourlyWind.hour6,
