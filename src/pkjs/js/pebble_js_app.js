@@ -57,15 +57,15 @@ function fetchAndSendNews() {
   // Cache expired or empty, fetch new data
   newsXhrPending = true;
   var xhr = new XMLHttpRequest();
-  
+
   // Timeout for XHR request (10 seconds)
   xhr.timeout = 10000;
-  xhr.ontimeout = function() {
+  xhr.ontimeout = function () {
     newsXhrPending = false;
     console.log("News XHR timeout");
     sendNewsTitle("Timeout");
   };
-  
+
   xhr.onload = function () {
     newsXhrPending = false;
     if (xhr.status === 200) {
