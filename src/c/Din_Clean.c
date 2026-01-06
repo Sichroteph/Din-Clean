@@ -313,7 +313,7 @@ static bool s_news_request_pending = false; // Flag for pending news request
 // RSVP (Rapid Serial Visual Presentation)
 static char rsvp_word[32] = "";     // Current word being displayed
 static uint8_t rsvp_word_index = 0; // Current word position in title
-static uint16_t rsvp_wpm_ms = 200;  // 200ms per word (~200 WPM)
+static uint16_t rsvp_wpm_ms = 220;  // 200ms per word (~200 WPM)
 static AppTimer *rsvp_timer = NULL;
 static bool s_news_splash_active = false; // Show Reuters splash screen
 static bool s_news_end_screen = false;    // Show END screen
