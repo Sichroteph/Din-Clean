@@ -320,7 +320,14 @@ static bool s_news_end_screen = false;    // Show END screen
 
 // Double-tap detection
 static time_t last_tap_time = 0;
-static uint8_t tap_interval_sec = 3;
+static uint8_t tap_interval_sec = 2;  // Reduced from 3 to be more precise
+static time_t last_news_activation = 0;  // Cooldown between news activations
+static uint8_t news_activation_cooldown_sec = 30;  // 30s cooldown
+
+// News retry protection
+static uint8_t news_retry_count = 0;
+static uint8_t news_max_retries = 3;  // Max retries before giving up
+static AppTimer *news_global_timeout = NULL;  // Global timeout to exit news mode
 
 // Whiteout screen mode (0=graph, 1=news)
 typedef enum {
@@ -936,11 +943,36 @@ static void rsvp_timer_callback(void *context) {
   }
 }
 
+// Global timeout callback - force exit news mode if stuck
+static void news_global_timeout_callback(void *context) {
+  news_global_timeout = NULL;
+  
+  // Force exit news mode
+  if (news_timer) {
+    app_timer_cancel(news_timer);
+    news_timer = NULL;
+  }
+  if (rsvp_timer) {
+    app_timer_cancel(rsvp_timer);
+    rsvp_timer = NULL;
+  }
+  
+  s_whiteout_active = false;
+  s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
+  s_news_splash_active = false;
+  s_news_end_screen = false;
+  news_display_count = 0;
+  news_retry_count = 0;
+  rsvp_word[0] = '\0';
+  layer_mark_dirty(layer);
+}
+
 // Timer callback for news rotation (between titles)
 static void news_timer_callback(void *context) {
   news_timer = NULL;
 
   if (!s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
+    news_retry_count = 0;
     return;
   }
 
@@ -955,6 +987,12 @@ static void news_timer_callback(void *context) {
     s_whiteout_active = false;
     s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
     news_display_count = 0;
+    news_retry_count = 0;
+    // Cancel global timeout
+    if (news_global_timeout) {
+      app_timer_cancel(news_global_timeout);
+      news_global_timeout = NULL;
+    }
     layer_mark_dirty(layer);
     return;
   }
@@ -968,10 +1006,21 @@ static void news_timer_callback(void *context) {
     return;
   }
 
+  // Check retry limit - give up if too many retries
+  if (news_retry_count >= news_max_retries) {
+    // Too many retries, exit news mode gracefully
+    s_news_end_screen = true;
+    layer_mark_dirty(layer);
+    news_timer = app_timer_register(1000, news_timer_callback, NULL);
+    news_retry_count = 0;
+    return;
+  }
+
   // Request next news
+  news_retry_count++;
   request_news_from_js();
-  // Safety timeout
-  news_timer = app_timer_register(5000, news_timer_callback, NULL);
+  // Safety timeout (increased to 8s to allow for slow networks)
+  news_timer = app_timer_register(8000, news_timer_callback, NULL);
 }
 
 // Start RSVP display for current news_title
@@ -988,9 +1037,17 @@ static void start_rsvp_for_title(void) {
 
 // Start news display sequence
 static void start_news_sequence(void) {
+  // Check cooldown to prevent rapid re-activation
+  time_t now_time = time(NULL);
+  if ((now_time - last_news_activation) < news_activation_cooldown_sec) {
+    return;  // Still in cooldown, ignore
+  }
+  last_news_activation = now_time;
+  
   s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
   news_display_count = 0;
+  news_retry_count = 0;  // Reset retry counter
   s_news_splash_active = true; // Show splash first
   rsvp_word[0] = '\0';         // Clear word for splash display
 
@@ -1007,11 +1064,18 @@ static void start_news_sequence(void) {
     app_timer_cancel(rsvp_timer);
     rsvp_timer = NULL;
   }
+  if (news_global_timeout) {
+    app_timer_cancel(news_global_timeout);
+    news_global_timeout = NULL;
+  }
 
   layer_mark_dirty(layer);
 
   // Show splash for 3 seconds, then request first news
   news_timer = app_timer_register(1500, news_timer_callback, NULL);
+  
+  // Global timeout: exit news mode after 2 minutes max to prevent stuck state
+  news_global_timeout = app_timer_register(120000, news_global_timeout_callback, NULL);
 }
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
@@ -1149,6 +1213,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   if (news_title_tuple) {
     snprintf(news_title, sizeof(news_title), "%s",
              news_title_tuple->value->cstring);
+    // Reset retry counter on successful reception
+    news_retry_count = 0;
     // Cancel safety timer
     if (news_timer) {
       app_timer_cancel(news_timer);

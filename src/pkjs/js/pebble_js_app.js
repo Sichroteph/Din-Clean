@@ -19,8 +19,20 @@ var newsIndex = 0;
 var NEWS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in ms
 var RSS_URL = "https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml";
 
+// Throttle protection for news requests
+var lastNewsRequestTime = 0;
+var NEWS_REQUEST_THROTTLE = 1000; // Minimum 1 second between requests
+var newsXhrPending = false; // Prevent concurrent XHR requests
+
 function fetchAndSendNews() {
   var now = Date.now();
+
+  // Throttle: ignore requests that come too fast
+  if ((now - lastNewsRequestTime) < NEWS_REQUEST_THROTTLE) {
+    console.log("News request throttled");
+    return;
+  }
+  lastNewsRequestTime = now;
 
   // Check if cache is still valid
   if (newsCache.length > 0 && (now - newsCacheTime) < NEWS_CACHE_DURATION) {
@@ -30,9 +42,32 @@ function fetchAndSendNews() {
     return;
   }
 
+  // Prevent concurrent XHR requests
+  if (newsXhrPending) {
+    console.log("News XHR already pending, using cache or error");
+    if (newsCache.length > 0) {
+      newsIndex = (newsIndex + 1) % newsCache.length;
+      sendNewsTitle(newsCache[newsIndex]);
+    } else {
+      sendNewsTitle("Loading...");
+    }
+    return;
+  }
+
   // Cache expired or empty, fetch new data
+  newsXhrPending = true;
   var xhr = new XMLHttpRequest();
+  
+  // Timeout for XHR request (10 seconds)
+  xhr.timeout = 10000;
+  xhr.ontimeout = function() {
+    newsXhrPending = false;
+    console.log("News XHR timeout");
+    sendNewsTitle("Timeout");
+  };
+  
   xhr.onload = function () {
+    newsXhrPending = false;
     if (xhr.status === 200) {
       var titles = [];
       var text = xhr.responseText;
@@ -71,6 +106,7 @@ function fetchAndSendNews() {
     }
   };
   xhr.onerror = function () {
+    newsXhrPending = false;
     sendNewsTitle("Network error");
   };
   xhr.open("GET", RSS_URL, true);
