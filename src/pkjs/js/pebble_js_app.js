@@ -85,7 +85,7 @@ function fetchAndSendNews() {
     if (xhr.status === 200) {
       var titles = [];
       var text = xhr.responseText;
-      
+
       // Extract channel title (first title in the feed - the journal name)
       var channelTitleMatch = text.match(/<channel>[\s\S]*?<title>\s*(?:<!\[CDATA\[)?\s*([^\]<]+?)\s*(?:\]\]>)?\s*<\/title>/);
       if (channelTitleMatch && channelTitleMatch[1]) {
@@ -93,7 +93,7 @@ function fetchAndSendNews() {
         // Send channel title to watch immediately
         sendNewsChannelTitle(newsChannelTitle);
       }
-      
+
       // Parse titles from XML using regex
       var regex = /<title>\s*<!\[CDATA\[\s*([^\]]+?)\s*\]\]>\s*<\/title>/g;
       var match;
@@ -824,10 +824,18 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
   // Ajout de l'URL du flux RSS personnalisé
   var news_feed_url = configData['input_news_feed_url'] || DEFAULT_RSS_URL;
+  var old_url = localStorage.getItem(175);
   localStorage.setItem(175, news_feed_url);
   // Reset news cache when URL changes to force refresh
   newsCache = [];
   newsCacheTime = 0;
+  // If URL changed and news is enabled, fetch immediately to update channel title
+  if (old_url !== news_feed_url && show_news) {
+    console.log("RSS URL changed, fetching new feed immediately");
+    setTimeout(function() {
+      fetchAndSendNews();
+    }, 500); // Small delay to ensure settings are saved
+  }
 
   // Ajout de l'option double tap
   var double_tap = (typeof configData['double_tap'] === 'undefined') ? true : !!configData['double_tap'];

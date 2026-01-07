@@ -309,7 +309,8 @@ static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 
 // News feed data
 static char news_title[104] = "";
-static char news_channel_title[52] = "News Feed"; // Title of the RSS channel/journal
+static char news_channel_title[52] =
+    "News Feed"; // Title of the RSS channel/journal
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
 static uint16_t news_interval_ms = 1000; // Pause between titles
@@ -329,7 +330,8 @@ static bool s_news_end_screen = false;    // Show END screen
 static time_t last_tap_time = 0;
 static uint8_t tap_interval_sec = 2;    // Reduced from 3 to be more precise
 static time_t last_news_activation = 0; // Cooldown between news activations
-static uint8_t news_activation_cooldown_sec = 5; // 5s cooldown (reduced from 30s)
+static uint8_t news_activation_cooldown_sec =
+    5; // 5s cooldown (reduced from 30s)
 
 // News retry protection
 static uint8_t news_retry_count = 0;
@@ -635,8 +637,8 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-      ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active,
-                        s_news_end_screen, news_channel_title);
+      ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active, s_news_end_screen,
+                        news_channel_title);
     } else {
       fill_weather_graph_data(&s_graph_data);
       ui_draw_weather_graph(ctx, &s_graph_data);
@@ -1268,7 +1270,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     snprintf(news_channel_title, sizeof(news_channel_title), "%s",
              news_channel_tuple->value->cstring);
     // Refresh splash screen if currently displayed
-    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS && s_news_splash_active) {
+    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS &&
+        s_news_splash_active) {
       layer_mark_dirty(layer);
     }
     return;
