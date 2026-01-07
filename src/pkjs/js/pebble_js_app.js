@@ -764,7 +764,7 @@ Pebble.addEventListener('ready',
       setTimeout(function () {
         console.log('Auto weather fetch on startup');
         getWeather();
-        
+
         // Also fetch news once to get channel title if news is enabled
         var show_news = localStorage.getItem(171);
         if (show_news === '1' || show_news === 1) {
