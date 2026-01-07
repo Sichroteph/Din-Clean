@@ -7,7 +7,7 @@
 #define KEY_SHOW_NEWS 171
 // Variable globale pour l'option graphique météo
 static bool show_weather = true;
-static bool show_news = false;
+static bool show_news = true;  // Activé par défaut pour les tests
 static bool require_double_tap = true;
 #include <pebble.h>
 

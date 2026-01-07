@@ -123,8 +123,8 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
       GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_BOTTOM_Y));
 
   // Draw a small circle on the top line at the pivot position (pivot indicator)
-  graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_circle(ctx, GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_draw_circle(ctx, GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
                        SPRITZ_CIRCLE_RADIUS);
 
   // Handle empty or null word
@@ -141,7 +141,7 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   int pivot_idx = get_pivot_index(word_length);
 
   // Font for word display
-  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
 
   // Calculate widths for positioning
   // Width of text before pivot letter
@@ -151,7 +151,8 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
 
   // Calculate X position so pivot letter is centered at SPRITZ_PIVOT_X
   // The pivot letter's center should be at SPRITZ_PIVOT_X
-  int word_x = SPRITZ_PIVOT_X - pre_pivot_width - (pivot_char_width / 2);
+  int word_x = SPRITZ_PIVOT_X - pre_pivot_width - (pivot_char_width / 2) +
+               2; // +2 offset
 
   // Y position for text
   int text_y = SPRITZ_WORD_Y - 16; // Adjust for font baseline
@@ -198,12 +199,14 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   graphics_draw_text(ctx, pivot_char, font, GRect(current_x, text_y, 50, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
                      NULL);
+
   graphics_draw_text(
       ctx, pivot_char, font, GRect(current_x + 1, text_y, 50, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
   graphics_draw_text(
       ctx, pivot_char, font, GRect(current_x, text_y + 1, 50, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+
   graphics_draw_text(
       ctx, pivot_char, font, GRect(current_x + 1, text_y + 1, 50, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
@@ -229,8 +232,8 @@ void ui_draw_news_feed(GContext *ctx, const char *word, bool show_splash,
     graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
     graphics_context_set_text_color(ctx, GColorWhite);
 
-    GFont font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
-    graphics_draw_text(ctx, "END", font, GRect(0, HEIGHT / 2 - 25, WIDTH, 50),
+    GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+    graphics_draw_text(ctx, "END", font, GRect(0, HEIGHT / 2 - 10, WIDTH, 40),
                        GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                        NULL);
   } else {
