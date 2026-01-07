@@ -5,54 +5,57 @@
 #define HEIGHT 168
 
 // Spritz constants
-#define SPRITZ_PIVOT_X (WIDTH / 2)  // X position of the pivot point
-#define SPRITZ_WORD_Y (HEIGHT / 2 - 10)  // Y position of word center
-#define SPRITZ_LINE_TOP_Y (SPRITZ_WORD_Y - 22)  // Y of line above word
-#define SPRITZ_LINE_BOTTOM_Y (SPRITZ_WORD_Y + 30)  // Y of line below word
+#define SPRITZ_PIVOT_X (WIDTH / 2)             // X position of the pivot point
+#define SPRITZ_WORD_Y (HEIGHT / 2 - 10)        // Y position of word center
+#define SPRITZ_LINE_TOP_Y (SPRITZ_WORD_Y - 22) // Y of line above word
+#define SPRITZ_LINE_BOTTOM_Y (SPRITZ_WORD_Y + 30) // Y of line below word
 #define SPRITZ_LINE_LENGTH 20  // Length of vertical guide lines
-#define SPRITZ_CIRCLE_RADIUS 3  // Radius of pivot indicator circle
+#define SPRITZ_CIRCLE_RADIUS 3 // Radius of pivot indicator circle
 
 // Calculate the optimal recognition point (ORP) / pivot letter index
 // Based on Spritz algorithm from OpenSpritz
 static int get_pivot_index(int word_length) {
-  if (word_length <= 0) return 0;
-  
+  if (word_length <= 0)
+    return 0;
+
   switch (word_length) {
-    case 1:
-      return 0;  // first letter (index 0)
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-      return 1;  // second letter (index 1)
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-      return 2;  // third letter (index 2)
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-      return 3;  // fourth letter (index 3)
-    default:
-      return 4;  // fifth letter (index 4)
+  case 1:
+    return 0; // first letter (index 0)
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+    return 1; // second letter (index 1)
+  case 6:
+  case 7:
+  case 8:
+  case 9:
+    return 2; // third letter (index 2)
+  case 10:
+  case 11:
+  case 12:
+  case 13:
+    return 3; // fourth letter (index 3)
+  default:
+    return 4; // fifth letter (index 4)
   }
 }
 
 // Get the width of a string segment using the given font
-static int get_text_width(GContext *ctx, const char *text, int length, GFont font) {
-  if (length <= 0 || !text) return 0;
-  
+static int get_text_width(GContext *ctx, const char *text, int length,
+                          GFont font) {
+  if (length <= 0 || !text)
+    return 0;
+
   // Create a temporary buffer for the substring
   char temp[32];
   int copy_len = (length < 31) ? length : 31;
   memcpy(temp, text, copy_len);
   temp[copy_len] = '\0';
-  
+
   GSize size = graphics_text_layout_get_content_size(
-      temp, font, GRect(0, 0, 500, 50),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft);
+      temp, font, GRect(0, 0, 500, 50), GTextOverflowModeTrailingEllipsis,
+      GTextAlignmentLeft);
   return size.w;
 }
 
@@ -60,8 +63,8 @@ static int get_text_width(GContext *ctx, const char *text, int length, GFont fon
 static int get_char_width(GContext *ctx, char c, GFont font) {
   char temp[2] = {c, '\0'};
   GSize size = graphics_text_layout_get_content_size(
-      temp, font, GRect(0, 0, 100, 50),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft);
+      temp, font, GRect(0, 0, 100, 50), GTextOverflowModeTrailingEllipsis,
+      GTextAlignmentLeft);
   return size.w;
 }
 
@@ -116,114 +119,103 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
 
   // Calculate word length (handle UTF-8 by counting bytes for now)
   int word_length = strlen(word);
-  if (word_length == 0) return;
+  if (word_length == 0)
+    return;
 
   // Get the pivot index based on Spritz algorithm
   int pivot_idx = get_pivot_index(word_length);
-  
+
   // Font for word display
   GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  
+
   // Calculate widths for positioning
   // Width of text before pivot letter
   int pre_pivot_width = get_text_width(ctx, word, pivot_idx, font);
   // Width of the pivot letter itself
   int pivot_char_width = get_char_width(ctx, word[pivot_idx], font);
-  
+
   // Calculate X position so pivot letter is centered at SPRITZ_PIVOT_X
   // The pivot letter's center should be at SPRITZ_PIVOT_X
   int word_x = SPRITZ_PIVOT_X - pre_pivot_width - (pivot_char_width / 2);
-  
+
   // Y position for text
-  int text_y = SPRITZ_WORD_Y - 16;  // Adjust for font baseline
-  
+  int text_y = SPRITZ_WORD_Y - 16; // Adjust for font baseline
+
   // Create buffers for the three parts of the word
   char pre_pivot[32] = "";
   char pivot_char[2] = "";
   char post_pivot[32] = "";
-  
+
   // Split the word into parts
   if (pivot_idx > 0) {
     int copy_len = (pivot_idx < 31) ? pivot_idx : 31;
     memcpy(pre_pivot, word, copy_len);
     pre_pivot[copy_len] = '\0';
   }
-  
+
   pivot_char[0] = word[pivot_idx];
   pivot_char[1] = '\0';
-  
+
   if (pivot_idx + 1 < word_length) {
     int remaining = word_length - pivot_idx - 1;
     int copy_len = (remaining < 31) ? remaining : 31;
     memcpy(post_pivot, &word[pivot_idx + 1], copy_len);
     post_pivot[copy_len] = '\0';
   }
-  
+
   // Draw the three parts of the word
   int current_x = word_x;
-  
+
   // Part 1: Text before pivot (white)
   if (pre_pivot[0] != '\0') {
     graphics_context_set_text_color(ctx, GColorWhite);
-    graphics_draw_text(ctx, pre_pivot, font,
-                       GRect(current_x, text_y, 200, 40),
-                       GTextOverflowModeTrailingEllipsis,
-                       GTextAlignmentLeft, NULL);
+    graphics_draw_text(ctx, pre_pivot, font, GRect(current_x, text_y, 200, 40),
+                       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
+                       NULL);
     current_x += pre_pivot_width;
   }
-  
-  // Part 2: Pivot letter (colored differently)
-#ifdef PBL_COLOR
-  // Color display: red pivot letter
-  graphics_context_set_text_color(ctx, GColorRed);
-#else
-  // B&W display: white on dark background, but we'll draw it bold
-  // Since we can't make it bolder, we'll draw it multiple times with slight offset
-  // to create a "bold" effect, or use inverse colors
+
+  // Part 2: Pivot letter (with bold effect for emphasis)
+  // Note: Color disabled for testing - using bold effect for all displays
   graphics_context_set_text_color(ctx, GColorWhite);
-#endif
-  
-  graphics_draw_text(ctx, pivot_char, font,
-                     GRect(current_x, text_y, 50, 40),
-                     GTextOverflowModeTrailingEllipsis,
-                     GTextAlignmentLeft, NULL);
-  
-#ifndef PBL_COLOR
-  // For B&W: draw the pivot letter again with 1px offset to make it appear bolder
-  graphics_draw_text(ctx, pivot_char, font,
-                     GRect(current_x + 1, text_y, 50, 40),
-                     GTextOverflowModeTrailingEllipsis,
-                     GTextAlignmentLeft, NULL);
-#endif
-  
+
+  // Draw pivot letter
+  graphics_draw_text(ctx, pivot_char, font, GRect(current_x, text_y, 50, 40),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
+                     NULL);
+
+  // Draw the pivot letter again with 1px offset to make it appear bolder
+  graphics_draw_text(
+      ctx, pivot_char, font, GRect(current_x + 1, text_y, 50, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+
   current_x += pivot_char_width;
-  
+
   // Part 3: Text after pivot (white)
   if (post_pivot[0] != '\0') {
     graphics_context_set_text_color(ctx, GColorWhite);
-    graphics_draw_text(ctx, post_pivot, font,
-                       GRect(current_x, text_y, 200, 40),
-                       GTextOverflowModeTrailingEllipsis,
-                       GTextAlignmentLeft, NULL);
+    graphics_draw_text(ctx, post_pivot, font, GRect(current_x, text_y, 200, 40),
+                       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
+                       NULL);
   }
-  
-  // Draw the vertical guide lines above and below the word
+
+  // Draw the horizontal guide lines above and below the word
   graphics_context_set_stroke_color(ctx, GColorWhite);
-  
-  // Line above the word
-  graphics_draw_line(ctx, 
-                     GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y - SPRITZ_LINE_LENGTH),
-                     GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y));
-  
-  // Line below the word
-  graphics_draw_line(ctx,
-                     GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_BOTTOM_Y),
-                     GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_BOTTOM_Y + SPRITZ_LINE_LENGTH));
-  
-  // Draw a small circle at the bottom of the top line (pivot indicator)
+
+  // Horizontal line above the word
+  int line_half_width = 60;  // Half width of the horizontal line
+  graphics_draw_line(
+      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_TOP_Y),
+      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_TOP_Y));
+
+  // Horizontal line below the word
+  graphics_draw_line(
+      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_BOTTOM_Y),
+      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_BOTTOM_Y));
+
+  // Draw a small circle on the top line at the pivot position (pivot indicator)
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_circle(ctx, 
-                       GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
+  graphics_fill_circle(ctx, GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
                        SPRITZ_CIRCLE_RADIUS);
 }
 

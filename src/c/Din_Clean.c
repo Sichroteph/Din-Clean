@@ -316,7 +316,8 @@ static bool s_news_request_pending = false; // Flag for pending news request
 // RSVP (Rapid Serial Visual Presentation)
 static char rsvp_word[32] = "";     // Current word being displayed
 static uint8_t rsvp_word_index = 0; // Current word position in title
-static uint16_t rsvp_wpm_ms = 220;  // 200ms per word (~200 WPM)
+static uint16_t rsvp_wpm_ms =
+    160; // 110ms per word (~545 WPM) - Variable de vitesse
 static AppTimer *rsvp_timer = NULL;
 static bool s_news_splash_active = false; // Show Reuters splash screen
 static bool s_news_end_screen = false;    // Show END screen
@@ -922,36 +923,37 @@ static uint16_t calculate_spritz_delay(const char *word) {
   if (!word || word[0] == '\0') {
     return rsvp_wpm_ms;
   }
-  
+
   uint16_t delay = rsvp_wpm_ms;
   int len = strlen(word);
-  
+
   // Check last character for punctuation
   char last_char = word[len - 1];
-  
+
   // Strong pause for sentence-ending punctuation (. ! ?)
   if (last_char == '.' || last_char == '!' || last_char == '?') {
-    delay = rsvp_wpm_ms * 3;  // Triple delay for sentence end
+    delay = rsvp_wpm_ms * 3; // Triple delay for sentence end
   }
   // Medium pause for clause-ending punctuation (, : ; ))
-  else if (last_char == ',' || last_char == ':' || last_char == ';' || last_char == ')') {
-    delay = rsvp_wpm_ms * 2;  // Double delay for clause break
+  else if (last_char == ',' || last_char == ':' || last_char == ';' ||
+           last_char == ')') {
+    delay = rsvp_wpm_ms * 2; // Double delay for clause break
   }
   // Check for opening parenthesis or dash (mid-word pause)
   else {
     for (int i = 0; i < len; i++) {
       if (word[i] == '(' || word[i] == '-') {
-        delay = rsvp_wpm_ms + (rsvp_wpm_ms / 2);  // 1.5x delay
+        delay = rsvp_wpm_ms + (rsvp_wpm_ms / 2); // 1.5x delay
         break;
       }
     }
   }
-  
+
   // Extra time for long words (> 8 characters)
   if (len > 8) {
-    delay += rsvp_wpm_ms;  // Add extra time for long words
+    delay += rsvp_wpm_ms; // Add extra time for long words
   }
-  
+
   return delay;
 }
 
@@ -1125,7 +1127,6 @@ static void start_news_sequence(void) {
 
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   const uint16_t timeout_ms = 8000;
-
   // Neither option enabled: do nothing
   if (!show_weather && !show_news) {
     return;
@@ -1178,6 +1179,7 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
       app_timer_cancel(timer_short);
       timer_short = NULL;
     }
+
     if (show_news) {
       start_news_sequence();
     } else {
