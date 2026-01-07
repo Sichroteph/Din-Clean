@@ -1092,7 +1092,7 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   // Double-tap detection (only if enabled)
   if (require_double_tap) {
     time_t now = time(NULL);
-    
+
     if ((now - last_tap_time) > tap_interval_sec) {
       // First tap - just record time
       last_tap_time = now;
@@ -1102,7 +1102,8 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
     // Second tap within interval - reset and proceed
     last_tap_time = 0;
   }
-  // If single tap mode (require_double_tap == false), skip double-tap check entirely
+  // If single tap mode (require_double_tap == false), skip double-tap check
+  // entirely
 
   // If already showing news, switch to weather (if enabled) or exit
   if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
