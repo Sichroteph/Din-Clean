@@ -6,11 +6,11 @@
 
 // Spritz constants
 #define SPRITZ_PIVOT_X (WIDTH / 2)             // X position of the pivot point
-#define SPRITZ_WORD_Y (HEIGHT / 2 - 10)        // Y position of word center
+#define SPRITZ_WORD_Y (HEIGHT / 2 + 10)        // Y position of word center
 #define SPRITZ_LINE_TOP_Y (SPRITZ_WORD_Y - 22) // Y of line above word
 #define SPRITZ_LINE_BOTTOM_Y (SPRITZ_WORD_Y + 30) // Y of line below word
 #define SPRITZ_LINE_LENGTH 20  // Length of vertical guide lines
-#define SPRITZ_CIRCLE_RADIUS 3 // Radius of pivot indicator circle
+#define SPRITZ_CIRCLE_RADIUS 5 // Radius of pivot indicator circle
 
 // Calculate the optimal recognition point (ORP) / pivot letter index
 // Based on Spritz algorithm from OpenSpritz
@@ -198,12 +198,15 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   graphics_draw_text(ctx, pivot_char, font, GRect(current_x, text_y, 50, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
                      NULL);
-  graphics_draw_text(ctx, pivot_char, font, GRect(current_x + 1, text_y, 50, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
-  graphics_draw_text(ctx, pivot_char, font, GRect(current_x, text_y + 1, 50, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
-  graphics_draw_text(ctx, pivot_char, font, GRect(current_x + 1, text_y + 1, 50, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_draw_text(
+      ctx, pivot_char, font, GRect(current_x + 1, text_y, 50, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_draw_text(
+      ctx, pivot_char, font, GRect(current_x, text_y + 1, 50, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_draw_text(
+      ctx, pivot_char, font, GRect(current_x + 1, text_y + 1, 50, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 
   current_x += pivot_char_width;
 
