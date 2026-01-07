@@ -112,6 +112,21 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
 
   graphics_context_set_stroke_color(ctx, GColorWhite);
 
+  // Draw the horizontal guide lines above and below the word (always visible)
+  int line_half_width = 60; // Half width of the horizontal line
+  graphics_draw_line(
+      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_TOP_Y),
+      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_TOP_Y));
+
+  graphics_draw_line(
+      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_BOTTOM_Y),
+      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_BOTTOM_Y));
+
+  // Draw a small circle on the top line at the pivot position (pivot indicator)
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_fill_circle(ctx, GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
+                       SPRITZ_CIRCLE_RADIUS);
+
   // Handle empty or null word
   if (!word || word[0] == '\0') {
     return;
@@ -126,7 +141,7 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   int pivot_idx = get_pivot_index(word_length);
 
   // Font for word display
-  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
 
   // Calculate widths for positioning
   // Width of text before pivot letter
@@ -179,15 +194,16 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   // Note: Color disabled for testing - using bold effect for all displays
   graphics_context_set_text_color(ctx, GColorWhite);
 
-  // Draw pivot letter
+  // Draw pivot letter multiple times with offsets to create strong bold effect
   graphics_draw_text(ctx, pivot_char, font, GRect(current_x, text_y, 50, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
                      NULL);
-
-  // Draw the pivot letter again with 1px offset to make it appear bolder
-  graphics_draw_text(
-      ctx, pivot_char, font, GRect(current_x + 1, text_y, 50, 40),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_draw_text(ctx, pivot_char, font, GRect(current_x + 1, text_y, 50, 40),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_draw_text(ctx, pivot_char, font, GRect(current_x, text_y + 1, 50, 40),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_draw_text(ctx, pivot_char, font, GRect(current_x + 1, text_y + 1, 50, 40),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 
   current_x += pivot_char_width;
 
@@ -198,25 +214,6 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
                        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
                        NULL);
   }
-
-  // Draw the horizontal guide lines above and below the word
-  graphics_context_set_stroke_color(ctx, GColorWhite);
-
-  // Horizontal line above the word
-  int line_half_width = 60;  // Half width of the horizontal line
-  graphics_draw_line(
-      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_TOP_Y),
-      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_TOP_Y));
-
-  // Horizontal line below the word
-  graphics_draw_line(
-      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_BOTTOM_Y),
-      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_BOTTOM_Y));
-
-  // Draw a small circle on the top line at the pivot position (pivot indicator)
-  graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_circle(ctx, GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
-                       SPRITZ_CIRCLE_RADIUS);
 }
 
 void ui_draw_news_feed(GContext *ctx, const char *word, bool show_splash,
