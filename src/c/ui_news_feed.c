@@ -68,8 +68,8 @@ static int get_char_width(GContext *ctx, char c, GFont font) {
   return size.w;
 }
 
-// Draw splash screen with Reuters branding
-static void draw_splash_screen(GContext *ctx) {
+// Draw splash screen with channel title
+static void draw_splash_screen(GContext *ctx, const char *channel_title) {
   // Background
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
@@ -77,26 +77,37 @@ static void draw_splash_screen(GContext *ctx) {
   graphics_context_set_text_color(ctx, GColorWhite);
   graphics_context_set_stroke_color(ctx, GColorWhite);
 
-  // "REUTERS" - large centered title
-  graphics_draw_text(ctx, "REUTERS",
-                     fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD),
-                     GRect(0, 45, WIDTH, 35), GTextOverflowModeTrailingEllipsis,
+  // Channel title - large centered (dynamic from RSS feed)
+  const char *title = (channel_title && channel_title[0] != '\0') ? channel_title : "News Feed";
+  
+  // Use smaller font if title is long
+  GFont title_font;
+  int title_y = 55;
+  if (strlen(title) > 20) {
+    title_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+    title_y = 50;
+  } else if (strlen(title) > 12) {
+    title_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+    title_y = 52;
+  } else {
+    title_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  }
+  
+  graphics_draw_text(ctx, title, title_font,
+                     GRect(5, title_y, WIDTH - 10, 60), GTextOverflowModeWordWrap,
                      GTextAlignmentCenter, NULL);
 
   // Horizontal line separator
-  int line_y = 85;
+  int line_y = 105;
   graphics_draw_line(ctx, GPoint(20, line_y), GPoint(WIDTH - 20, line_y));
   graphics_draw_line(ctx, GPoint(20, line_y + 1),
                      GPoint(WIDTH - 20, line_y + 1));
 
-  // "Breaking International News" - subtitle
+  // "Loading..." - subtitle
   GFont font_sub = fonts_get_system_font(FONT_KEY_GOTHIC_18);
-  graphics_draw_text(ctx, "Breaking", font_sub, GRect(0, 95, WIDTH, 22),
+  graphics_draw_text(ctx, "Loading...", font_sub, GRect(0, 115, WIDTH, 22),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
-  graphics_draw_text(
-      ctx, "International News", font_sub, GRect(0, 115, WIDTH, 22),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
   // Small decorative dots
   for (int i = 0; i < 3; i++) {
@@ -223,9 +234,9 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
 }
 
 void ui_draw_news_feed(GContext *ctx, const char *word, bool show_splash,
-                       bool show_end) {
+                       bool show_end, const char *channel_title) {
   if (show_splash) {
-    draw_splash_screen(ctx);
+    draw_splash_screen(ctx, channel_title);
   } else if (show_end) {
     // Show END screen - similar to RSVP but with END text
     graphics_context_set_fill_color(ctx, GColorBlack);

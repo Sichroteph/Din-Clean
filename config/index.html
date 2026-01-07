@@ -78,7 +78,17 @@
         <input type='checkbox' class='item-toggle' input id='show_news'>
       </label>
       <div class='item-container-footer'>
-        Reuters | Breaking International News & Views
+        Custom RSS Feed URL
+      </div>
+      <label class='item'>
+        <div class='item-input-wrapper'>
+          <input type='text' class='item-input' input id='input_news_feed_url' placeholder='https://rss.app/feeds/...'>
+        </div>
+      </label>
+      <div style='display: flex; justify-content: space-between; padding: 5px 0;'>
+        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;' onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml'">Breaking News</button>
+        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;' onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tKIURCiSPtJYc7vm.xml'">Gaming</button>
+        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;' onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tIUyt6r7b3hyDAxs.xml'">Finance</button>
       </div>
       <!-- Option double tap -->
       <label class='item'>
@@ -149,6 +159,7 @@
 
   function getConfigData() {
     var input_iopool_token = document.getElementById('input_iopool_token');
+    var input_news_feed_url = document.getElementById('input_news_feed_url');
     var radio_units = document.getElementById('radio_units');
     var radio_refresh = document.getElementById('radio_refresh');
     var toggle_vibration = document.getElementById('toggle_vibration');
@@ -161,6 +172,7 @@
 
     var options = {
       'input_iopool_token': input_iopool_token.value,
+      'input_news_feed_url': input_news_feed_url.value,
       'radio_units': radio_units.checked,
       'radio_refresh': radio_refresh.checked,
       'toggle_vibration': toggle_vibration.checked,
@@ -174,6 +186,7 @@
 
     // Save for next launch
     localStorage['input_iopool_token'] = options['input_iopool_token'];
+    localStorage['input_news_feed_url'] = options['input_news_feed_url'];
     localStorage['radio_units'] = options['radio_units'];
     localStorage['radio_refresh'] = options['radio_refresh'];
     localStorage['toggle_vibration'] = options['toggle_vibration'];
@@ -211,6 +224,7 @@
 
   (function () {
     var input_iopool_token = document.getElementById('input_iopool_token');
+    var input_news_feed_url = document.getElementById('input_news_feed_url');
     var radio_units = document.getElementById('radio_units');
     var radio_refresh = document.getElementById('radio_refresh');
     var toggle_vibration = document.getElementById('toggle_vibration');
@@ -222,6 +236,7 @@
     var double_tap = document.getElementById('double_tap');
 
     input_iopool_token.value = localStorage['input_iopool_token'] || '';
+    input_news_feed_url.value = localStorage['input_news_feed_url'] || 'https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml';
     radio_units.checked = JSON.parse(localStorage['radio_units'] || 'false');
     radio_refresh.checked = JSON.parse(localStorage['radio_refresh'] || 'false');
     toggle_vibration.checked = JSON.parse(localStorage['toggle_vibration'] || 'false');

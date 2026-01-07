@@ -7,7 +7,7 @@
 #define KEY_SHOW_NEWS 171
 // Variable globale pour l'option graphique météo
 static bool show_weather = true;
-static bool show_news = true;  // Activé par défaut pour les tests
+static bool show_news = true; // Activé par défaut pour les tests
 static bool require_double_tap = true;
 #include <pebble.h>
 
@@ -122,6 +122,8 @@ static bool require_double_tap = true;
 #define KEY_NEWS_TITLE 172
 #define KEY_REQUEST_NEWS 173
 #define KEY_DOUBLE_TAP 174
+#define KEY_NEWS_FEED_URL 175
+#define KEY_NEWS_CHANNEL_TITLE 176
 
 // 3-day forecast keys (for ui_weather_days)
 #define KEY_DAY1_TEMP 200
@@ -307,6 +309,7 @@ static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 
 // News feed data
 static char news_title[104] = "";
+static char news_channel_title[52] = "News Feed"; // Title of the RSS channel/journal
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
 static uint16_t news_interval_ms = 1000; // Pause between titles
@@ -326,7 +329,7 @@ static bool s_news_end_screen = false;    // Show END screen
 static time_t last_tap_time = 0;
 static uint8_t tap_interval_sec = 2;    // Reduced from 3 to be more precise
 static time_t last_news_activation = 0; // Cooldown between news activations
-static uint8_t news_activation_cooldown_sec = 30; // 30s cooldown
+static uint8_t news_activation_cooldown_sec = 5; // 5s cooldown (reduced from 30s)
 
 // News retry protection
 static uint8_t news_retry_count = 0;
@@ -633,7 +636,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
       ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active,
-                        s_news_end_screen);
+                        s_news_end_screen, news_channel_title);
     } else {
       fill_weather_graph_data(&s_graph_data);
       ui_draw_weather_graph(ctx, &s_graph_data);
@@ -1259,6 +1262,18 @@ static void assign_fonts() {
 
 static void inbox_received_callback(DictionaryIterator *iterator,
                                     void *context) {
+  // Handle news channel title reception
+  Tuple *news_channel_tuple = dict_find(iterator, KEY_NEWS_CHANNEL_TITLE);
+  if (news_channel_tuple) {
+    snprintf(news_channel_title, sizeof(news_channel_title), "%s",
+             news_channel_tuple->value->cstring);
+    // Refresh splash screen if currently displayed
+    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS && s_news_splash_active) {
+      layer_mark_dirty(layer);
+    }
+    return;
+  }
+
   // Handle news title reception
   Tuple *news_title_tuple = dict_find(iterator, KEY_NEWS_TITLE);
   if (news_title_tuple) {

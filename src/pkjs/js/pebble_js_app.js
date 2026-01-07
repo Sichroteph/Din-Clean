@@ -17,7 +17,21 @@ var newsCache = [];
 var newsCacheTime = 0;
 var newsIndex = 0;
 var NEWS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in ms
-var RSS_URL = "https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml";
+var DEFAULT_RSS_URL = "https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml";
+var newsChannelTitle = "News Feed"; // Title of the RSS channel/journal
+
+// Function to decode HTML entities (for accented characters)
+function decodeHtmlEntities(text) {
+  var txt = document.createElement('textarea');
+  txt.innerHTML = text;
+  return txt.value;
+}
+
+// Function to get the current RSS URL from localStorage or default
+function getRssUrl() {
+  var storedUrl = localStorage.getItem(175); // KEY_NEWS_FEED_URL = 175
+  return (storedUrl && storedUrl.length > 0) ? storedUrl : DEFAULT_RSS_URL;
+}
 
 // Throttle protection for news requests
 var lastNewsRequestTime = 0;
@@ -71,29 +85,44 @@ function fetchAndSendNews() {
     if (xhr.status === 200) {
       var titles = [];
       var text = xhr.responseText;
+      
+      // Extract channel title (first title in the feed - the journal name)
+      var channelTitleMatch = text.match(/<channel>[\s\S]*?<title>\s*(?:<!\[CDATA\[)?\s*([^\]<]+?)\s*(?:\]\]>)?\s*<\/title>/);
+      if (channelTitleMatch && channelTitleMatch[1]) {
+        newsChannelTitle = decodeHtmlEntities(channelTitleMatch[1].trim());
+        // Send channel title to watch immediately
+        sendNewsChannelTitle(newsChannelTitle);
+      }
+      
       // Parse titles from XML using regex
       var regex = /<title>\s*<!\[CDATA\[\s*([^\]]+?)\s*\]\]>\s*<\/title>/g;
       var match;
+      var isFirst = true;
       while ((match = regex.exec(text)) !== null) {
-        var title = match[1].trim();
+        var title = decodeHtmlEntities(match[1].trim());
         if (title && title.length > 0) {
-          titles.push(title);
+          if (isFirst) {
+            isFirst = false; // Skip first title (channel title)
+          } else {
+            titles.push(title);
+          }
         }
       }
       // Also try without CDATA
       var regex2 = /<title>([^<]+)<\/title>/g;
+      isFirst = true;
       while ((match = regex2.exec(text)) !== null) {
-        var title = match[1].trim();
+        var title = decodeHtmlEntities(match[1].trim());
         if (title && title.length > 0 && titles.indexOf(title) === -1) {
-          titles.push(title);
+          if (isFirst) {
+            isFirst = false; // Skip first title (channel title)
+          } else {
+            titles.push(title);
+          }
         }
       }
 
       if (titles.length > 0) {
-        // Remove first title if it's the RSS feed title
-        if (titles[0].indexOf("Reuters") !== -1 && titles[0].indexOf("Breaking") !== -1) {
-          titles.shift();
-        }
         newsCache = titles;
         newsCacheTime = now;
         newsIndex = 0;
@@ -109,7 +138,8 @@ function fetchAndSendNews() {
     newsXhrPending = false;
     sendNewsTitle("Network error");
   };
-  xhr.open("GET", RSS_URL, true);
+  xhr.open("GET", getRssUrl(), true);
+  xhr.overrideMimeType('text/xml; charset=utf-8');
   xhr.send();
 }
 
@@ -120,6 +150,16 @@ function sendNewsTitle(title) {
   }
   // Use numeric key 172 for KEY_NEWS_TITLE
   var dict = { 172: title };
+  Pebble.sendAppMessage(dict, function () { }, function () { });
+}
+
+function sendNewsChannelTitle(channelTitle) {
+  // Truncate to 50 chars max for Pebble memory
+  if (channelTitle.length > 50) {
+    channelTitle = channelTitle.substring(0, 47) + "...";
+  }
+  // Use numeric key 176 for KEY_NEWS_CHANNEL_TITLE
+  var dict = { 176: channelTitle };
   Pebble.sendAppMessage(dict, function () { }, function () { });
 }
 
@@ -781,6 +821,13 @@ Pebble.addEventListener('webviewclosed', function (e) {
   var show_news = !!configData['show_news'];
   localStorage.setItem(171, show_news ? 1 : 0);
   dict[171] = show_news ? 1 : 0;
+
+  // Ajout de l'URL du flux RSS personnalisé
+  var news_feed_url = configData['input_news_feed_url'] || DEFAULT_RSS_URL;
+  localStorage.setItem(175, news_feed_url);
+  // Reset news cache when URL changes to force refresh
+  newsCache = [];
+  newsCacheTime = 0;
 
   // Ajout de l'option double tap
   var double_tap = (typeof configData['double_tap'] === 'undefined') ? true : !!configData['double_tap'];
