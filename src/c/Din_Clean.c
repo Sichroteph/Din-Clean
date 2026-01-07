@@ -250,7 +250,8 @@ static uint8_t rain3_val = 0;
 static uint8_t rain4_val = 0;
 time_t last_refresh = 0;
 int duration = 3600;
-int offline_delay = 3600;
+int offline_delay = 3600 + 600; // +10 minutes pour éviter que les icônes
+                                // disparaissent pendant l'appel météo
 AppTimer *timer_short;
 
 static char icon[32] = " ";
@@ -915,6 +916,45 @@ static bool extract_next_word(void) {
 // Forward declaration
 static void news_timer_callback(void *context);
 
+// Calculate Spritz-style delay for a word
+// Based on OpenSpritz algorithm: longer pause for punctuation and long words
+static uint16_t calculate_spritz_delay(const char *word) {
+  if (!word || word[0] == '\0') {
+    return rsvp_wpm_ms;
+  }
+  
+  uint16_t delay = rsvp_wpm_ms;
+  int len = strlen(word);
+  
+  // Check last character for punctuation
+  char last_char = word[len - 1];
+  
+  // Strong pause for sentence-ending punctuation (. ! ?)
+  if (last_char == '.' || last_char == '!' || last_char == '?') {
+    delay = rsvp_wpm_ms * 3;  // Triple delay for sentence end
+  }
+  // Medium pause for clause-ending punctuation (, : ; ))
+  else if (last_char == ',' || last_char == ':' || last_char == ';' || last_char == ')') {
+    delay = rsvp_wpm_ms * 2;  // Double delay for clause break
+  }
+  // Check for opening parenthesis or dash (mid-word pause)
+  else {
+    for (int i = 0; i < len; i++) {
+      if (word[i] == '(' || word[i] == '-') {
+        delay = rsvp_wpm_ms + (rsvp_wpm_ms / 2);  // 1.5x delay
+        break;
+      }
+    }
+  }
+  
+  // Extra time for long words (> 8 characters)
+  if (len > 8) {
+    delay += rsvp_wpm_ms;  // Add extra time for long words
+  }
+  
+  return delay;
+}
+
 // RSVP timer callback - displays next word
 static void rsvp_timer_callback(void *context) {
   rsvp_timer = NULL;
@@ -927,7 +967,9 @@ static void rsvp_timer_callback(void *context) {
   if (extract_next_word()) {
     // Show next word
     layer_mark_dirty(layer);
-    rsvp_timer = app_timer_register(rsvp_wpm_ms, rsvp_timer_callback, NULL);
+    // Calculate Spritz-style variable delay based on word characteristics
+    uint16_t delay = calculate_spritz_delay(rsvp_word);
+    rsvp_timer = app_timer_register(delay, rsvp_timer_callback, NULL);
   } else {
     // End of title - pause then request next
     rsvp_word[0] = '\0'; // Clear word
