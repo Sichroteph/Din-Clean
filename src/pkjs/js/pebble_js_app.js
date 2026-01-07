@@ -53,6 +53,8 @@ function fetchAndSendNews() {
     // Use cached data, increment index
     newsIndex = (newsIndex + 1) % newsCache.length;
     sendNewsTitle(newsCache[newsIndex]);
+    // Also send channel title in case it's needed
+    sendNewsChannelTitle(newsChannelTitle);
     return;
   }
 
@@ -762,6 +764,13 @@ Pebble.addEventListener('ready',
       setTimeout(function () {
         console.log('Auto weather fetch on startup');
         getWeather();
+        
+        // Also fetch news once to get channel title if news is enabled
+        var show_news = localStorage.getItem(171);
+        if (show_news === '1' || show_news === 1) {
+          console.log('Auto news fetch on startup to get channel title');
+          fetchAndSendNews();
+        }
       }, 500);
       console.log('JS: startup timer scheduled');
     } catch (err) {
@@ -829,10 +838,13 @@ Pebble.addEventListener('webviewclosed', function (e) {
   // Reset news cache when URL changes to force refresh
   newsCache = [];
   newsCacheTime = 0;
+  newsChannelTitle = "Loading..."; // Reset channel title
   // If URL changed and news is enabled, fetch immediately to update channel title
   if (old_url !== news_feed_url && show_news) {
     console.log("RSS URL changed, fetching new feed immediately");
-    setTimeout(function() {
+    // Send "Loading..." title immediately
+    sendNewsChannelTitle(newsChannelTitle);
+    setTimeout(function () {
       fetchAndSendNews();
     }, 500); // Small delay to ensure settings are saved
   }
