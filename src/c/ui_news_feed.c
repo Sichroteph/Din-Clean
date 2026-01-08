@@ -68,51 +68,27 @@ static int get_char_width(GContext *ctx, char c, GFont font) {
   return size.w;
 }
 
-// Draw splash screen with channel title
+// Draw splash screen - shows guide lines and pivot circle for eye positioning
 static void draw_splash_screen(GContext *ctx, const char *channel_title) {
   // Background
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, GRect(0, 0, WIDTH, HEIGHT), 0, GCornerNone);
 
-  graphics_context_set_text_color(ctx, GColorWhite);
   graphics_context_set_stroke_color(ctx, GColorWhite);
 
-  // Channel title - large centered (dynamic from RSS feed)
-  const char *title = (channel_title && channel_title[0] != '\0') ? channel_title : "News Feed";
-  
-  // Use smaller font if title is long
-  GFont title_font;
-  int title_y = 55;
-  if (strlen(title) > 20) {
-    title_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
-    title_y = 50;
-  } else if (strlen(title) > 12) {
-    title_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
-    title_y = 52;
-  } else {
-    title_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  }
-  
-  graphics_draw_text(ctx, title, title_font,
-                     GRect(5, title_y, WIDTH - 10, 60), GTextOverflowModeWordWrap,
-                     GTextAlignmentCenter, NULL);
+  // Draw the horizontal guide lines above and below the word position
+  int line_half_width = 60; // Half width of the horizontal line
+  graphics_draw_line(
+      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_TOP_Y),
+      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_TOP_Y));
 
-  // Horizontal line separator
-  int line_y = 105;
-  graphics_draw_line(ctx, GPoint(20, line_y), GPoint(WIDTH - 20, line_y));
-  graphics_draw_line(ctx, GPoint(20, line_y + 1),
-                     GPoint(WIDTH - 20, line_y + 1));
+  graphics_draw_line(
+      ctx, GPoint(SPRITZ_PIVOT_X - line_half_width, SPRITZ_LINE_BOTTOM_Y),
+      GPoint(SPRITZ_PIVOT_X + line_half_width, SPRITZ_LINE_BOTTOM_Y));
 
-  // "Loading..." - subtitle
-  GFont font_sub = fonts_get_system_font(FONT_KEY_GOTHIC_18);
-  graphics_draw_text(ctx, "Loading...", font_sub, GRect(0, 115, WIDTH, 22),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
-                     NULL);
-
-  // Small decorative dots
-  for (int i = 0; i < 3; i++) {
-    graphics_fill_circle(ctx, GPoint(WIDTH / 2 - 10 + i * 10, 148), 2);
-  }
+  // Draw pivot indicator circle on the top line
+  graphics_draw_circle(ctx, GPoint(SPRITZ_PIVOT_X, SPRITZ_LINE_TOP_Y),
+                       SPRITZ_CIRCLE_RADIUS);
 }
 
 // Draw Spritz-style RSVP word display with pivot letter highlighting
