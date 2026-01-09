@@ -1184,7 +1184,7 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
       app_timer_cancel(timer_short);
       timer_short = NULL;
     }
-
+    show_news = 1;
     if (show_news) {
       start_news_sequence();
     } else {

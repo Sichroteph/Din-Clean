@@ -65,6 +65,9 @@
             "KEY_SHOW_NEWS": 171,
             "KEY_NEWS_TITLE": 172,
             "KEY_REQUEST_NEWS": 173,
+            "KEY_DOUBLE_TAP": 174,
+            "KEY_NEWS_FEED_URL": 175,
+            "KEY_NEWS_CHANNEL_TITLE": 176,
             "KEY_RADIO_UNITS": 36,
             "KEY_RADIO_REFRESH": 54,
             "KEY_TOGGLE_VIBRATION": 37,
@@ -358,5 +361,5 @@
             "watchface": true
         }
     },
-    "version": "1.45.0"
+    "version": "1.46.0"
 }
