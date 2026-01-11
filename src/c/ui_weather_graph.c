@@ -82,32 +82,32 @@ static void draw_hour_wind_labels(GContext *ctx, const WeatherGraphData *d,
 
   graphics_context_set_text_color(ctx, GColorWhite);
   graphics_draw_text(
-      ctx, h0, statusfontdate, GRect(6 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h0, statusfontdate, GRect(11 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   graphics_draw_text(
-      ctx, h1, statusfontdate, GRect(37 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h1, statusfontdate, GRect(42 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   graphics_draw_text(
-      ctx, h2, statusfontdate, GRect(68 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h2, statusfontdate, GRect(73 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   graphics_draw_text(
-      ctx, h3, statusfontdate, GRect(97 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h3, statusfontdate, GRect(102 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
   graphics_draw_text(ctx, d->winds[0], statusfontsmall,
-                     GRect(6 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(11 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
   graphics_draw_text(ctx, d->winds[1], statusfontsmall,
-                     GRect(37 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(42 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
   graphics_draw_text(ctx, d->winds[2], statusfontsmall,
-                     GRect(68 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(73 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
   graphics_draw_text(ctx, d->winds[3], statusfontsmall,
-                     GRect(97 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(102 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
 }

@@ -860,7 +860,8 @@ static void do_send_news_request(void) {
     if (result == APP_MSG_OK) {
       s_news_request_pending = false;
     }
-    // If send fails, s_news_request_pending stays true for retry in outbox_sent_callback
+    // If send fails, s_news_request_pending stays true for retry in
+    // outbox_sent_callback
   }
   // If outbox_begin fails (busy), s_news_request_pending stays true for retry
 }
@@ -1755,10 +1756,10 @@ static void do_send_news_request(void);
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {
   // If news request failed and we're in news mode, keep pending flag for retry
-  if (s_news_request_pending && s_whiteout_active && 
+  if (s_news_request_pending && s_whiteout_active &&
       s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
-    // Request will be retried in outbox_sent_callback of next successful message
-    // or by the safety timer in news_timer_callback
+    // Request will be retried in outbox_sent_callback of next successful
+    // message or by the safety timer in news_timer_callback
   }
 }
 
