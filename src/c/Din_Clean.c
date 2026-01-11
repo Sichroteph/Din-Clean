@@ -860,7 +860,9 @@ static void do_send_news_request(void) {
     if (result == APP_MSG_OK) {
       s_news_request_pending = false;
     }
+    // If send fails, s_news_request_pending stays true for retry in outbox_sent_callback
   }
+  // If outbox_begin fails (busy), s_news_request_pending stays true for retry
 }
 
 // Request next news title from JS
@@ -1030,6 +1032,7 @@ static void news_timer_callback(void *context) {
   // If splash was active, now request first news
   if (s_news_splash_active) {
     s_news_splash_active = false;
+    layer_mark_dirty(layer); // Refresh display after splash ends
   }
 
   // If END screen was active, now exit news mode
@@ -1184,7 +1187,6 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
       app_timer_cancel(timer_short);
       timer_short = NULL;
     }
-    show_news = 1;
     if (show_news) {
       start_news_sequence();
     } else {
@@ -1751,7 +1753,14 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 static void do_send_news_request(void);
 
 static void outbox_failed_callback(DictionaryIterator *iterator,
-                                   AppMessageResult reason, void *context) {}
+                                   AppMessageResult reason, void *context) {
+  // If news request failed and we're in news mode, keep pending flag for retry
+  if (s_news_request_pending && s_whiteout_active && 
+      s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
+    // Request will be retried in outbox_sent_callback of next successful message
+    // or by the safety timer in news_timer_callback
+  }
+}
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   // If there's a pending news request, send it now
