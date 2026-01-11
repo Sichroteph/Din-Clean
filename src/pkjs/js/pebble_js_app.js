@@ -1,6 +1,6 @@
 // force la météo sur l'émulateur
 var b_force_internet = false;
-var bFakeData = 1;
+var bFakeData = 0;
 var bFakePosition = 0;
 
 var myGoogleAPIKey = '';
@@ -326,10 +326,13 @@ function processWeatherResponse(responseText) {
   var temperature = Math.round(rTemperature);
   tmax = Math.round(tmax);
   tmin = Math.round(tmin);
-  var wind = Math.round(jsonWeather.properties.timeseries[0].data.instant.details.wind_speed);
+  var windSpeedMps = jsonWeather.properties.timeseries[0].data.instant.details.wind_speed;
 
+  var wind;
   if (units == 1) {
-    wind = convertMpsToMph(wind);
+    wind = convertMpsToMph(windSpeedMps);
+  } else {
+    wind = Math.round(windSpeedMps * 3.6);
   }
 
   if (bFakeData == 1) {

@@ -755,7 +755,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .humidity = humidity,
                            .wind_speed_val = wind_speed_val,
                            .wind2_val = wind2_val,
-                           .met_unit = is_metric ? 5 : 11,
+                           .met_unit = is_metric ? 20 : 25,
                            .icon_id = icon_id,
                            .icon_id6 = icon_id6,
                            .rect_text_day = rect_text_day,
