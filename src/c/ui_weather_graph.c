@@ -95,10 +95,9 @@ static void draw_hour_wind_labels(GContext *ctx, const WeatherGraphData *d,
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
   // Draw "W." label to indicate the row shows wind values
-  graphics_draw_text(ctx, "W.", statusfontsmall,
-                     GRect(3, 144 + offset_y, 20, 40),
-                     GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft,
-                     NULL);
+  graphics_draw_text(
+      ctx, "W.", statusfontsmall, GRect(3, 144 + offset_y, 20, 40),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 
   graphics_draw_text(ctx, d->winds[0], statusfontsmall,
                      GRect(11 + offset_x, 144 + offset_y, 60, 40),
