@@ -26,27 +26,35 @@ void ui_weather_graph_set_vertical_offset(int offset_y) {
 static void draw_reference_lines(GContext *ctx, int offset_x, int offset_y) {
   // Graph area: Y from 76 to 76+45 = 121 (relative to offset_y)
   // With temperature curve offset (decallage_y = -7), effective area is 69-114
-  const int graph_top = 69;     // 76 - 7 (decallage_y)
-  const int graph_height = 45;  // Height of the graph area
-  const int graph_left = 37;    // Left edge of graph
-  const int graph_right = 157;  // Right edge of graph
+  const int graph_top = 69;    // 76 - 7 (decallage_y)
+  const int graph_height = 45; // Height of the graph area
+  const int graph_left = 37;   // Left edge of graph
+  const int graph_right = 157; // Right edge of graph
 
   graphics_context_set_stroke_width(ctx, 1);
   graphics_context_set_stroke_color(ctx, GColorWhite);
 
   // Calculate Y positions for 25%, 50%, 75%
-  int y_25 = graph_top + (graph_height * 25 / 100);  // 25% from top
-  int y_50 = graph_top + (graph_height * 50 / 100);  // 50% (middle)
-  int y_75 = graph_top + (graph_height * 75 / 100);  // 75% from top
+  int y_25 = graph_top + (graph_height * 25 / 100) - 4; // 25% from top
+  int y_50 = graph_top + (graph_height * 50 / 100);     // 50% (middle)
+  int y_75 = graph_top + (graph_height * 75 / 100) + 4; // 75% from top
 
-  // Draw dotted lines (1 pixel on, 3 pixels off for dotted effect)
-  for (int x = graph_left + offset_x; x <= graph_right + offset_x; x += 4) {
+  // Draw dotted lines using short line segments (more efficient than individual
+  // pixels) Pattern: 2 pixels on, 3 pixels off
+  for (int x = graph_left + offset_x; x <= graph_right + offset_x; x += 5) {
+    int x_end = x + 1;
+    if (x_end > graph_right + offset_x) {
+      x_end = graph_right + offset_x;
+    }
     // 25% line
-    graphics_draw_pixel(ctx, GPoint(x, y_25 + offset_y));
+    graphics_draw_line(ctx, GPoint(x, y_25 + offset_y),
+                       GPoint(x_end, y_25 + offset_y));
     // 50% line (middle)
-    graphics_draw_pixel(ctx, GPoint(x, y_50 + offset_y));
+    graphics_draw_line(ctx, GPoint(x, y_50 + offset_y),
+                       GPoint(x_end, y_50 + offset_y));
     // 75% line
-    graphics_draw_pixel(ctx, GPoint(x, y_75 + offset_y));
+    graphics_draw_line(ctx, GPoint(x, y_75 + offset_y),
+                       GPoint(x_end, y_75 + offset_y));
   }
 }
 
