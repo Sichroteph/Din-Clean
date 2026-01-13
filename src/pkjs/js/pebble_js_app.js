@@ -1,6 +1,6 @@
 // force la météo sur l'émulateur
 var b_force_internet = false;
-var bFakeData = 1;
+var bFakeData = 0;
 var bFakePosition = 0;
 
 var myGoogleAPIKey = '';
@@ -409,10 +409,10 @@ function processWeatherResponse(responseText) {
   // Override with fake data for testing negative temperatures
   if (bFakeData == 1) {
     hourlyTemperatures.hour0 = -12;
-    hourlyTemperatures.hour3 = -8;
-    hourlyTemperatures.hour6 = -5;
-    hourlyTemperatures.hour9 = -3;
-    hourlyTemperatures.hour12 = 2;
+    hourlyTemperatures.hour3 = -24;
+    hourlyTemperatures.hour6 = -36;
+    hourlyTemperatures.hour9 = -48;
+    hourlyTemperatures.hour12 = -30;
   }
 
   // --- 3-day forecast data extraction ---
