@@ -409,10 +409,10 @@ function processWeatherResponse(responseText) {
   // Override with fake data for testing negative temperatures
   if (bFakeData == 1) {
     hourlyTemperatures.hour0 = -12;
-    hourlyTemperatures.hour3 = -24;
-    hourlyTemperatures.hour6 = -36;
-    hourlyTemperatures.hour9 = -48;
-    hourlyTemperatures.hour12 = -30;
+    hourlyTemperatures.hour3 = -4;
+    hourlyTemperatures.hour6 = 2;
+    hourlyTemperatures.hour9 = 10;
+    hourlyTemperatures.hour12 = 16;
   }
 
   // --- 3-day forecast data extraction ---
