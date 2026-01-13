@@ -35,8 +35,8 @@ static void draw_reference_lines(GContext *ctx, int offset_x, int offset_y) {
   graphics_context_set_stroke_color(ctx, GColorWhite);
 
   // Calculate Y positions for 25%, 50%, 75%
-  int y_25 = graph_top + (graph_height * 25 / 100) - 4; // 25% from top
-  int y_50 = graph_top + (graph_height * 50 / 100);     // 50% (middle)
+  int y_25 = graph_top + (graph_height * 25 / 100) - 3; // 25% from top
+  int y_50 = graph_top + (graph_height * 50 / 100) + 1; // 50% (middle)
   int y_75 = graph_top + (graph_height * 75 / 100) + 4; // 75% from top
 
   // Draw dotted lines using short line segments (more efficient than individual
@@ -95,31 +95,34 @@ static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin, int offset_x,
   GFont font_t1 = (strlen(t1) >= 3)
                       ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
                       : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  
+
   GFont font_t12 = (strlen(t12) >= 3)
                        ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
                        : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  
+
   GFont font_t2 = (strlen(t2) >= 3)
                       ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
                       : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 
-  // Adjust Y offset for negative temperatures (descend by 4 pixels)
-  int y_offset_t1 = (ttmax < 0) ? 4 : 0;
-  int y_offset_t12 = (tmoy < 0) ? 4 : 0;
-  int y_offset_t2 = (ttmin < 0) ? 4 : 0;
+  // Adjust Y offset for smaller font (descend by 3 pixels for alignment)
+  int y_offset_t1 = (strlen(t1) >= 3) ? 5 : 0;
+  int y_offset_t12 = (strlen(t12) >= 3) ? 5 : 0;
+  int y_offset_t2 = (strlen(t2) >= 3) ? 5 : 0;
+
+  graphics_draw_text(ctx, t1, font_t1,
+                     GRect(-25 + offset_x, 51 + offset_y + y_offset_t1, 60, 20),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentRight,
+                     NULL);
 
   graphics_draw_text(
-      ctx, t1, font_t1, GRect(-25 + offset_x, 51 + offset_y + y_offset_t1, 60, 20),
+      ctx, t12, font_t12,
+      GRect(-25 + offset_x, 73 + offset_y + y_offset_t12, 60, 20),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
 
-  graphics_draw_text(
-      ctx, t12, font_t12, GRect(-25 + offset_x, 73 + offset_y + y_offset_t12, 60, 20),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
-
-  graphics_draw_text(
-      ctx, t2, font_t2, GRect(-25 + offset_x, 95 + offset_y + y_offset_t2, 60, 20),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
+  graphics_draw_text(ctx, t2, font_t2,
+                     GRect(-25 + offset_x, 95 + offset_y + y_offset_t2, 60, 20),
+                     GTextOverflowModeTrailingEllipsis, GTextAlignmentRight,
+                     NULL);
 }
 
 // Helper: Draw hour and wind labels - reduces main function stack usage
