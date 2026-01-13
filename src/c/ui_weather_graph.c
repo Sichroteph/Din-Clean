@@ -88,36 +88,37 @@ static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin, int offset_x,
   snprintf(t12, sizeof(t12), "%i", tmoy);
   snprintf(t2, sizeof(t2), "%i", ttmin);
 
-  // Determine font size based on string length
-  // Use smaller font if any value has 3 or more characters (e.g., -10)
-  int max_len = 0;
-  int len_t1 = strlen(t1);
-  int len_t12 = strlen(t12);
-  int len_t2 = strlen(t2);
-
-  if (len_t1 > max_len)
-    max_len = len_t1;
-  if (len_t12 > max_len)
-    max_len = len_t12;
-  if (len_t2 > max_len)
-    max_len = len_t2;
-
-  GFont statusfontdate = (max_len >= 3)
-                             ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
-                             : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-
   graphics_context_set_text_color(ctx, GColorWhite);
 
+  // Each temperature uses its own font size based on its individual length
+  // Use smaller font if the value has 3 or more characters (e.g., -10)
+  GFont font_t1 = (strlen(t1) >= 3)
+                      ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
+                      : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  
+  GFont font_t12 = (strlen(t12) >= 3)
+                       ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
+                       : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  
+  GFont font_t2 = (strlen(t2) >= 3)
+                      ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
+                      : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+
+  // Adjust Y offset for negative temperatures (descend by 4 pixels)
+  int y_offset_t1 = (ttmax < 0) ? 4 : 0;
+  int y_offset_t12 = (tmoy < 0) ? 4 : 0;
+  int y_offset_t2 = (ttmin < 0) ? 4 : 0;
+
   graphics_draw_text(
-      ctx, t1, statusfontdate, GRect(-25 + offset_x, 51 + offset_y, 60, 20),
+      ctx, t1, font_t1, GRect(-25 + offset_x, 51 + offset_y + y_offset_t1, 60, 20),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
 
   graphics_draw_text(
-      ctx, t12, statusfontdate, GRect(-25 + offset_x, 73 + offset_y, 60, 20),
+      ctx, t12, font_t12, GRect(-25 + offset_x, 73 + offset_y + y_offset_t12, 60, 20),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
 
   graphics_draw_text(
-      ctx, t2, statusfontdate, GRect(-25 + offset_x, 95 + offset_y, 60, 20),
+      ctx, t2, font_t2, GRect(-25 + offset_x, 95 + offset_y + y_offset_t2, 60, 20),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentRight, NULL);
 }
 
