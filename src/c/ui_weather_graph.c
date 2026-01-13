@@ -94,15 +94,18 @@ static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin, int offset_x,
   int len_t1 = strlen(t1);
   int len_t12 = strlen(t12);
   int len_t2 = strlen(t2);
-  
-  if (len_t1 > max_len) max_len = len_t1;
-  if (len_t12 > max_len) max_len = len_t12;
-  if (len_t2 > max_len) max_len = len_t2;
-  
-  GFont statusfontdate = (max_len >= 3) 
-      ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
-      : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  
+
+  if (len_t1 > max_len)
+    max_len = len_t1;
+  if (len_t12 > max_len)
+    max_len = len_t12;
+  if (len_t2 > max_len)
+    max_len = len_t2;
+
+  GFont statusfontdate = (max_len >= 3)
+                             ? fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
+                             : fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+
   graphics_context_set_text_color(ctx, GColorWhite);
 
   graphics_draw_text(

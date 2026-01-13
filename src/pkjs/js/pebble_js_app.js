@@ -406,6 +406,15 @@ function processWeatherResponse(responseText) {
     }
   }
 
+  // Override with fake data for testing negative temperatures
+  if (bFakeData == 1) {
+    hourlyTemperatures.hour0 = -12;
+    hourlyTemperatures.hour3 = -8;
+    hourlyTemperatures.hour6 = -5;
+    hourlyTemperatures.hour9 = -3;
+    hourlyTemperatures.hour12 = 2;
+  }
+
   // --- 3-day forecast data extraction ---
   var day_temps = ["", "", ""];
   var day_icons = ["", "", ""];
