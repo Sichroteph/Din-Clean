@@ -34,11 +34,24 @@
 - Wind speed with corner-based visual indicators
 - Data via **MET Norway API** (accurate and free — **no API key required!**)
 
-### Forecast Graph (tap to access)
+### Secondary Panels (Shake to Access)
+Din Clean offers **two secondary panels** accessible by shaking your wrist:
+
+#### 1. Weather Forecast Graph
 - Temperature curve over 12 hours
 - Hourly precipitation bars
+- Reference lines at 25%, 50%, and 75% (dotted) for easier reading
 - Wind speed per time slot
-- 3-day forecast with weather icons
+- 3-day forecast with weather icons and weekday labels
+
+#### 2. Quick Read News Panel (RSVP/Spritz)
+- **Speed-reading technology** based on the Spritz/RSVP method
+- Displays RSS news headlines **word by word** at optimized speed (~350-500 WPM)
+- **Pivot letter highlighting** for instant word recognition
+- **Smart pause system**: longer pauses after punctuation (periods, commas)
+- Customizable RSS feed (Breaking News, Gaming, Finance presets available)
+- Shows journal/channel name on splash screen
+- Auto-advances through 5 headlines per session
 
 ### Smart Indicators
 - Bluetooth connection status
@@ -57,6 +70,25 @@
 Din Clean was designed with **readability as the top priority**. This is why a strict **black and white** color scheme was chosen — no distracting colors, just pure contrast for instant information at a glance. The clean monochrome design ensures your watch remains legible in any lighting condition, from bright sunlight to dim environments.
 
 The main time display is inspired by **Din Time**, a beloved watchface that is no longer maintained. Din Clean pays homage to its elegant typography while adding comprehensive weather features and modern API support.
+
+---
+
+## User Guide: Secondary Panels
+
+### Accessing the Panels
+
+To display secondary panels, **shake your wrist**:
+- If "Require double tap" is enabled (default): shake **twice** with a **2-second interval** between shakes
+- If disabled: a single shake activates the panel
+
+The double-tap option prevents accidental activations during normal movement.
+
+**Panel Navigation:**
+1. **First shake** → Weather Graph
+2. **Second shake** → News Feed (if enabled)
+3. **Third shake** → Return to main watch face
+
+Each panel auto-dismisses after 8 seconds of inactivity (weather graph) or after displaying all headlines (news feed).
 
 ---
 
@@ -91,6 +123,14 @@ When you tap on the watch to display the forecast graph, you'll see precipitatio
   - Medium bar (~15-20mm): Moderate rain
   - Full bar (40mm): Heavy rain / storms
 
+**Reference Lines:**
+The graph now includes three horizontal dotted reference lines:
+- **25% line** (top quarter)
+- **50% line** (middle)
+- **75% line** (bottom quarter)
+
+These lines help you quickly gauge where the temperature curve sits within the forecast range.
+
 ---
 
 ### Wind Speed: Corner Indicators
@@ -106,6 +146,30 @@ The main weather icon is surrounded by a decorative border. As wind speed increa
 | Strong wind | ![Strong](docs/images/wind_4.png) | >20 km/h | >44 mph |
 
 This allows you to quickly assess wind conditions at a glance without reading numerical values.
+
+---
+
+### Quick Read News Panel (RSVP)
+
+The news panel uses **Rapid Serial Visual Presentation (RSVP)**, a speed-reading technique popularized by Spritz. Here's how it works:
+
+**How It Works:**
+1. Headlines are displayed **one word at a time** in the center of the screen
+2. Each word has a **pivot letter** (shown in bold) — the optimal recognition point
+3. Guide lines help your eyes stay focused on the reading position
+4. The display automatically pauses longer after punctuation for natural reading rhythm
+
+**Reading Speed:**
+- Base speed: ~160ms per word (~375 words per minute)
+- Extended pause after sentence endings (. ! ?)
+- Medium pause after commas and semicolons
+- Extra time for long words (>8 characters)
+
+**Customization:**
+You can customize the RSS feed URL in the settings to follow your favorite news sources. Three presets are provided:
+- **Breaking News** (general headlines)
+- **Gaming** (video game news)
+- **Finance** (market and business news)
 
 ---
 
@@ -135,6 +199,23 @@ Just install, allow location access, and enjoy!
 
 ---
 
+## Configuration Options
+
+Access the settings page through the Pebble app to customize:
+
+| Option | Description |
+|--------|-------------|
+| **Units** | Switch between Metric (°C, km/h) and Imperial (°F, mph) |
+| **Bluetooth vibration** | Vibrate when Bluetooth connection is lost/restored |
+| **Hourly vibration** | Vibrate every hour (10am–10pm, Pebble Time only) |
+| **Show Weather Graph** | Enable/disable the weather forecast panel |
+| **Show News Feed** | Enable/disable the RSVP news reader |
+| **RSS Feed URL** | Custom URL for news source (with presets) |
+| **Require double tap** | Prevent accidental panel activation |
+| **IOPool API Token** | Connect your pool monitoring device |
+
+---
+
 ## Compatibility
 
 - **Pebble Classic (Aplite)**
@@ -152,6 +233,7 @@ Just install, allow location access, and enjoy!
 - **~50-70% image compression** compared to original resources
 - **Offline fallback** with cached weather data
 - **Multi-language support** (EN, FR, DE, ES)
+- **Smart font management** — heavy custom fonts are unloaded during secondary panels to free memory for bitmap rendering
 
 ---
 ## Installation
