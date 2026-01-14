@@ -11,6 +11,7 @@ var KEY_CONFIG = 157;
 var KEY_LAST_UPDATE = 158;
 
 var bIsImperial;
+var windSpeedUnit; // 'kmh' or 'ms' for metric mode
 
 // RSS News cache
 var newsCache = [];
@@ -333,11 +334,16 @@ function processOpenMeteoResponse(responseText) {
   tmax = Math.round(tmax);
   tmin = Math.round(tmin);
 
+  var windSpeedUnit = localStorage.getItem(181) || 'kmh';
   var wind;
   if (units == 1) {
     // Convert km/h to mph
     wind = Math.round(currentWindSpeed * 0.621371);
+  } else if (windSpeedUnit === 'ms') {
+    // Convert km/h to m/s
+    wind = Math.round(currentWindSpeed / 3.6);
   } else {
+    // Keep in km/h
     wind = Math.round(currentWindSpeed);
   }
 
@@ -390,6 +396,8 @@ function processOpenMeteoResponse(responseText) {
       var windValue;
       if (units_setting == 1) {
         windValue = Math.round(windSpeedKmh * 0.621371);
+      } else if (windSpeedUnit === 'ms') {
+        windValue = Math.round(windSpeedKmh / 3.6);
       } else {
         windValue = Math.round(windSpeedKmh);
       }
@@ -446,11 +454,18 @@ function processOpenMeteoResponse(responseText) {
         day_rains[d] = Math.round(rainSum) + "mm";
 
         // Wind max for the day
-        var dayWind = Math.round(daily.wind_speed_10m_max[dayIdx]);
+        var dayWindKmh = daily.wind_speed_10m_max[dayIdx];
+        var dayWind;
         if (units == 1) {
-          dayWind = Math.round(daily.wind_speed_10m_max[dayIdx] * 0.621371);
+          dayWind = Math.round(dayWindKmh * 0.621371);
+          day_winds[d] = dayWind + "mph";
+        } else if (windSpeedUnit === 'ms') {
+          dayWind = Math.round(dayWindKmh / 3.6);
+          day_winds[d] = dayWind + "m/s";
+        } else {
+          dayWind = Math.round(dayWindKmh);
+          day_winds[d] = dayWind + "kmh";
         }
-        day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
       }
     }
   } else {
@@ -672,10 +687,13 @@ function processWeatherResponse(responseText) {
   tmax = Math.round(tmax);
   tmin = Math.round(tmin);
   var windSpeedMps = jsonWeather.properties.timeseries[0].data.instant.details.wind_speed;
+  var windSpeedUnit = localStorage.getItem(181) || 'kmh';
 
   var wind;
   if (units == 1) {
     wind = convertMpsToMph(windSpeedMps);
+  } else if (windSpeedUnit === 'ms') {
+    wind = Math.round(windSpeedMps);
   } else {
     wind = Math.round(windSpeedMps * 3.6);
   }
@@ -731,6 +749,8 @@ function processWeatherResponse(responseText) {
       var windValue;
       if (units_setting == 1) {
         windValue = convertMpsToMph(windSpeedMps);
+      } else if (windSpeedUnit === 'ms') {
+        windValue = Math.round(windSpeedMps);
       } else {
         windValue = Math.round(windSpeedMps * 3.6);
       }
@@ -809,11 +829,18 @@ function processWeatherResponse(responseText) {
       day_rains[d] = Math.round(rainSum) + "mm";
 
       // Wind
-      var dayWind = Math.round(dayData.instant.details.wind_speed * 3.6); // m/s to km/h
+      var dayWindMps = dayData.instant.details.wind_speed;
+      var dayWind;
       if (units == 1) {
-        dayWind = convertMpsToMph(dayData.instant.details.wind_speed);
+        dayWind = convertMpsToMph(dayWindMps);
+        day_winds[d] = dayWind + "mph";
+      } else if (windSpeedUnit === 'ms') {
+        dayWind = Math.round(dayWindMps);
+        day_winds[d] = dayWind + "m/s";
+      } else {
+        dayWind = Math.round(dayWindMps * 3.6);
+        day_winds[d] = dayWind + "kmh";
       }
-      day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
     }
   }
 
@@ -1241,6 +1268,11 @@ Pebble.addEventListener('webviewclosed', function (e) {
 
   localStorage.setItem(152, radio_units ? 1 : 0);
   localStorage.setItem(158, input_iopool_token);
+
+  // Wind speed unit for metric mode (kmh or ms)
+  var wind_speed_unit = configData['wind_speed_unit'] || 'kmh';
+  localStorage.setItem(181, wind_speed_unit);
+  console.log("Wind speed unit set to: " + wind_speed_unit);
 
   dict['KEY_RADIO_UNITS'] = radio_units ? 1 : 0;
   dict['KEY_RADIO_REFRESH'] = radio_refresh ? 1 : 0;
