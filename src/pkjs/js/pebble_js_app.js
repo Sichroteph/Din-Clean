@@ -215,6 +215,307 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
+// WMO Weather Code to MET Norway symbol_code mapping
+// WMO codes: https://open-meteo.com/en/docs (weather_code field)
+// Maps to MET Norway icon names for compatibility with existing build_icon() in C
+function wmoCodeToSymbolCode(wmoCode, isNight) {
+  var dayNight = isNight ? '_night' : '_day';
+  
+  switch (wmoCode) {
+    case 0:  // Clear sky
+      return 'clearsky' + dayNight;
+    case 1:  // Mainly clear
+      return 'fair' + dayNight;
+    case 2:  // Partly cloudy
+      return 'partlycloudy' + dayNight;
+    case 3:  // Overcast
+      return 'cloudy';
+    case 45: // Fog
+    case 48: // Depositing rime fog
+      return 'fog';
+    case 51: // Drizzle: Light
+      return 'lightrain';
+    case 53: // Drizzle: Moderate
+      return 'rain';
+    case 55: // Drizzle: Dense
+      return 'rain';
+    case 56: // Freezing Drizzle: Light
+      return 'sleet';
+    case 57: // Freezing Drizzle: Dense
+      return 'sleet';
+    case 61: // Rain: Slight
+      return 'lightrainshowers' + dayNight;
+    case 63: // Rain: Moderate
+      return 'rain';
+    case 65: // Rain: Heavy
+      return 'heavyrain';
+    case 66: // Freezing Rain: Light
+      return 'sleet';
+    case 67: // Freezing Rain: Heavy
+      return 'heavysleet';
+    case 71: // Snow fall: Slight
+      return 'lightsnow';
+    case 73: // Snow fall: Moderate
+      return 'snow';
+    case 75: // Snow fall: Heavy
+      return 'heavysnow';
+    case 77: // Snow grains
+      return 'snow';
+    case 80: // Rain showers: Slight
+      return 'lightrainshowers' + dayNight;
+    case 81: // Rain showers: Moderate
+      return 'rainshowers' + dayNight;
+    case 82: // Rain showers: Violent
+      return 'heavyrainshowers' + dayNight;
+    case 85: // Snow showers: Slight
+      return 'lightsnowshowers' + dayNight;
+    case 86: // Snow showers: Heavy
+      return 'heavysnowshowers' + dayNight;
+    case 95: // Thunderstorm: Slight or moderate
+      return 'rainandthunder';
+    case 96: // Thunderstorm with slight hail
+      return 'rainandthunder';
+    case 99: // Thunderstorm with heavy hail
+      return 'heavyrainandthunder';
+    default:
+      return 'partlycloudy' + dayNight;
+  }
+}
+
+// Check if current hour is night time (between sunset and sunrise)
+function isNightTime(hour) {
+  // Approximate: night is between 21:00 and 6:00
+  return hour >= 21 || hour < 6;
+}
+
+// Process Open-Meteo API response and convert to the same dictionary format as MET Norway
+function processOpenMeteoResponse(responseText) {
+  var json = JSON.parse(responseText);
+  
+  var hourly = json.hourly;
+  var units = localStorage.getItem(152);
+  
+  // Current conditions (first hour)
+  var currentTemp = hourly.temperature_2m[0];
+  var currentHumidity = Math.round(hourly.relative_humidity_2m[0]);
+  var currentWindSpeed = hourly.wind_speed_10m[0]; // Already in km/h from API
+  var currentWmoCode = hourly.weather_code[0];
+  
+  // Get current hour to determine day/night for icon
+  var now = new Date();
+  var currentHour = now.getHours();
+  var isNight = isNightTime(currentHour);
+  var icon = wmoCodeToSymbolCode(currentWmoCode, isNight);
+  
+  // Calculate min/max for next 24 hours
+  var tmin = 1000;
+  var tmax = -1000;
+  for (var i = 0; i <= 24 && i < hourly.temperature_2m.length; i++) {
+    var temp = hourly.temperature_2m[i];
+    if (temp < tmin) tmin = temp;
+    if (temp > tmax) tmax = temp;
+  }
+  
+  var rTemperature = currentTemp;
+  var humidity = currentHumidity;
+  
+  if (units == 1) {
+    rTemperature = celsiusToFahrenheit(rTemperature);
+    tmin = celsiusToFahrenheit(tmin);
+    tmax = celsiusToFahrenheit(tmax);
+  } else {
+    rTemperature = Math.round(rTemperature);
+    tmin = Math.round(tmin);
+    tmax = Math.round(tmax);
+  }
+  
+  var temperature = Math.round(rTemperature);
+  tmax = Math.round(tmax);
+  tmin = Math.round(tmin);
+  
+  var wind;
+  if (units == 1) {
+    // Convert km/h to mph
+    wind = Math.round(currentWindSpeed * 0.621371);
+  } else {
+    wind = Math.round(currentWindSpeed);
+  }
+  
+  // Hourly data extraction
+  var hourlyTemperatures = {
+    hour0: 0, hour3: 0, hour6: 0, hour9: 0, hour12: 0, hour15: 0, hour18: 0, hour21: 0, hour24: 0
+  };
+  var hourly_time = {
+    hour0: 0, hour3: 0, hour6: 0, hour9: 0, hour12: 0, hour15: 0, hour18: 0, hour21: 0, hour24: 0
+  };
+  var hourly_icons = {
+    hour0: "", hour3: "", hour6: "", hour9: "", hour12: "", hour15: "", hour18: "", hour21: "", hour24: ""
+  };
+  var hourlyWind = {
+    hour0: "", hour3: "", hour6: "", hour9: "", hour12: "", hour15: "", hour18: "", hour21: "", hour24: ""
+  };
+  var hourlyRain = {
+    hour0: 0, hour1: 0, hour2: 0, hour3: 0, hour4: 0, hour5: 0, hour6: 0, hour7: 0, hour8: 0, hour9: 0,
+    hour10: 0, hour11: 0, hour12: 0, hour13: 0, hour14: 0, hour15: 0, hour16: 0, hour17: 0, hour18: 0,
+    hour19: 0, hour20: 0, hour21: 0, hour22: 0, hour23: 0
+  };
+  
+  var units_setting = localStorage.getItem(152);
+  
+  for (var j = 0; j <= 24 && j < hourly.time.length; j++) {
+    // Process every 3 hours for main forecast
+    if ((j % 3) === 0) {
+      var utcTimeString = hourly.time[j];
+      var utcDate = new Date(utcTimeString);
+      var offsetMinutes2 = new Date().getTimezoneOffset();
+      var localTime = new Date(utcDate.getTime() - (offsetMinutes2 * 60000));
+      var localHour = localTime.getHours();
+      hourly_time['hour' + j] = localHour;
+      
+      var tempI = hourly.temperature_2m[j];
+      if (units_setting == 1) {
+        tempI = celsiusToFahrenheit(tempI);
+      } else {
+        tempI = Math.round(tempI);
+      }
+      hourlyTemperatures['hour' + j] = Math.round(tempI);
+      
+      var windSpeedKmh = hourly.wind_speed_10m[j];
+      var windValue;
+      if (units_setting == 1) {
+        windValue = Math.round(windSpeedKmh * 0.621371);
+      } else {
+        windValue = Math.round(windSpeedKmh);
+      }
+      hourlyWind['hour' + j] = windValue + "\n";
+      
+      // Icon for this hour
+      var hourIsNight = isNightTime(localHour);
+      hourly_icons['hour' + j] = wmoCodeToSymbolCode(hourly.weather_code[j], hourIsNight);
+    }
+    
+    // Precipitation for each hour (scaled same as MET Norway processing)
+    if (j < 24) {
+      hourlyRain['hour' + j] = Math.round((hourly.precipitation[j] || 0) * 20);
+    }
+  }
+  
+  // --- 3-day forecast data extraction ---
+  var day_temps = ["", "", ""];
+  var day_icons = ["", "", ""];
+  var day_rains = ["", "", ""];
+  var day_winds = ["", "", ""];
+  
+  // Day offsets: 24h, 48h, 72h
+  var dayOffsets = [24, 48, 72];
+  
+  for (var d = 0; d < 3; d++) {
+    var idx = dayOffsets[d];
+    if (idx < hourly.temperature_2m.length) {
+      var dayTemp = hourly.temperature_2m[idx];
+      if (units == 1) {
+        dayTemp = celsiusToFahrenheit(dayTemp);
+      } else {
+        dayTemp = Math.round(dayTemp);
+      }
+      day_temps[d] = Math.round(dayTemp) + "°";
+      
+      // Icon at noon (daytime)
+      day_icons[d] = wmoCodeToSymbolCode(hourly.weather_code[idx], false);
+      
+      // Sum precipitation over 6 hours
+      var rainSum = 0;
+      for (var r = 0; r < 6 && (idx + r) < hourly.precipitation.length; r++) {
+        rainSum += (hourly.precipitation[idx + r] || 0);
+      }
+      day_rains[d] = Math.round(rainSum) + "mm";
+      
+      // Wind at that hour
+      var dayWind = Math.round(hourly.wind_speed_10m[idx]);
+      if (units == 1) {
+        dayWind = Math.round(hourly.wind_speed_10m[idx] * 0.621371);
+      }
+      day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
+    }
+  }
+  
+  // Convert hours to 12-hour format for imperial units
+  var h0 = hourly_time.hour0;
+  var h1 = hourly_time.hour3;
+  var h2 = hourly_time.hour6;
+  var h3 = hourly_time.hour9;
+  
+  if (units_setting == 1) {
+    h0 = h0 % 12; if (h0 === 0) h0 = 12;
+    h1 = h1 % 12; if (h1 === 0) h1 = 12;
+    h2 = h2 % 12; if (h2 === 0) h2 = 12;
+    h3 = h3 % 12; if (h3 === 0) h3 = 12;
+  }
+  
+  var dictionary = {
+    "KEY_TEMPERATURE": temperature,
+    "KEY_HUMIDITY": humidity,
+    "KEY_WIND_SPEED": wind,
+    "KEY_ICON": icon,
+    "KEY_TMIN": tmin,
+    "KEY_TMAX": tmax,
+    "KEY_FORECAST_TEMP1": hourlyTemperatures.hour0,
+    "KEY_FORECAST_TEMP2": hourlyTemperatures.hour3,
+    "KEY_FORECAST_TEMP3": hourlyTemperatures.hour6,
+    "KEY_FORECAST_TEMP4": hourlyTemperatures.hour9,
+    "KEY_FORECAST_TEMP5": hourlyTemperatures.hour12,
+    "KEY_FORECAST_H0": h0,
+    "KEY_FORECAST_H1": h1,
+    "KEY_FORECAST_H2": h2,
+    "KEY_FORECAST_H3": h3,
+    "KEY_FORECAST_WIND0": hourlyWind.hour0,
+    "KEY_FORECAST_WIND1": hourlyWind.hour3,
+    "KEY_FORECAST_WIND2": hourlyWind.hour6,
+    "KEY_FORECAST_WIND3": hourlyWind.hour9,
+    "KEY_FORECAST_RAIN1": hourlyRain.hour0,
+    "KEY_FORECAST_RAIN11": hourlyRain.hour1,
+    "KEY_FORECAST_RAIN12": hourlyRain.hour2,
+    "KEY_FORECAST_RAIN2": hourlyRain.hour3,
+    "KEY_FORECAST_RAIN21": hourlyRain.hour4,
+    "KEY_FORECAST_RAIN22": hourlyRain.hour5,
+    "KEY_FORECAST_RAIN3": hourlyRain.hour6,
+    "KEY_FORECAST_RAIN31": hourlyRain.hour7,
+    "KEY_FORECAST_RAIN32": hourlyRain.hour8,
+    "KEY_FORECAST_RAIN4": hourlyRain.hour9,
+    "KEY_FORECAST_RAIN41": hourlyRain.hour10,
+    "KEY_FORECAST_RAIN42": hourlyRain.hour11,
+    "KEY_FORECAST_ICON1": hourly_icons.hour3,
+    "KEY_FORECAST_ICON2": hourly_icons.hour6,
+    "KEY_FORECAST_ICON3": hourly_icons.hour9,
+    "KEY_LOCATION": "",
+    "POOLTEMP": poolTemp * 10,
+    "POOLPH": poolPH * 100,
+    "POOLORP": poolORP,
+    "KEY_DAY1_TEMP": day_temps[0],
+    "KEY_DAY1_ICON": day_icons[0],
+    "KEY_DAY1_RAIN": day_rains[0],
+    "KEY_DAY1_WIND": day_winds[0],
+    "KEY_DAY2_TEMP": day_temps[1],
+    "KEY_DAY2_ICON": day_icons[1],
+    "KEY_DAY2_RAIN": day_rains[1],
+    "KEY_DAY2_WIND": day_winds[1],
+    "KEY_DAY3_TEMP": day_temps[2],
+    "KEY_DAY3_ICON": day_icons[2],
+    "KEY_DAY3_RAIN": day_rains[2],
+    "KEY_DAY3_WIND": day_winds[2],
+  };
+  
+  Pebble.sendAppMessage(dictionary,
+    function () {
+      console.log("Open-Meteo weather info sent to Pebble successfully!");
+      prefetchNewsCache();
+    },
+    function () {
+      console.log("Error sending Open-Meteo weather info to Pebble!");
+    }
+  );
+}
+
 // Build a small, offline fake forecast so emulator tests work without network.
 function buildFakeResponse() {
   var timeseries = [];
@@ -664,17 +965,37 @@ function getForecast() {
     return;
   }
 
-  var coordinates = 'lat=' + current_Latitude + '&lon=' + current_Longitude;
-  var urlWeatherRequest = 'https://api.met.no/weatherapi/locationforecast/2.0/complete?' + coordinates;
+  // Check which API to use (default to Open-Meteo with AROME model for France)
+  var weatherApi = localStorage.getItem(180) || 'openmeteo';
+  console.log("Using weather API: " + weatherApi);
 
-  console.log(urlWeatherRequest);
+  if (weatherApi === 'openmeteo') {
+    // Open-Meteo API with Météo-France AROME model (1.5km resolution, excellent for France)
+    var urlOpenMeteo = 'https://api.open-meteo.com/v1/meteofrance?' +
+      'latitude=' + current_Latitude + '&longitude=' + current_Longitude +
+      '&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m' +
+      '&forecast_days=4&timezone=auto';
+    
+    console.log(urlOpenMeteo);
+    
+    xhrRequest(urlOpenMeteo, 'GET',
+      function (responseText) {
+        processOpenMeteoResponse(responseText);
+      }
+    );
+  } else {
+    // MET Norway API (fallback)
+    var coordinates = 'lat=' + current_Latitude + '&lon=' + current_Longitude;
+    var urlWeatherRequest = 'https://api.met.no/weatherapi/locationforecast/2.0/complete?' + coordinates;
 
-  xhrRequest(urlWeatherRequest, 'GET',
-    function (responseText) {
-      processWeatherResponse(responseText);
-    }
-  );
+    console.log(urlWeatherRequest);
 
+    xhrRequest(urlWeatherRequest, 'GET',
+      function (responseText) {
+        processWeatherResponse(responseText);
+      }
+    );
+  }
 }
 
 function locationSuccess(pos) {
@@ -810,7 +1131,7 @@ Pebble.addEventListener('appmessage',
 
 Pebble.addEventListener('showConfiguration', function () {
 
-  var url = 'http://sichroteph.github.io/Impact/';
+  var url = 'https://sichroteph.github.io/Din-Clean/config/';
   Pebble.openURL(url);
 });
 
@@ -865,6 +1186,11 @@ Pebble.addEventListener('webviewclosed', function (e) {
   var double_tap = (typeof configData['double_tap'] === 'undefined') ? true : !!configData['double_tap'];
   localStorage.setItem(174, double_tap ? 1 : 0);
   dict[174] = double_tap ? 1 : 0;
+
+  // Weather API selection (Open-Meteo or MET Norway)
+  var weather_api = configData['weather_api'] || 'openmeteo';
+  localStorage.setItem(180, weather_api);
+  console.log("Weather API set to: " + weather_api);
 
   localStorage.setItem(152, radio_units ? 1 : 0);
   localStorage.setItem(158, input_iopool_token);

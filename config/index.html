@@ -106,6 +106,23 @@
   </div>
 
   <div class='item-container'>
+    <div class='item-container-header'>Weather Provider</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Open-Meteo (AROME) - Best for France
+        <input type='radio' class='item-radio' name='radio_api' id='weather_api_openmeteo' value='openmeteo' checked>
+      </label>
+      <label class='item'>
+        MET Norway (yr.no)
+        <input type='radio' class='item-radio' name='radio_api' id='weather_api_metno' value='metno'>
+      </label>
+    </div>
+    <div class='item-container-footer'>
+      Open-Meteo uses Météo-France AROME model (1.5km resolution) - recommended for France.
+    </div>
+  </div>
+
+  <div class='item-container'>
     <div class='item-container-header'>Weather update</div>
     <div class='item-container-content'>
       <label class='item'>
@@ -173,6 +190,7 @@
     var show_weather = document.getElementById('show_weather');
     var show_news = document.getElementById('show_news');
     var double_tap = document.getElementById('double_tap');
+    var weather_api_openmeteo = document.getElementById('weather_api_openmeteo');
 
     var options = {
       'input_iopool_token': input_iopool_token.value,
@@ -185,7 +203,8 @@
       'color_left_back': color_left_back.value,
       'show_weather': show_weather.checked,
       'show_news': show_news.checked,
-      'double_tap': double_tap.checked
+      'double_tap': double_tap.checked,
+      'weather_api': weather_api_openmeteo.checked ? 'openmeteo' : 'metno'
     };
 
     // Save for next launch
@@ -200,6 +219,7 @@
     localStorage['show_weather'] = options['show_weather'];
     localStorage['show_news'] = options['show_news'];
     localStorage['double_tap'] = options['double_tap'];
+    localStorage['weather_api'] = options['weather_api'];
 
     console.log('Got options: ' + JSON.stringify(options));
     return options;
@@ -238,6 +258,8 @@
     var show_weather = document.getElementById('show_weather');
     var show_news = document.getElementById('show_news');
     var double_tap = document.getElementById('double_tap');
+    var weather_api_openmeteo = document.getElementById('weather_api_openmeteo');
+    var weather_api_metno = document.getElementById('weather_api_metno');
 
     input_iopool_token.value = localStorage['input_iopool_token'] || '';
     input_news_feed_url.value = localStorage['input_news_feed_url'] || 'https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml';
@@ -250,6 +272,10 @@
     show_weather.checked = (localStorage['show_weather'] === undefined) ? true : JSON.parse(localStorage['show_weather']);
     show_news.checked = JSON.parse(localStorage['show_news'] || 'false');
     double_tap.checked = (localStorage['double_tap'] === undefined) ? true : JSON.parse(localStorage['double_tap']);
+    // Weather API: default to openmeteo
+    var savedApi = localStorage['weather_api'] || 'openmeteo';
+    weather_api_openmeteo.checked = (savedApi === 'openmeteo');
+    weather_api_metno.checked = (savedApi === 'metno');
   })();
 </script>
 
