@@ -426,10 +426,17 @@ function processOpenMeteoResponse(responseText) {
         day_temps[d] = Math.round(dayTemp) + "°";
 
         // Icon from daily weather code (daytime)
-        day_icons[d] = wmoCodeToSymbolCode(daily.weather_code[dayIdx], false);
-
-        // Rain sum for the day
+        var wmoCode = daily.weather_code[dayIdx];
         var rainSum = daily.precipitation_sum[dayIdx] || 0;
+        
+        // Smart icon selection: if WMO code is "overcast" (3) but significant rain is expected,
+        // override to show rain icon instead of cloudy
+        if (wmoCode === 3 && rainSum > 2) {
+          day_icons[d] = 'rain';
+        } else {
+          day_icons[d] = wmoCodeToSymbolCode(wmoCode, false);
+        }
+        
         day_rains[d] = Math.round(rainSum) + "mm";
 
         // Wind max for the day
@@ -1246,7 +1253,13 @@ Pebble.addEventListener('webviewclosed', function (e) {
   dict['KEY_COLOR_LEFT_BACK_B'] = safeColorComponent(color_left_back, 6, 8);
 
   Pebble.sendAppMessage(dict, function () {
+    // Refresh weather data after configuration changes (e.g., API provider, units)
+    console.log("Configuration sent successfully, fetching weather data");
+    setTimeout(function () {
+      getWeather();
+    }, 500);
   }, function () {
+    console.log("Failed to send configuration");
   });
 
 });
