@@ -116,9 +116,9 @@ static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin, int offset_x,
   static char t1[8];
   static char t12[8];
   static char t2[8];
-  
-  // Ensure at least 2 degrees difference between min and max for distinct labels
-  // This guarantees 3 distinct vertical reference values (min, mid, max)
+
+  // Ensure at least 2 degrees difference between min and max for distinct
+  // labels This guarantees 3 distinct vertical reference values (min, mid, max)
   int display_max = ttmax;
   int display_min = ttmin;
   if (display_max - display_min < 2) {
