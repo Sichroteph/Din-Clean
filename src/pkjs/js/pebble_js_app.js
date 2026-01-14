@@ -400,42 +400,71 @@ function processOpenMeteoResponse(responseText) {
     }
   }
 
-  // --- 3-day forecast data extraction ---
+  // --- 3-day forecast data extraction using DAILY data ---
+  // Use daily forecast data for accurate day-by-day predictions
+  // Index 1 = tomorrow, 2 = day after tomorrow, 3 = J+3 (index 0 = today, skip it)
   var day_temps = ["", "", ""];
   var day_icons = ["", "", ""];
   var day_rains = ["", "", ""];
   var day_winds = ["", "", ""];
 
-  // Day offsets: 24h, 48h, 72h
-  var dayOffsets = [24, 48, 72];
+  var daily = json.daily;
+  if (daily && daily.time && daily.time.length > 3) {
+    // Use daily data (more accurate for multi-day forecast)
+    for (var d = 0; d < 3; d++) {
+      var dayIdx = d + 1; // Skip today (index 0), start from tomorrow (index 1)
+      if (dayIdx < daily.time.length) {
+        // Temperature (average of max and min)
+        var tempMax = daily.temperature_2m_max[dayIdx];
+        var tempMin = daily.temperature_2m_min[dayIdx];
+        var dayTemp = (tempMax + tempMin) / 2;
+        if (units == 1) {
+          dayTemp = celsiusToFahrenheit(dayTemp);
+        } else {
+          dayTemp = Math.round(dayTemp);
+        }
+        day_temps[d] = Math.round(dayTemp) + "°";
 
-  for (var d = 0; d < 3; d++) {
-    var idx = dayOffsets[d];
-    if (idx < hourly.temperature_2m.length) {
-      var dayTemp = hourly.temperature_2m[idx];
-      if (units == 1) {
-        dayTemp = celsiusToFahrenheit(dayTemp);
-      } else {
-        dayTemp = Math.round(dayTemp);
+        // Icon from daily weather code (daytime)
+        day_icons[d] = wmoCodeToSymbolCode(daily.weather_code[dayIdx], false);
+
+        // Rain sum for the day
+        var rainSum = daily.precipitation_sum[dayIdx] || 0;
+        day_rains[d] = Math.round(rainSum) + "mm";
+
+        // Wind max for the day
+        var dayWind = Math.round(daily.wind_speed_10m_max[dayIdx]);
+        if (units == 1) {
+          dayWind = Math.round(daily.wind_speed_10m_max[dayIdx] * 0.621371);
+        }
+        day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
       }
-      day_temps[d] = Math.round(dayTemp) + "°";
-
-      // Icon at noon (daytime)
-      day_icons[d] = wmoCodeToSymbolCode(hourly.weather_code[idx], false);
-
-      // Sum precipitation over 6 hours
-      var rainSum = 0;
-      for (var r = 0; r < 6 && (idx + r) < hourly.precipitation.length; r++) {
-        rainSum += (hourly.precipitation[idx + r] || 0);
+    }
+  } else {
+    // Fallback to hourly data if daily not available
+    var dayOffsets = [24, 48, 72];
+    for (var d = 0; d < 3; d++) {
+      var idx = dayOffsets[d];
+      if (idx < hourly.temperature_2m.length) {
+        var dayTemp = hourly.temperature_2m[idx];
+        if (units == 1) {
+          dayTemp = celsiusToFahrenheit(dayTemp);
+        } else {
+          dayTemp = Math.round(dayTemp);
+        }
+        day_temps[d] = Math.round(dayTemp) + "°";
+        day_icons[d] = wmoCodeToSymbolCode(hourly.weather_code[idx], false);
+        var rainSum = 0;
+        for (var r = 0; r < 6 && (idx + r) < hourly.precipitation.length; r++) {
+          rainSum += (hourly.precipitation[idx + r] || 0);
+        }
+        day_rains[d] = Math.round(rainSum) + "mm";
+        var dayWind = Math.round(hourly.wind_speed_10m[idx]);
+        if (units == 1) {
+          dayWind = Math.round(hourly.wind_speed_10m[idx] * 0.621371);
+        }
+        day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
       }
-      day_rains[d] = Math.round(rainSum) + "mm";
-
-      // Wind at that hour
-      var dayWind = Math.round(hourly.wind_speed_10m[idx]);
-      if (units == 1) {
-        dayWind = Math.round(hourly.wind_speed_10m[idx] * 0.621371);
-      }
-      day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
     }
   }
 
@@ -974,6 +1003,7 @@ function getForecast() {
     var urlOpenMeteo = 'https://api.open-meteo.com/v1/meteofrance?' +
       'latitude=' + current_Latitude + '&longitude=' + current_Longitude +
       '&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max' +
       '&forecast_days=4&timezone=auto';
 
     console.log(urlOpenMeteo);

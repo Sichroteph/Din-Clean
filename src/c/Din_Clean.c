@@ -593,7 +593,8 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
 
   // Build icon resource IDs for the 3-day forecast display
   // Use days_icon[0], days_icon[1], days_icon[2] for J+1, J+2, J+3 forecasts
-  // Fall back to hourly graph_icon strings only if daily icons are not available
+  // Fall back to hourly graph_icon strings only if daily icons are not
+  // available
 
   // Validate days_icon strings (3-day forecast from API)
   bool days_icon0_valid = (days_icon[0][0] != '\0' && days_icon[0][0] != ' ');
@@ -606,15 +607,18 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   bool icon3_valid = (graph_icon3[0] != '\0' && graph_icon3[0] != ' ');
 
   // Day 1 (tomorrow): prefer days_icon[0], fallback to graph_icon1
-  char *day1_icon_str = days_icon0_valid ? days_icon[0] : (icon1_valid ? graph_icon1 : NULL);
+  char *day1_icon_str =
+      days_icon0_valid ? days_icon[0] : (icon1_valid ? graph_icon1 : NULL);
   out->icon_ids[0] = build_icon(day1_icon_str);
 
   // Day 2 (after tomorrow): prefer days_icon[1], fallback to graph_icon2
-  char *day2_icon_str = days_icon1_valid ? days_icon[1] : (icon2_valid ? graph_icon2 : NULL);
+  char *day2_icon_str =
+      days_icon1_valid ? days_icon[1] : (icon2_valid ? graph_icon2 : NULL);
   out->icon_ids[1] = build_icon(day2_icon_str);
 
   // Day 3: prefer days_icon[2], fallback to graph_icon3
-  char *day3_icon_str = days_icon2_valid ? days_icon[2] : (icon3_valid ? graph_icon3 : NULL);
+  char *day3_icon_str =
+      days_icon2_valid ? days_icon[2] : (icon3_valid ? graph_icon3 : NULL);
   out->icon_ids[2] = build_icon(day3_icon_str);
 
   // Validate all icon IDs - set to 0 if invalid to prevent crashes
