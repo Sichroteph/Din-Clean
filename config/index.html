@@ -129,7 +129,8 @@
         </div>
         <label class='item'>
           <div class='item-input-wrapper'>
-            <input type='text' class='item-input' input id='input_news_feed_url' placeholder='https://rss.app/feeds/...'>
+            <input type='text' class='item-input' input id='input_news_feed_url'
+              placeholder='https://rss.app/feeds/...'>
           </div>
         </label>
         <div style='display: flex; justify-content: space-between; padding: 5px 0;'>
@@ -256,17 +257,17 @@
 <script>
 
   // Accordion functionality
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     var accordionHeaders = document.querySelectorAll('.accordion-header');
-    
-    accordionHeaders.forEach(function(header) {
-      header.addEventListener('click', function() {
+
+    accordionHeaders.forEach(function (header) {
+      header.addEventListener('click', function () {
         this.classList.toggle('active');
         var content = this.nextElementSibling;
         content.classList.toggle('active');
       });
     });
-    
+
     // Open first section by default
     if (accordionHeaders.length > 0) {
       accordionHeaders[0].click();
@@ -365,11 +366,11 @@
 
     input_iopool_token.value = localStorage['input_iopool_token'] || '';
     input_news_feed_url.value = localStorage['input_news_feed_url'] || 'https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml';
-    
+
     var isImperial = JSON.parse(localStorage['radio_units'] || 'false');
     radio_units_imperial.checked = isImperial;
     radio_units_metric.checked = !isImperial;
-    
+
     radio_refresh.checked = JSON.parse(localStorage['radio_refresh'] || 'false');
     toggle_vibration.checked = JSON.parse(localStorage['toggle_vibration'] || 'false');
     toggle_bt.checked = JSON.parse(localStorage['toggle_bt'] || 'false');
@@ -392,10 +393,10 @@
     wind_speed_unit_container.style.display = isImperial ? 'none' : 'block';
 
     // Add event listeners to toggle wind speed unit visibility
-    radio_units_imperial.addEventListener('change', function() {
+    radio_units_imperial.addEventListener('change', function () {
       wind_speed_unit_container.style.display = 'none';
     });
-    radio_units_metric.addEventListener('change', function() {
+    radio_units_metric.addEventListener('change', function () {
       wind_speed_unit_container.style.display = 'block';
     });
   })();
