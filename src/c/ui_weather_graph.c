@@ -58,6 +58,40 @@ static void draw_reference_lines(GContext *ctx, int offset_x, int offset_y) {
   }
 }
 
+// Helper: Draw vertical time indicator bars - provides visual time reference
+static void draw_time_indicator_bars(GContext *ctx, int offset_x,
+                                     int offset_y) {
+  // Graph dimensions
+  const int graph_top = 69;     // Top of graph area (with decallage_y applied)
+  const int graph_bottom = 114; // Bottom of graph area
+
+  // X positions for the three vertical bars (aligned with temp curve points)
+  const int bar_x1 = 67;  // Between temps[0] and temps[1]
+  const int bar_x2 = 97;  // Between temps[1] and temps[2]
+  const int bar_x3 = 127; // Between temps[2] and temps[3]
+
+  graphics_context_set_stroke_width(ctx, 1);
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+
+  // Draw dotted vertical lines (pattern: 2 pixels on, 3 pixels off)
+  for (int y = graph_top; y <= graph_bottom; y += 5) {
+    int y_end = y + 2;
+    if (y_end > graph_bottom) {
+      y_end = graph_bottom;
+    }
+
+    // Bar 1
+    graphics_draw_line(ctx, GPoint(bar_x1 + offset_x, y + offset_y),
+                       GPoint(bar_x1 + offset_x, y_end + offset_y));
+    // Bar 2
+    graphics_draw_line(ctx, GPoint(bar_x2 + offset_x, y + offset_y),
+                       GPoint(bar_x2 + offset_x, y_end + offset_y));
+    // Bar 3
+    graphics_draw_line(ctx, GPoint(bar_x3 + offset_x, y + offset_y),
+                       GPoint(bar_x3 + offset_x, y_end + offset_y));
+  }
+}
+
 // Helper: Draw rain bars - reduces main function stack usage
 static void draw_rain_bars(GContext *ctx, const WeatherGraphData *d,
                            int offset_x, int offset_y) {
@@ -140,37 +174,37 @@ static void draw_hour_wind_labels(GContext *ctx, const WeatherGraphData *d,
 
   graphics_context_set_text_color(ctx, GColorWhite);
   graphics_draw_text(
-      ctx, h0, statusfontdate, GRect(11 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h0, statusfontdate, GRect(5 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   graphics_draw_text(
-      ctx, h1, statusfontdate, GRect(42 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h1, statusfontdate, GRect(36 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   graphics_draw_text(
-      ctx, h2, statusfontdate, GRect(73 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h2, statusfontdate, GRect(67 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
   graphics_draw_text(
-      ctx, h3, statusfontdate, GRect(102 + offset_x, 116 + offset_y, 60, 40),
+      ctx, h3, statusfontdate, GRect(98 + offset_x, 116 + offset_y, 60, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
   // Draw "W." label to indicate the row shows wind values
   graphics_draw_text(
-      ctx, "W.", statusfontsmall, GRect(3, 144 + offset_y, 20, 40),
+      ctx, "W.", statusfontsmall, GRect(0, 144 + offset_y, 20, 40),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 
   graphics_draw_text(ctx, d->winds[0], statusfontsmall,
-                     GRect(11 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(4 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
   graphics_draw_text(ctx, d->winds[1], statusfontsmall,
-                     GRect(42 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(35 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
   graphics_draw_text(ctx, d->winds[2], statusfontsmall,
-                     GRect(73 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(66 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
   graphics_draw_text(ctx, d->winds[3], statusfontsmall,
-                     GRect(102 + offset_x, 144 + offset_y, 60, 40),
+                     GRect(97 + offset_x, 144 + offset_y, 60, 40),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter,
                      NULL);
 }
@@ -200,6 +234,9 @@ void ui_draw_weather_graph(GContext *ctx, const WeatherGraphData *d) {
 
   // Draw horizontal reference lines (dotted) at 25%, 50%, 75%
   draw_reference_lines(ctx, offset_x, offset_y);
+
+  // Draw vertical time indicator bars
+  draw_time_indicator_bars(ctx, offset_x, offset_y);
 
   // Draw rain bars using helper function (reduces stack)
   draw_rain_bars(ctx, d, offset_x, offset_y);
