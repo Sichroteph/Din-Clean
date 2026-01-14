@@ -116,11 +116,22 @@ static void draw_temp_labels(GContext *ctx, int ttmax, int ttmin, int offset_x,
   static char t1[8];
   static char t12[8];
   static char t2[8];
-  int tmoy = (int)((ttmax + ttmin) / 2);
+  
+  // Ensure at least 2 degrees difference between min and max for distinct labels
+  // This guarantees 3 distinct vertical reference values (min, mid, max)
+  int display_max = ttmax;
+  int display_min = ttmin;
+  if (display_max - display_min < 2) {
+    // Expand range symmetrically to ensure 3 distinct values
+    int center = (ttmax + ttmin) / 2;
+    display_max = center + 1;
+    display_min = center - 1;
+  }
+  int tmoy = (display_max + display_min) / 2;
 
-  snprintf(t1, sizeof(t1), "%i", ttmax);
+  snprintf(t1, sizeof(t1), "%i", display_max);
   snprintf(t12, sizeof(t12), "%i", tmoy);
-  snprintf(t2, sizeof(t2), "%i", ttmin);
+  snprintf(t2, sizeof(t2), "%i", display_min);
 
   graphics_context_set_text_color(ctx, GColorWhite);
 
