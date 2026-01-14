@@ -220,7 +220,7 @@ var xhrRequest = function (url, type, callback) {
 // Maps to MET Norway icon names for compatibility with existing build_icon() in C
 function wmoCodeToSymbolCode(wmoCode, isNight) {
   var dayNight = isNight ? '_night' : '_day';
-  
+
   switch (wmoCode) {
     case 0:  // Clear sky
       return 'clearsky' + dayNight;
@@ -291,22 +291,22 @@ function isNightTime(hour) {
 // Process Open-Meteo API response and convert to the same dictionary format as MET Norway
 function processOpenMeteoResponse(responseText) {
   var json = JSON.parse(responseText);
-  
+
   var hourly = json.hourly;
   var units = localStorage.getItem(152);
-  
+
   // Current conditions (first hour)
   var currentTemp = hourly.temperature_2m[0];
   var currentHumidity = Math.round(hourly.relative_humidity_2m[0]);
   var currentWindSpeed = hourly.wind_speed_10m[0]; // Already in km/h from API
   var currentWmoCode = hourly.weather_code[0];
-  
+
   // Get current hour to determine day/night for icon
   var now = new Date();
   var currentHour = now.getHours();
   var isNight = isNightTime(currentHour);
   var icon = wmoCodeToSymbolCode(currentWmoCode, isNight);
-  
+
   // Calculate min/max for next 24 hours
   var tmin = 1000;
   var tmax = -1000;
@@ -315,10 +315,10 @@ function processOpenMeteoResponse(responseText) {
     if (temp < tmin) tmin = temp;
     if (temp > tmax) tmax = temp;
   }
-  
+
   var rTemperature = currentTemp;
   var humidity = currentHumidity;
-  
+
   if (units == 1) {
     rTemperature = celsiusToFahrenheit(rTemperature);
     tmin = celsiusToFahrenheit(tmin);
@@ -328,11 +328,11 @@ function processOpenMeteoResponse(responseText) {
     tmin = Math.round(tmin);
     tmax = Math.round(tmax);
   }
-  
+
   var temperature = Math.round(rTemperature);
   tmax = Math.round(tmax);
   tmin = Math.round(tmin);
-  
+
   var wind;
   if (units == 1) {
     // Convert km/h to mph
@@ -340,7 +340,7 @@ function processOpenMeteoResponse(responseText) {
   } else {
     wind = Math.round(currentWindSpeed);
   }
-  
+
   // Hourly data extraction
   var hourlyTemperatures = {
     hour0: 0, hour3: 0, hour6: 0, hour9: 0, hour12: 0, hour15: 0, hour18: 0, hour21: 0, hour24: 0
@@ -359,9 +359,9 @@ function processOpenMeteoResponse(responseText) {
     hour10: 0, hour11: 0, hour12: 0, hour13: 0, hour14: 0, hour15: 0, hour16: 0, hour17: 0, hour18: 0,
     hour19: 0, hour20: 0, hour21: 0, hour22: 0, hour23: 0
   };
-  
+
   var units_setting = localStorage.getItem(152);
-  
+
   for (var j = 0; j <= 24 && j < hourly.time.length; j++) {
     // Process every 3 hours for main forecast
     if ((j % 3) === 0) {
@@ -371,7 +371,7 @@ function processOpenMeteoResponse(responseText) {
       var localTime = new Date(utcDate.getTime() - (offsetMinutes2 * 60000));
       var localHour = localTime.getHours();
       hourly_time['hour' + j] = localHour;
-      
+
       var tempI = hourly.temperature_2m[j];
       if (units_setting == 1) {
         tempI = celsiusToFahrenheit(tempI);
@@ -379,7 +379,7 @@ function processOpenMeteoResponse(responseText) {
         tempI = Math.round(tempI);
       }
       hourlyTemperatures['hour' + j] = Math.round(tempI);
-      
+
       var windSpeedKmh = hourly.wind_speed_10m[j];
       var windValue;
       if (units_setting == 1) {
@@ -388,27 +388,27 @@ function processOpenMeteoResponse(responseText) {
         windValue = Math.round(windSpeedKmh);
       }
       hourlyWind['hour' + j] = windValue + "\n";
-      
+
       // Icon for this hour
       var hourIsNight = isNightTime(localHour);
       hourly_icons['hour' + j] = wmoCodeToSymbolCode(hourly.weather_code[j], hourIsNight);
     }
-    
+
     // Precipitation for each hour (scaled same as MET Norway processing)
     if (j < 24) {
       hourlyRain['hour' + j] = Math.round((hourly.precipitation[j] || 0) * 20);
     }
   }
-  
+
   // --- 3-day forecast data extraction ---
   var day_temps = ["", "", ""];
   var day_icons = ["", "", ""];
   var day_rains = ["", "", ""];
   var day_winds = ["", "", ""];
-  
+
   // Day offsets: 24h, 48h, 72h
   var dayOffsets = [24, 48, 72];
-  
+
   for (var d = 0; d < 3; d++) {
     var idx = dayOffsets[d];
     if (idx < hourly.temperature_2m.length) {
@@ -419,17 +419,17 @@ function processOpenMeteoResponse(responseText) {
         dayTemp = Math.round(dayTemp);
       }
       day_temps[d] = Math.round(dayTemp) + "°";
-      
+
       // Icon at noon (daytime)
       day_icons[d] = wmoCodeToSymbolCode(hourly.weather_code[idx], false);
-      
+
       // Sum precipitation over 6 hours
       var rainSum = 0;
       for (var r = 0; r < 6 && (idx + r) < hourly.precipitation.length; r++) {
         rainSum += (hourly.precipitation[idx + r] || 0);
       }
       day_rains[d] = Math.round(rainSum) + "mm";
-      
+
       // Wind at that hour
       var dayWind = Math.round(hourly.wind_speed_10m[idx]);
       if (units == 1) {
@@ -438,20 +438,20 @@ function processOpenMeteoResponse(responseText) {
       day_winds[d] = dayWind + (units == 1 ? "mph" : "km/h");
     }
   }
-  
+
   // Convert hours to 12-hour format for imperial units
   var h0 = hourly_time.hour0;
   var h1 = hourly_time.hour3;
   var h2 = hourly_time.hour6;
   var h3 = hourly_time.hour9;
-  
+
   if (units_setting == 1) {
     h0 = h0 % 12; if (h0 === 0) h0 = 12;
     h1 = h1 % 12; if (h1 === 0) h1 = 12;
     h2 = h2 % 12; if (h2 === 0) h2 = 12;
     h3 = h3 % 12; if (h3 === 0) h3 = 12;
   }
-  
+
   var dictionary = {
     "KEY_TEMPERATURE": temperature,
     "KEY_HUMIDITY": humidity,
@@ -504,7 +504,7 @@ function processOpenMeteoResponse(responseText) {
     "KEY_DAY3_RAIN": day_rains[2],
     "KEY_DAY3_WIND": day_winds[2],
   };
-  
+
   Pebble.sendAppMessage(dictionary,
     function () {
       console.log("Open-Meteo weather info sent to Pebble successfully!");
@@ -975,9 +975,9 @@ function getForecast() {
       'latitude=' + current_Latitude + '&longitude=' + current_Longitude +
       '&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m' +
       '&forecast_days=4&timezone=auto';
-    
+
     console.log(urlOpenMeteo);
-    
+
     xhrRequest(urlOpenMeteo, 'GET',
       function (responseText) {
         processOpenMeteoResponse(responseText);
@@ -1131,7 +1131,7 @@ Pebble.addEventListener('appmessage',
 
 Pebble.addEventListener('showConfiguration', function () {
 
-  var url = 'https://sichroteph.github.io/Din-Clean/config/';
+  var url = 'https://sichroteph.github.io/Din-Clean/';
   Pebble.openURL(url);
 });
 
