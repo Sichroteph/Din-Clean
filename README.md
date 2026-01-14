@@ -32,7 +32,10 @@
 - Visual humidity indicators (water drops)
 - Visual dryness indicators (cactus icons)
 - Wind speed with corner-based visual indicators
-- Data via **MET Norway API** (accurate and free — **no API key required!**)
+- **Dual weather API support:**
+  - **Open-Meteo with Météo-France AROME model** (default) — 1.5km resolution, optimized for France
+  - **MET Norway API** (fallback) — Worldwide coverage
+- **No API key required** for either provider!
 
 ### Secondary Panels (Shake to Access)
 Din Clean offers **two secondary panels** accessible by shaking your wrist:
@@ -189,30 +192,59 @@ When these conditions are detected, a visual indicator appears on the watchface 
 
 ## No API Key Required!
 
-Unlike many weather watchfaces, **Din Clean uses the MET Norway API**, which is:
-- **Completely free** — No subscription needed
-- **No API key required** — Works out of the box
-- **Highly accurate** — Powered by the Norwegian Meteorological Institute
-- **Worldwide coverage** — Works anywhere in the world
+**Din Clean supports two weather providers**, both completely free:
 
-Just install, allow location access, and enjoy!
+### 1. Open-Meteo (Default)
+- **Météo-France AROME model** — Ultra-high resolution (1.5km)
+- **Optimized for France** — Best accuracy for French locations
+- **No API key required** — Works out of the box
+- **WMO weather codes** — Standardized international weather data
+
+### 2. MET Norway (Fallback)
+- **Worldwide coverage** — Works anywhere on Earth
+- **Norwegian Meteorological Institute** — Trusted data source
+- **No API key required** — Completely free
+- **Highly accurate** — Used by many professional applications
+
+You can switch between providers in the settings page. Open-Meteo is recommended for locations in France for the best accuracy, while MET Norway provides excellent coverage everywhere else.
 
 ---
 
 ## Configuration Options
 
-Access the settings page through the Pebble app to customize:
+Access the settings page through the Pebble app to customize your experience. The configuration page features **collapsible sections** for easy navigation:
 
+### Weather Settings
+| Option | Description |
+|--------|-------------|
+| **Weather Provider** | Choose between Open-Meteo (AROME) or MET Norway |
+| **Weather Update** | Set update interval: 30 minutes or 60 minutes |
+| **Show Weather Graph** | Enable/disable the weather forecast panel |
+
+### News Feed Settings
+| Option | Description |
+|--------|-------------|
+| **Show News Feed** | Enable/disable the RSVP news reader |
+| **RSS Feed URL** | Custom URL for news source with quick presets (Breaking News, Gaming, Finance) |
+
+### Display & Units
 | Option | Description |
 |--------|-------------|
 | **Units** | Switch between Metric (°C, km/h) and Imperial (°F, mph) |
+
+### Behavior & Alerts
+| Option | Description |
+|--------|-------------|
 | **Bluetooth vibration** | Vibrate when Bluetooth connection is lost/restored |
 | **Hourly vibration** | Vibrate every hour (10am–10pm, Pebble Time only) |
-| **Show Weather Graph** | Enable/disable the weather forecast panel |
-| **Show News Feed** | Enable/disable the RSVP news reader |
-| **RSS Feed URL** | Custom URL for news source (with presets) |
-| **Require double tap** | Prevent accidental panel activation |
-| **IOPool API Token** | Connect your pool monitoring device |
+| **Require double tap** | Prevent accidental panel activation (enabled by default) |
+
+### IOPool Integration (Optional)
+| Option | Description |
+|--------|-------------|
+| **IOPool API Token** | Connect your pool monitoring device for water quality alerts |
+
+**Settings Page:** [https://sichroteph.github.io/Din-Clean/](https://sichroteph.github.io/Din-Clean/)
 
 ---
 
