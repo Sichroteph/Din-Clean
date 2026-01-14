@@ -591,24 +591,31 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   snprintf(out->winds[2], sizeof(out->winds[2]), "%s", graph_wind2);
   snprintf(out->winds[3], sizeof(out->winds[3]), "%s", graph_wind3);
 
-  // Build icon resource IDs with validation
-  // Safer null checks - avoid logging potentially corrupted strings
+  // Build icon resource IDs for the 3-day forecast display
+  // Use days_icon[0], days_icon[1], days_icon[2] for J+1, J+2, J+3 forecasts
+  // Fall back to hourly graph_icon strings only if daily icons are not available
 
-  // Validate graph_icon strings before use - protect against memory corruption
+  // Validate days_icon strings (3-day forecast from API)
+  bool days_icon0_valid = (days_icon[0][0] != '\0' && days_icon[0][0] != ' ');
+  bool days_icon1_valid = (days_icon[1][0] != '\0' && days_icon[1][0] != ' ');
+  bool days_icon2_valid = (days_icon[2][0] != '\0' && days_icon[2][0] != ' ');
+
+  // Validate hourly graph_icon strings (fallback)
   bool icon1_valid = (graph_icon1[0] != '\0' && graph_icon1[0] != ' ');
   bool icon2_valid = (graph_icon2[0] != '\0' && graph_icon2[0] != ' ');
   bool icon3_valid = (graph_icon3[0] != '\0' && graph_icon3[0] != ' ');
 
-  out->icon_ids[0] = build_icon(icon1_valid ? graph_icon1 : NULL);
+  // Day 1 (tomorrow): prefer days_icon[0], fallback to graph_icon1
+  char *day1_icon_str = days_icon0_valid ? days_icon[0] : (icon1_valid ? graph_icon1 : NULL);
+  out->icon_ids[0] = build_icon(day1_icon_str);
 
-  // Prefer the daily forecast string for tomorrow; fall back to hourly icon.
-  // Add extra validation for days_icon array access
-  bool days_icon1_valid = (days_icon[1][0] != '\0' && days_icon[1][0] != ' ');
-  char *tomorrow_icon_str =
-      days_icon1_valid ? days_icon[1] : (icon2_valid ? graph_icon2 : NULL);
-  out->icon_ids[1] = build_icon(tomorrow_icon_str);
+  // Day 2 (after tomorrow): prefer days_icon[1], fallback to graph_icon2
+  char *day2_icon_str = days_icon1_valid ? days_icon[1] : (icon2_valid ? graph_icon2 : NULL);
+  out->icon_ids[1] = build_icon(day2_icon_str);
 
-  out->icon_ids[2] = build_icon(icon3_valid ? graph_icon3 : NULL);
+  // Day 3: prefer days_icon[2], fallback to graph_icon3
+  char *day3_icon_str = days_icon2_valid ? days_icon[2] : (icon3_valid ? graph_icon3 : NULL);
+  out->icon_ids[2] = build_icon(day3_icon_str);
 
   // Validate all icon IDs - set to 0 if invalid to prevent crashes
   for (int i = 0; i < 3; i++) {
