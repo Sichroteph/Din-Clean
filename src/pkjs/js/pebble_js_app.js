@@ -365,11 +365,10 @@ function processOpenMeteoResponse(responseText) {
   for (var j = 0; j <= 24 && j < hourly.time.length; j++) {
     // Process every 3 hours for main forecast
     if ((j % 3) === 0) {
-      var utcTimeString = hourly.time[j];
-      var utcDate = new Date(utcTimeString);
-      var offsetMinutes2 = new Date().getTimezoneOffset();
-      var localTime = new Date(utcDate.getTime() - (offsetMinutes2 * 60000));
-      var localHour = localTime.getHours();
+      // With timezone=auto, hourly.time[j] is already in local time (e.g., "2026-01-14T18:00")
+      // Extract hour directly from ISO string to avoid timezone conversion issues
+      var timeString = hourly.time[j];
+      var localHour = parseInt(timeString.substring(11, 13), 10);
       hourly_time['hour' + j] = localHour;
 
       var tempI = hourly.temperature_2m[j];
@@ -428,7 +427,7 @@ function processOpenMeteoResponse(responseText) {
         // Icon from daily weather code (daytime)
         var wmoCode = daily.weather_code[dayIdx];
         var rainSum = daily.precipitation_sum[dayIdx] || 0;
-        
+
         // Smart icon selection: if WMO code is "overcast" (3) but significant rain is expected,
         // override to show rain icon instead of cloudy
         if (wmoCode === 3 && rainSum > 2) {
@@ -436,7 +435,7 @@ function processOpenMeteoResponse(responseText) {
         } else {
           day_icons[d] = wmoCodeToSymbolCode(wmoCode, false);
         }
-        
+
         day_rains[d] = Math.round(rainSum) + "mm";
 
         // Wind max for the day
@@ -475,11 +474,13 @@ function processOpenMeteoResponse(responseText) {
     }
   }
 
-  // Convert hours to 12-hour format for imperial units
-  var h0 = hourly_time.hour0;
-  var h1 = hourly_time.hour3;
-  var h2 = hourly_time.hour6;
-  var h3 = hourly_time.hour9;
+  // Calculate hours from current time (simpler and more reliable than API extraction)
+  var now = new Date();
+  var currentHour = now.getHours();
+  var h0 = currentHour;
+  var h1 = (currentHour + 3) % 24;
+  var h2 = (currentHour + 6) % 24;
+  var h3 = (currentHour + 9) % 24;
 
   if (units_setting == 1) {
     h0 = h0 % 12; if (h0 === 0) h0 = 12;
@@ -812,11 +813,13 @@ function processWeatherResponse(responseText) {
   console.log("Hours being sent: H0=" + hourly_time.hour0 + " H1=" + hourly_time.hour3 + " H2=" + hourly_time.hour6 + " H3=" + hourly_time.hour9);
   console.log("Temps being sent: T1=" + hourlyTemperatures.hour0 + " T2=" + hourlyTemperatures.hour3 + " T3=" + hourlyTemperatures.hour6 + " T4=" + hourlyTemperatures.hour9 + " T5=" + hourlyTemperatures.hour12);
 
-  // Convert hours to 12-hour format for imperial units
-  var h0 = hourly_time.hour0;
-  var h1 = hourly_time.hour3;
-  var h2 = hourly_time.hour6;
-  var h3 = hourly_time.hour9;
+  // Calculate hours from current time (simpler and more reliable than API extraction)
+  var now = new Date();
+  var currentHour = now.getHours();
+  var h0 = currentHour;
+  var h1 = (currentHour + 3) % 24;
+  var h2 = (currentHour + 6) % 24;
+  var h3 = (currentHour + 9) % 24;
 
   if (units_setting == 1) {
     h0 = h0 % 12;
