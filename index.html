@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Impact</title>
+  <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
+  <script src='js/slate.min.js'></script>
+  <style>
+    .title {
+      padding: 15px 10px;
+      text-transform: uppercase;
+      font-family: 'PT Sans', sans-serif;
+      font-size: 1.2em;
+      font-weight: 500;
+      color: #888888;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class='title'>Settings</h1>
+
+  <div class='item-container' style='background-color: #2a5298; border-radius: 8px; margin: 10px; padding: 15px;'>
+    <div style='color: #ffffff; text-align: center;'>
+      <strong style='font-size: 1.1em;'>💡 Tip: Secondary Panels</strong>
+      <p style='margin: 10px 0 0 0; font-size: 0.95em;'>
+        To display secondary panels, <strong>shake your wrist</strong> (if "Require double tap" is enabled,
+        shake <strong>twice</strong> with a <strong>2-second interval</strong> between shakes).<br>
+        Double tap prevents accidental activations.
+      </p>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>Units</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Imperial
+        <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='a'>
+      </label>
+      <label class='item'>
+        Metric
+        <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='b' checked>
+      </label>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>Others</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Bluetooth disconnection vibration
+        <input type='checkbox' class='item-toggle' input id='toggle_bt'>
+      </label>
+
+      <label class='item'>
+        Hourly vibrations
+        <input type='checkbox' class='item-toggle' input id='toggle_vibration'>
+      </label>
+      <div class='item-container-footer'>
+        Starts at 10am - Ends at 10pm
+      </div>
+      <div class='item-container-footer'>
+        Only applies to Pebble Time.
+      </div>
+      <!-- Option graphique météo -->
+      <label class='item'>
+        Show weather graph
+        <input type='checkbox' class='item-toggle' input id='show_weather'>
+      </label>
+      <div class='item-container-footer'>
+        Enabled by default. Uncheck to hide the weather graph.
+      </div>
+      <!-- Option news feed -->
+      <label class='item'>
+        Show News Feed
+        <input type='checkbox' class='item-toggle' input id='show_news'>
+      </label>
+      <div class='item-container-footer'>
+        Custom RSS Feed URL
+      </div>
+      <label class='item'>
+        <div class='item-input-wrapper'>
+          <input type='text' class='item-input' input id='input_news_feed_url' placeholder='https://rss.app/feeds/...'>
+        </div>
+      </label>
+      <div style='display: flex; justify-content: space-between; padding: 5px 0;'>
+        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
+          onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml'">Breaking
+          News</button>
+        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
+          onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tKIURCiSPtJYc7vm.xml'">Gaming</button>
+        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
+          onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tIUyt6r7b3hyDAxs.xml'">Finance</button>
+      </div>
+      <!-- Option double tap -->
+      <label class='item'>
+        Require double tap for panels
+        <input type='checkbox' class='item-toggle' input id='double_tap' checked>
+      </label>
+      <div class='item-container-footer'>
+        When enabled, shake twice to switch panels. When disabled, a single shake is enough.
+      </div>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>Weather Provider</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Open-Meteo (AROME) - Best for France
+        <input type='radio' class='item-radio' name='radio_api' id='weather_api_openmeteo' value='openmeteo' checked>
+      </label>
+      <label class='item'>
+        MET Norway (yr.no)
+        <input type='radio' class='item-radio' name='radio_api' id='weather_api_metno' value='metno'>
+      </label>
+    </div>
+    <div class='item-container-footer'>
+      Open-Meteo uses Météo-France AROME model (1.5km resolution) - recommended for France.
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>Weather update</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        30 mn
+        <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='a'>
+      </label>
+      <label class='item'>
+        60 mn
+        <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='b' checked>
+      </label>
+    </div>
+  </div>
+
+  <div class='item-container' style="display:none;">
+    <div class='item-container-header'>Background color</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Temperatures - Background color
+        <input type='text' class='item-color item-color-normal' input id='color_left_back' value='0x000000'>
+      </label>
+      <label class='item'>
+        Hours - Background color
+        <input type='text' class='item-color item-color-normal' input id='color_right_back' value='0x000000'>
+      </label>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>iopool API (Option)</div>
+    <div class='item-container-content'>
+      Your io-pool token :
+      <label class='item'>
+        <div class='item-input-wrapper'>
+          <input type='text' class='item-input' input id='input_iopool_token' placeholder='Input field'>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='button-container'>
+      <input id='submit_button' type='button' class='item-button' value='SUBMIT'>
+    </div>
+  </div>
+
+  <div class='item-container-footer'>
+    If you REALLY like this app <br>
+    you can give me a little something on Paypal <a href='https://paypal.me/ChrJeannette'>here</a>. <br>
+    - Otherwise just enjoy it, it's free !<br><br><br>
+  </div>
+
+</body>
+
+<script>
+
+  function getConfigData() {
+    var input_iopool_token = document.getElementById('input_iopool_token');
+    var input_news_feed_url = document.getElementById('input_news_feed_url');
+    var radio_units = document.getElementById('radio_units');
+    var radio_refresh = document.getElementById('radio_refresh');
+    var toggle_vibration = document.getElementById('toggle_vibration');
+    var toggle_bt = document.getElementById('toggle_bt');
+    var color_right_back = document.getElementById('color_right_back');
+    var color_left_back = document.getElementById('color_left_back');
+    var show_weather = document.getElementById('show_weather');
+    var show_news = document.getElementById('show_news');
+    var double_tap = document.getElementById('double_tap');
+    var weather_api_openmeteo = document.getElementById('weather_api_openmeteo');
+
+    var options = {
+      'input_iopool_token': input_iopool_token.value,
+      'input_news_feed_url': input_news_feed_url.value,
+      'radio_units': radio_units.checked,
+      'radio_refresh': radio_refresh.checked,
+      'toggle_vibration': toggle_vibration.checked,
+      'toggle_bt': toggle_bt.checked,
+      'color_right_back': color_right_back.value,
+      'color_left_back': color_left_back.value,
+      'show_weather': show_weather.checked,
+      'show_news': show_news.checked,
+      'double_tap': double_tap.checked,
+      'weather_api': weather_api_openmeteo.checked ? 'openmeteo' : 'metno'
+    };
+
+    // Save for next launch
+    localStorage['input_iopool_token'] = options['input_iopool_token'];
+    localStorage['input_news_feed_url'] = options['input_news_feed_url'];
+    localStorage['radio_units'] = options['radio_units'];
+    localStorage['radio_refresh'] = options['radio_refresh'];
+    localStorage['toggle_vibration'] = options['toggle_vibration'];
+    localStorage['toggle_bt'] = options['toggle_bt'];
+    localStorage['color_right_back'] = options['color_right_back'];
+    localStorage['color_left_back'] = options['color_left_back'];
+    localStorage['show_weather'] = options['show_weather'];
+    localStorage['show_news'] = options['show_news'];
+    localStorage['double_tap'] = options['double_tap'];
+    localStorage['weather_api'] = options['weather_api'];
+
+    console.log('Got options: ' + JSON.stringify(options));
+    return options;
+  }
+
+  function getQueryParam(variable, defaultValue) {
+    var query = location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (pair[0] === variable) {
+        return decodeURIComponent(pair[1]);
+      }
+    }
+    return defaultValue || false;
+  }
+
+  var submitButton = document.getElementById('submit_button');
+  submitButton.addEventListener('click', function () {
+    console.log('Submit');
+
+    // Set the return URL depending on the runtime environment
+    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
+  });
+
+  (function () {
+    var input_iopool_token = document.getElementById('input_iopool_token');
+    var input_news_feed_url = document.getElementById('input_news_feed_url');
+    var radio_units = document.getElementById('radio_units');
+    var radio_refresh = document.getElementById('radio_refresh');
+    var toggle_vibration = document.getElementById('toggle_vibration');
+    var toggle_bt = document.getElementById('toggle_bt');
+    var color_right_back = document.getElementById('color_right_back');
+    var color_left_back = document.getElementById('color_left_back');
+    var show_weather = document.getElementById('show_weather');
+    var show_news = document.getElementById('show_news');
+    var double_tap = document.getElementById('double_tap');
+    var weather_api_openmeteo = document.getElementById('weather_api_openmeteo');
+    var weather_api_metno = document.getElementById('weather_api_metno');
+
+    input_iopool_token.value = localStorage['input_iopool_token'] || '';
+    input_news_feed_url.value = localStorage['input_news_feed_url'] || 'https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml';
+    radio_units.checked = JSON.parse(localStorage['radio_units'] || 'false');
+    radio_refresh.checked = JSON.parse(localStorage['radio_refresh'] || 'false');
+    toggle_vibration.checked = JSON.parse(localStorage['toggle_vibration'] || 'false');
+    toggle_bt.checked = JSON.parse(localStorage['toggle_bt'] || 'false');
+    color_right_back.value = localStorage['color_right_back'] || '0x000000';
+    color_left_back.value = localStorage['color_left_back'] || '0x000000';
+    show_weather.checked = (localStorage['show_weather'] === undefined) ? true : JSON.parse(localStorage['show_weather']);
+    show_news.checked = JSON.parse(localStorage['show_news'] || 'false');
+    double_tap.checked = (localStorage['double_tap'] === undefined) ? true : JSON.parse(localStorage['double_tap']);
+    // Weather API: default to openmeteo
+    var savedApi = localStorage['weather_api'] || 'openmeteo';
+    weather_api_openmeteo.checked = (savedApi === 'openmeteo');
+    weather_api_metno.checked = (savedApi === 'metno');
+  })();
+</script>
+
+</html>
