@@ -342,6 +342,11 @@ function processOpenMeteoResponse(responseText) {
   }
 
   // Hourly data extraction
+  // Calculate offset to start from current hour (API returns data from midnight)
+  var now = new Date();
+  var currentHour = now.getHours();
+  var hourOffset = currentHour; // Start from current hour in API data
+
   var hourlyTemperatures = {
     hour0: 0, hour3: 0, hour6: 0, hour9: 0, hour12: 0, hour15: 0, hour18: 0, hour21: 0, hour24: 0
   };
@@ -362,16 +367,18 @@ function processOpenMeteoResponse(responseText) {
 
   var units_setting = localStorage.getItem(152);
 
-  for (var j = 0; j <= 24 && j < hourly.time.length; j++) {
+  // Extract hourly data starting from current hour
+  for (var j = 0; j <= 24; j++) {
+    var apiIndex = hourOffset + j; // Index in API data (current hour + offset)
+    if (apiIndex >= hourly.time.length) break;
+
     // Process every 3 hours for main forecast
     if ((j % 3) === 0) {
-      // With timezone=auto, hourly.time[j] is already in local time (e.g., "2026-01-14T18:00")
-      // Extract hour directly from ISO string to avoid timezone conversion issues
-      var timeString = hourly.time[j];
-      var localHour = parseInt(timeString.substring(11, 13), 10);
+      // Calculate local hour from current time
+      var localHour = (currentHour + j) % 24;
       hourly_time['hour' + j] = localHour;
 
-      var tempI = hourly.temperature_2m[j];
+      var tempI = hourly.temperature_2m[apiIndex];
       if (units_setting == 1) {
         tempI = celsiusToFahrenheit(tempI);
       } else {
@@ -379,7 +386,7 @@ function processOpenMeteoResponse(responseText) {
       }
       hourlyTemperatures['hour' + j] = Math.round(tempI);
 
-      var windSpeedKmh = hourly.wind_speed_10m[j];
+      var windSpeedKmh = hourly.wind_speed_10m[apiIndex];
       var windValue;
       if (units_setting == 1) {
         windValue = Math.round(windSpeedKmh * 0.621371);
@@ -390,12 +397,12 @@ function processOpenMeteoResponse(responseText) {
 
       // Icon for this hour
       var hourIsNight = isNightTime(localHour);
-      hourly_icons['hour' + j] = wmoCodeToSymbolCode(hourly.weather_code[j], hourIsNight);
+      hourly_icons['hour' + j] = wmoCodeToSymbolCode(hourly.weather_code[apiIndex], hourIsNight);
     }
 
     // Precipitation for each hour (scaled same as MET Norway processing)
     if (j < 24) {
-      hourlyRain['hour' + j] = Math.round((hourly.precipitation[j] || 0) * 20);
+      hourlyRain['hour' + j] = Math.round((hourly.precipitation[apiIndex] || 0) * 20);
     }
   }
 
