@@ -15,6 +15,42 @@
       color: #888888;
       text-align: center;
     }
+
+    .accordion-header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 15px;
+      cursor: pointer;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 1.1em;
+      font-weight: 500;
+      border-radius: 5px;
+      margin: 10px 0 0 0;
+      width: 100%;
+      transition: background-color 0.3s;
+      font-family: 'PT Sans', sans-serif;
+    }
+
+    .accordion-header:hover {
+      background-color: #357abd;
+    }
+
+    .accordion-header.active {
+      background-color: #2a5298;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .accordion-content.active {
+      max-height: 2000px;
+      transition: max-height 0.5s ease-in;
+    }
   </style>
 </head>
 
@@ -32,133 +68,160 @@
     </div>
   </div>
 
-  <div class='item-container'>
-    <div class='item-container-header'>Units</div>
-    <div class='item-container-content'>
-      <label class='item'>
-        Imperial
-        <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='a'>
-      </label>
-      <label class='item'>
-        Metric
-        <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='b' checked>
-      </label>
+  <!-- Section Météo -->
+  <button class='accordion-header'>Weather</button>
+  <div class='accordion-content'>
+    <div class='item-container'>
+      <div class='item-container-header'>Weather Provider</div>
+      <div class='item-container-content'>
+        <label class='item'>
+          Open-Meteo (AROME)
+          <input type='radio' class='item-radio' name='radio_api' id='weather_api_openmeteo' value='openmeteo' checked>
+        </label>
+        <label class='item'>
+          MET Norway (yr.no)
+          <input type='radio' class='item-radio' name='radio_api' id='weather_api_metno' value='metno'>
+        </label>
+      </div>
+      <div class='item-container-footer'>
+        Open-Meteo uses Météo-France AROME model (1.5km resolution) - recommended for France.
+      </div>
     </div>
-  </div>
 
-  <div class='item-container'>
-    <div class='item-container-header'>Others</div>
-    <div class='item-container-content'>
-      <label class='item'>
-        Bluetooth disconnection vibration
-        <input type='checkbox' class='item-toggle' input id='toggle_bt'>
-      </label>
+    <div class='item-container'>
+      <div class='item-container-header'>Weather update</div>
+      <div class='item-container-content'>
+        <label class='item'>
+          30 mn
+          <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='a'>
+        </label>
+        <label class='item'>
+          60 mn
+          <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='b' checked>
+        </label>
+      </div>
+    </div>
 
-      <label class='item'>
-        Hourly vibrations
-        <input type='checkbox' class='item-toggle' input id='toggle_vibration'>
-      </label>
-      <div class='item-container-footer'>
-        Starts at 10am - Ends at 10pm
-      </div>
-      <div class='item-container-footer'>
-        Only applies to Pebble Time.
-      </div>
-      <!-- Option graphique météo -->
-      <label class='item'>
-        Show weather graph
-        <input type='checkbox' class='item-toggle' input id='show_weather'>
-      </label>
-      <div class='item-container-footer'>
-        Enabled by default. Uncheck to hide the weather graph.
-      </div>
-      <!-- Option news feed -->
-      <label class='item'>
-        Show News Feed
-        <input type='checkbox' class='item-toggle' input id='show_news'>
-      </label>
-      <div class='item-container-footer'>
-        Custom RSS Feed URL
-      </div>
-      <label class='item'>
-        <div class='item-input-wrapper'>
-          <input type='text' class='item-input' input id='input_news_feed_url' placeholder='https://rss.app/feeds/...'>
+    <div class='item-container'>
+      <div class='item-container-content'>
+        <label class='item'>
+          Show weather graph
+          <input type='checkbox' class='item-toggle' input id='show_weather'>
+        </label>
+        <div class='item-container-footer'>
+          Enabled by default. Uncheck to hide the weather graph.
         </div>
-      </label>
-      <div style='display: flex; justify-content: space-between; padding: 5px 0;'>
-        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
-          onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml'">Breaking
-          News</button>
-        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
-          onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tKIURCiSPtJYc7vm.xml'">Gaming</button>
-        <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
-          onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tIUyt6r7b3hyDAxs.xml'">Finance</button>
-      </div>
-      <!-- Option double tap -->
-      <label class='item'>
-        Require double tap for panels
-        <input type='checkbox' class='item-toggle' input id='double_tap' checked>
-      </label>
-      <div class='item-container-footer'>
-        When enabled, shake twice to switch panels. When disabled, a single shake is enough.
       </div>
     </div>
   </div>
 
-  <div class='item-container'>
-    <div class='item-container-header'>Weather Provider</div>
-    <div class='item-container-content'>
-      <label class='item'>
-        Open-Meteo (AROME) - Best for France
-        <input type='radio' class='item-radio' name='radio_api' id='weather_api_openmeteo' value='openmeteo' checked>
-      </label>
-      <label class='item'>
-        MET Norway (yr.no)
-        <input type='radio' class='item-radio' name='radio_api' id='weather_api_metno' value='metno'>
-      </label>
-    </div>
-    <div class='item-container-footer'>
-      Open-Meteo uses Météo-France AROME model (1.5km resolution) - recommended for France.
-    </div>
-  </div>
-
-  <div class='item-container'>
-    <div class='item-container-header'>Weather update</div>
-    <div class='item-container-content'>
-      <label class='item'>
-        30 mn
-        <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='a'>
-      </label>
-      <label class='item'>
-        60 mn
-        <input type='radio' class='item-radio' name='radio2' input id='radio_refresh' value='b' checked>
-      </label>
-    </div>
-  </div>
-
-  <div class='item-container' style="display:none;">
-    <div class='item-container-header'>Background color</div>
-    <div class='item-container-content'>
-      <label class='item'>
-        Temperatures - Background color
-        <input type='text' class='item-color item-color-normal' input id='color_left_back' value='0x000000'>
-      </label>
-      <label class='item'>
-        Hours - Background color
-        <input type='text' class='item-color item-color-normal' input id='color_right_back' value='0x000000'>
-      </label>
-    </div>
-  </div>
-
-  <div class='item-container'>
-    <div class='item-container-header'>iopool API (Option)</div>
-    <div class='item-container-content'>
-      Your io-pool token :
-      <label class='item'>
-        <div class='item-input-wrapper'>
-          <input type='text' class='item-input' input id='input_iopool_token' placeholder='Input field'>
+  <!-- Section News -->
+  <button class='accordion-header'>News Feed</button>
+  <div class='accordion-content'>
+    <div class='item-container'>
+      <div class='item-container-content'>
+        <label class='item'>
+          Show News Feed
+          <input type='checkbox' class='item-toggle' input id='show_news'>
+        </label>
+        <div class='item-container-footer'>
+          Custom RSS Feed URL
         </div>
-      </label>
+        <label class='item'>
+          <div class='item-input-wrapper'>
+            <input type='text' class='item-input' input id='input_news_feed_url' placeholder='https://rss.app/feeds/...'>
+          </div>
+        </label>
+        <div style='display: flex; justify-content: space-between; padding: 5px 0;'>
+          <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
+            onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml'">Breaking
+            News</button>
+          <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
+            onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tKIURCiSPtJYc7vm.xml'">Gaming</button>
+          <button type='button' class='item-button' style='flex: 1; margin: 2px; font-size: 0.75em; padding: 8px 4px;'
+            onclick="document.getElementById('input_news_feed_url').value='https://rss.app/feeds/tIUyt6r7b3hyDAxs.xml'">Finance</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Apparence -->
+  <button class='accordion-header'>Display & Units</button>
+  <div class='accordion-content'>
+    <div class='item-container'>
+      <div class='item-container-header'>Units</div>
+      <div class='item-container-content'>
+        <label class='item'>
+          Imperial
+          <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='a'>
+        </label>
+        <label class='item'>
+          Metric
+          <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='b' checked>
+        </label>
+      </div>
+    </div>
+
+    <div class='item-container' style="display:none;">
+      <div class='item-container-header'>Background color</div>
+      <div class='item-container-content'>
+        <label class='item'>
+          Temperatures - Background color
+          <input type='text' class='item-color item-color-normal' input id='color_left_back' value='0x000000'>
+        </label>
+        <label class='item'>
+          Hours - Background color
+          <input type='text' class='item-color item-color-normal' input id='color_right_back' value='0x000000'>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Comportement -->
+  <button class='accordion-header'>Behavior & Alerts</button>
+  <div class='accordion-content'>
+    <div class='item-container'>
+      <div class='item-container-content'>
+        <label class='item'>
+          Bluetooth disconnection vibration
+          <input type='checkbox' class='item-toggle' input id='toggle_bt'>
+        </label>
+
+        <label class='item'>
+          Hourly vibrations
+          <input type='checkbox' class='item-toggle' input id='toggle_vibration'>
+        </label>
+        <div class='item-container-footer'>
+          Starts at 10am - Ends at 10pm
+        </div>
+        <div class='item-container-footer'>
+          Only applies to Pebble Time.
+        </div>
+
+        <label class='item'>
+          Require double tap for panels
+          <input type='checkbox' class='item-toggle' input id='double_tap' checked>
+        </label>
+        <div class='item-container-footer'>
+          When enabled, shake twice to switch panels. When disabled, a single shake is enough.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section IOPool -->
+  <button class='accordion-header'>IOPool Integration (Optional)</button>
+  <div class='accordion-content'>
+    <div class='item-container'>
+      <div class='item-container-header'>iopool API Token</div>
+      <div class='item-container-content'>
+        Your io-pool token :
+        <label class='item'>
+          <div class='item-input-wrapper'>
+            <input type='text' class='item-input' input id='input_iopool_token' placeholder='Input field'>
+          </div>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -177,6 +240,24 @@
 </body>
 
 <script>
+
+  // Accordion functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    var accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(function(header) {
+      header.addEventListener('click', function() {
+        this.classList.toggle('active');
+        var content = this.nextElementSibling;
+        content.classList.toggle('active');
+      });
+    });
+    
+    // Open first section by default
+    if (accordionHeaders.length > 0) {
+      accordionHeaders[0].click();
+    }
+  });
 
   function getConfigData() {
     var input_iopool_token = document.getElementById('input_iopool_token');
