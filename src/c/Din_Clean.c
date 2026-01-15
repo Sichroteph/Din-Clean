@@ -339,20 +339,18 @@ typedef struct {
   uint16_t show_news : 1;
   uint16_t require_double_tap : 1;
 } AppFlags;
-static AppFlags flags = {
-  .is_metric = 1,
-  .is_30mn = 1,
-  .is_bt = 0,
-  .is_vibration = 0,
-  .s_whiteout_active = 0,
-  .fontbig_loaded = 0,
-  .first_draw_logged = 0,
-  .is_charging = 0,
-  .is_connected = 0,
-  .show_weather = 1,
-  .show_news = 0,
-  .require_double_tap = 1
-};
+static AppFlags flags = {.is_metric = 1,
+                         .is_30mn = 1,
+                         .is_bt = 0,
+                         .is_vibration = 0,
+                         .s_whiteout_active = 0,
+                         .fontbig_loaded = 0,
+                         .first_draw_logged = 0,
+                         .is_charging = 0,
+                         .is_connected = 0,
+                         .show_weather = 1,
+                         .show_news = 0,
+                         .require_double_tap = 1};
 
 static GColor color_right;
 static GColor color_left;
@@ -626,8 +624,10 @@ static void update_proc(Layer *layer, GContext *ctx) {
   now = *(localtime(&t));
 
   const char *locale = i18n_get_system_locale();
-  snprintf(week_day, sizeof(week_day), "%s", weather_utils_get_weekday_abbrev(locale, now.tm_wday));
-  snprintf(month, sizeof(month), "%s", weather_utils_get_month_abbrev(locale, now.tm_mon));
+  snprintf(week_day, sizeof(week_day), "%s",
+           weather_utils_get_weekday_abbrev(locale, now.tm_wday));
+  snprintf(month, sizeof(month), "%s",
+           weather_utils_get_month_abbrev(locale, now.tm_mon));
 
   snprintf(mday, sizeof(mday), "%i", now.tm_mday);
   graphics_context_set_text_color(ctx, color_temp);
@@ -732,7 +732,8 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
 
   // Get weather update every 30 minutes
   if ((flags.is_connected) && (!quiet_time_is_active())) {
-    if ((((flags.is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) ||
+    if ((((flags.is_30mn) && (now.tm_min % 30 == 0)) ||
+         (now.tm_min % 60 == 0) ||
          ((mktime(&now) - last_refresh) > duration))) {
       // Begin dictionary
       DictionaryIterator *iter;
@@ -1599,7 +1600,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     int blue;
 
     flags.is_bt = bt_tuple ? bt_tuple->value->int32 : flags.is_bt;
-    flags.is_metric = radio_tuple ? !(radio_tuple->value->int32) : flags.is_metric;
+    flags.is_metric =
+        radio_tuple ? !(radio_tuple->value->int32) : flags.is_metric;
     flags.is_30mn = refresh_tuple ? refresh_tuple->value->int32 : flags.is_30mn;
     flags.is_vibration =
         vibration_tuple ? vibration_tuple->value->int32 : flags.is_vibration;

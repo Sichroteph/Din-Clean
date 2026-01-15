@@ -15,16 +15,28 @@ static const char *const s_weekday_lang_es[] = {
     "DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"};
 
 // Abbreviated weekday names (3 chars)
-static const char *const s_weekday_abbrev_fr[] = {"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"};
-static const char *const s_weekday_abbrev_en[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
-static const char *const s_weekday_abbrev_de[] = {"SON", "MON", "DIE", "MIT", "DON", "FRE", "SAM"};
-static const char *const s_weekday_abbrev_es[] = {"DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"};
+static const char *const s_weekday_abbrev_fr[] = {"DIM", "LUN", "MAR", "MER",
+                                                  "JEU", "VEN", "SAM"};
+static const char *const s_weekday_abbrev_en[] = {"SUN", "MON", "TUE", "WED",
+                                                  "THU", "FRI", "SAT"};
+static const char *const s_weekday_abbrev_de[] = {"SON", "MON", "DIE", "MIT",
+                                                  "DON", "FRE", "SAM"};
+static const char *const s_weekday_abbrev_es[] = {"DOM", "LUN", "MAR", "MIE",
+                                                  "JUE", "VIE", "SAB"};
 
 // Abbreviated month names (3 chars)
-static const char *const s_month_abbrev_fr[] = {"JAN", "FEV", "MAR", "AVR", "MAI", "JUI", "JUI", "AOU", "SEP", "OCT", "NOV", "DEC"};
-static const char *const s_month_abbrev_en[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-static const char *const s_month_abbrev_de[] = {"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "AKT", "NOV", "DEZ"};
-static const char *const s_month_abbrev_es[] = {"ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"};
+static const char *const s_month_abbrev_fr[] = {"JAN", "FEV", "MAR", "AVR",
+                                                "MAI", "JUI", "JUI", "AOU",
+                                                "SEP", "OCT", "NOV", "DEC"};
+static const char *const s_month_abbrev_en[] = {"JAN", "FEB", "MAR", "APR",
+                                                "MAY", "JUN", "JUL", "AUG",
+                                                "SEP", "OCT", "NOV", "DEC"};
+static const char *const s_month_abbrev_de[] = {"JAN", "FEB", "MÄR", "APR",
+                                                "MAI", "JUN", "JUL", "AUG",
+                                                "SEP", "AKT", "NOV", "DEZ"};
+static const char *const s_month_abbrev_es[] = {"ENE", "FEB", "MAR", "ABR",
+                                                "MAY", "JUN", "JUL", "AGO",
+                                                "SEP", "OCT", "NOV", "DIC"};
 
 static bool prv_locale_matches(const char *locale, const char *prefix) {
   if (!locale || !prefix) {
@@ -51,7 +63,8 @@ const char *weather_utils_get_weekday_name(const char *locale, int day_index) {
   return s_weekday_lang_en[day_index];
 }
 
-const char *weather_utils_get_weekday_abbrev(const char *locale, int day_index) {
+const char *weather_utils_get_weekday_abbrev(const char *locale,
+                                             int day_index) {
   if (day_index < 0 || day_index > 6) {
     return "";
   }
@@ -68,7 +81,8 @@ const char *weather_utils_get_weekday_abbrev(const char *locale, int day_index) 
   return s_weekday_abbrev_en[day_index];
 }
 
-const char *weather_utils_get_month_abbrev(const char *locale, int month_index) {
+const char *weather_utils_get_month_abbrev(const char *locale,
+                                           int month_index) {
   if (month_index < 0 || month_index > 11) {
     return "";
   }
