@@ -14,6 +14,18 @@ static const char *const s_weekday_lang_de[] = {
 static const char *const s_weekday_lang_es[] = {
     "DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"};
 
+// Abbreviated weekday names (3 chars)
+static const char *const s_weekday_abbrev_fr[] = {"DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM"};
+static const char *const s_weekday_abbrev_en[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+static const char *const s_weekday_abbrev_de[] = {"SON", "MON", "DIE", "MIT", "DON", "FRE", "SAM"};
+static const char *const s_weekday_abbrev_es[] = {"DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"};
+
+// Abbreviated month names (3 chars)
+static const char *const s_month_abbrev_fr[] = {"JAN", "FEV", "MAR", "AVR", "MAI", "JUI", "JUI", "AOU", "SEP", "OCT", "NOV", "DEC"};
+static const char *const s_month_abbrev_en[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+static const char *const s_month_abbrev_de[] = {"JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "AKT", "NOV", "DEZ"};
+static const char *const s_month_abbrev_es[] = {"ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"};
+
 static bool prv_locale_matches(const char *locale, const char *prefix) {
   if (!locale || !prefix) {
     return false;
@@ -37,6 +49,40 @@ const char *weather_utils_get_weekday_name(const char *locale, int day_index) {
     return s_weekday_lang_es[day_index];
   }
   return s_weekday_lang_en[day_index];
+}
+
+const char *weather_utils_get_weekday_abbrev(const char *locale, int day_index) {
+  if (day_index < 0 || day_index > 6) {
+    return "";
+  }
+
+  if (prv_locale_matches(locale, "fr")) {
+    return s_weekday_abbrev_fr[day_index];
+  }
+  if (prv_locale_matches(locale, "de")) {
+    return s_weekday_abbrev_de[day_index];
+  }
+  if (prv_locale_matches(locale, "es")) {
+    return s_weekday_abbrev_es[day_index];
+  }
+  return s_weekday_abbrev_en[day_index];
+}
+
+const char *weather_utils_get_month_abbrev(const char *locale, int month_index) {
+  if (month_index < 0 || month_index > 11) {
+    return "";
+  }
+
+  if (prv_locale_matches(locale, "fr")) {
+    return s_month_abbrev_fr[month_index];
+  }
+  if (prv_locale_matches(locale, "de")) {
+    return s_month_abbrev_de[month_index];
+  }
+  if (prv_locale_matches(locale, "es")) {
+    return s_month_abbrev_es[month_index];
+  }
+  return s_month_abbrev_en[month_index];
 }
 
 void weather_utils_create_date_text(const char *locale, int day_index,

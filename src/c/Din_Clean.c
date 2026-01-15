@@ -5,16 +5,13 @@
 // Nouvelle clé pour l'option d'affichage du graphique météo
 #define KEY_SHOW_WEATHER 170
 #define KEY_SHOW_NEWS 171
-// Variable globale pour l'option graphique météo
-static bool show_weather = true;
-static bool show_news = true; // Activé par défaut pour les tests
-static bool require_double_tap = true;
 #include <pebble.h>
 
 #include "ui_icon_bar.h"
 #include "ui_news_feed.h"
 #include "ui_time.h"
 #include "ui_weather_graph.h"
+#include "weather_utils.h"
 
 #ifndef WEATHER_GRAPH_DEBUG_RAIN_SAMPLE
 #define WEATHER_GRAPH_DEBUG_RAIN_SAMPLE 0
@@ -256,19 +253,11 @@ int offline_delay = 3600 + 600; // +10 minutes pour éviter que les icônes
                                 // disparaissent pendant l'appel météo
 AppTimer *timer_short;
 
-static char icon[32] = " ";
-static char icon1[32] = " ";
-static char icon2[32] = " ";
-static char icon3[32] = " ";
-// UNUSED icon4-7 - saves 80 bytes
-// static char icon4[20] = " ";
-// static char icon5[20] = " ";
-// static char icon6[20] = " ";
-// static char icon7[20] = " ";
+static char icon[24] = " ";
+static char icon1[24] = " ";
+static char icon2[24] = " ";
+static char icon3[24] = " ";
 
-static char h1[8] = " ";        // Reduced from 20 - saves 12 bytes
-static char h2[8] = " ";        // Reduced from 20 - saves 12 bytes
-static char h3[8] = " ";        // Reduced from 20 - saves 12 bytes
 static char location[20] = " "; // Reduced from 100 - saves 80 bytes
 // UNUSED wind/temp/rain char arrays - we use _val int versions - saves 120
 // bytes static char wind1[10] = " "; static char wind2[10] = " "; static char
@@ -285,31 +274,21 @@ static char rain_ico_val;
 // Extended hourly forecast data for weather graph (minimized for memory)
 static int8_t graph_temps[5] = {10, 10, 10, 10, 10};
 static uint8_t graph_rains[12] = {0};
-static char graph_icon1[32] = "";
-static char graph_icon2[32] = "";
-static char graph_icon3[32] = "";
-static char graph_wind0[20] = "";
-static char graph_wind1[20] = "";
-static char graph_wind2[20] = "";
-static char graph_wind3[20] = "";
-static uint8_t graph_wind0_val = 0;
-static uint8_t graph_wind1_val = 0;
-static uint8_t graph_wind2_val = 0;
-static uint8_t graph_wind3_val = 0;
-static uint8_t graph_h0 = 0;
-static uint8_t graph_h1 = 0;
-static uint8_t graph_h2 = 0;
-static uint8_t graph_h3 = 0;
+static char graph_icon1[24] = "";
+static char graph_icon2[24] = "";
+static char graph_icon3[24] = "";
+static uint8_t graph_wind_val[4] = {0, 0, 0, 0};
+static uint8_t graph_hours[4] = {0, 3, 6, 9};
 
 // 3-day forecast data for ui_weather_days
 static char days_temp[3][12] = {"--", "--", "--"};
-static char days_icon[3][32] = {"", "", ""};
+static char days_icon[3][24] = {"", "", ""};
 static char days_rain[3][6] = {"0mm", "0mm", "0mm"};
 static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
 
 // News feed data
-static char news_title[104] = "";
-static char news_channel_title[52] =
+static char news_title[80] = "";
+static char news_channel_title[32] =
     "News Feed"; // Title of the RSS channel/journal
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
@@ -318,7 +297,7 @@ static AppTimer *news_timer = NULL;
 static bool s_news_request_pending = false; // Flag for pending news request
 
 // RSVP (Rapid Serial Visual Presentation)
-static char rsvp_word[32] = "";     // Current word being displayed
+static char rsvp_word[24] = "";     // Current word being displayed
 static uint8_t rsvp_word_index = 0; // Current word position in title
 static uint16_t rsvp_wpm_ms =
     160; // 110ms per word (~545 WPM) - Variable de vitesse
@@ -345,34 +324,51 @@ typedef enum {
 } WhiteoutScreenMode;
 static WhiteoutScreenMode s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
 
-// Config data
-static bool is_metric = 1;
-static bool is_30mn = 1;
-static bool is_bt = 0;
-static bool is_vibration = 0;
+// Packed flags to save memory (was 12 separate bools = 12 bytes, now 2 bytes)
+typedef struct {
+  uint16_t is_metric : 1;
+  uint16_t is_30mn : 1;
+  uint16_t is_bt : 1;
+  uint16_t is_vibration : 1;
+  uint16_t s_whiteout_active : 1;
+  uint16_t fontbig_loaded : 1;
+  uint16_t first_draw_logged : 1;
+  uint16_t is_charging : 1;
+  uint16_t is_connected : 1;
+  uint16_t show_weather : 1;
+  uint16_t show_news : 1;
+  uint16_t require_double_tap : 1;
+} AppFlags;
+static AppFlags flags = {
+  .is_metric = 1,
+  .is_30mn = 1,
+  .is_bt = 0,
+  .is_vibration = 0,
+  .s_whiteout_active = 0,
+  .fontbig_loaded = 0,
+  .first_draw_logged = 0,
+  .is_charging = 0,
+  .is_connected = 0,
+  .show_weather = 1,
+  .show_news = 0,
+  .require_double_tap = 1
+};
 
 static GColor color_right;
 static GColor color_left;
 static GColor color_temp;
-static bool s_whiteout_active = false;
 
 static GPoint line1_p1 = {0, 84};
 static GPoint line1_p2 = {143, 84};
 static GPoint line2_p1 = {0, 0};
 static GPoint line2_p2 = {0, 0};
 
-static int hour_offset_x = 0;
-static int hour_offset_y = 0;
-static int status_offset_x = 0;
-static int status_offset_y = 0;
+static int8_t hour_offset_x = 0;
+static int8_t hour_offset_y = 0;
+static int8_t status_offset_x = 0;
+static int8_t status_offset_y = 0;
 
 static int hour_line_ypos = 84 + YOFFSET;
-
-static char pebble_Lang[8] = " ";
-
-bool is_charging = false;
-
-bool is_connected = false;
 
 // For week day
 static GFont fontsmall;
@@ -382,18 +378,13 @@ static GFont fontsmallbold;
 static GFont fontmedium;
 // Hour display
 static GFont fontbig;
-static bool fontbig_loaded = false;
-static int fontbig_resource_id = 0;
-static bool first_draw_logged = false;
+static uint16_t fontbig_resource_id = 0;
 static void ensure_fontbig_loaded(void);
 
-int line_interval = 4;
-int segment_thickness = 2;
+static uint8_t line_interval = 4;
+static uint8_t segment_thickness = 2;
 
 // UNUSED markWidth array - saves 48 bytes
-// static int markWidth[12] = {MARK_0,  MARK_5, MARK_5, MARK_15, MARK_5, MARK_5,
-//                             MARK_30, MARK_5, MARK_5, MARK_15, MARK_5,
-//                             MARK_5};
 static int8_t labels_12h[28] = {10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8,  9,  10, 11,
                                 12, 1,  2,  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
 static int8_t labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,
@@ -401,26 +392,6 @@ static int8_t labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,
                             18, 19, 20, 21, 22, 23, 0,  1};
 
 static uint8_t battery_level = 0;
-// UNUSED hour_text - saves 5 bytes
-// static char hour_text[5] = " ";
-
-static char *weekdayLangFr[7] = {"DIM", "LUN", "MAR", "MER",
-                                 "JEU", "VEN", "SAM"};
-static char *weekdayLangEn[7] = {"SUN", "MON", "TUE", "WED",
-                                 "THU", "FRI", "SAT"};
-static char *weekdayLangGe[7] = {"SON", "MON", "DIE", "MIT",
-                                 "DON", "FRE", "SAM"};
-static char *weekdayLangSp[7] = {"DOM", "LUN", "MAR", "MIE",
-                                 "JUE", "VIE", "SAB"};
-
-static char *MonthLangFr[12] = {"JAN", "FEV", "MAR", "AVR", "MAI", "JUI",
-                                "JUI", "AOU", "SEP", "OCT", "NOV", "DEC"};
-static char *MonthLangEn[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-                                "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-static char *MonthLangGe[12] = {"JAN", "FEB", "MÄR", "APR", "MAI", "JUN",
-                                "JUL", "AUG", "SEP", "AKT", "NOV", "DEZ"};
-static char *MonthLangSp[12] = {"ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
-                                "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"};
 
 static void app_focus_changed(bool focused) {
   if (focused) {
@@ -435,72 +406,15 @@ static void app_focus_changing(bool focusing) {
   }
 }
 
-static int build_icon(char *text_icon) {
-  // Protection against NULL, empty, or whitespace-only strings
-  // This prevents crashes when persistence data is missing or corrupted
-  if (text_icon == NULL || text_icon[0] == '\0' || text_icon[0] == ' ' ||
-      text_icon[0] == '\n' || text_icon[0] == '\t') {
-    return RESOURCE_ID_ENSOLEILLE_W;
-  }
-  // Additional safety: check string length to avoid buffer issues
-  size_t len = strlen(text_icon);
-  if (len == 0 || len > 64) {
-    return RESOURCE_ID_ENSOLEILLE_W;
-  }
-
+// Wrapper around weather_utils_build_icon with pool warning check
+static int build_icon_with_pool_check(const char *text_icon) {
+  // Pool warning check - override icon if pool values are critical
   if (npoolORP != 0) {
     if ((npoolORP < 650) || (npoolPH < 710)) {
       return RESOURCE_ID_WARNING_W;
     }
   }
-
-  if ((strcmp(text_icon, "clearsky_day") == 0)) {
-    return RESOURCE_ID_ENSOLEILLE_W;
-  }
-  if ((strcmp(text_icon, "clearsky_night") == 0)) {
-    return RESOURCE_ID_NUIT_CLAIRE_W;
-  }
-  if ((strcmp(text_icon, "fair_day") == 0) ||
-      (strcmp(text_icon, "fair_polartwilight") == 0)) {
-    return RESOURCE_ID_FAIBLES_PASSAGES_NUAGEUX_W;
-  }
-  if (strcmp(text_icon, "fair_night") == 0) {
-    return RESOURCE_ID_NUIT_BIEN_DEGAGEE_W;
-  }
-  if (strcmp(text_icon, "wind") == 0) {
-    return RESOURCE_ID_WIND;
-  }
-  if ((strcmp(text_icon, "partlycloudy_day") == 0) ||
-      (strcmp(text_icon, "partlycloudy_polartwilight") == 0)) {
-    return RESOURCE_ID_DEVELOPPEMENT_NUAGEUX_W;
-  }
-  if ((strcmp(text_icon, "partlycloudy_night") == 0) ||
-      (strncmp(text_icon, "partlycloudy_ni", 15) == 0)) {
-    return RESOURCE_ID_NUIT_AVEC_DEVELOPPEMENT_NUAGEUX_W;
-  }
-  if ((strcmp(text_icon, "cloudy") == 0)) {
-    return RESOURCE_ID_FORTEMENT_NUAGEUX_W;
-  }
-
-  if (strstr(text_icon, "rain") != NULL) {
-    return RESOURCE_ID_AVERSES_DE_PLUIE_FORTE_W;
-  }
-  if (strcmp(text_icon, "rainshowers_night") == 0) {
-    return RESOURCE_ID_NUIT_AVEC_AVERSES_W;
-  }
-
-  if (strstr(text_icon, "thunder") != NULL) {
-    return RESOURCE_ID_FORTEMENT_ORAGEUX_W;
-  }
-
-  if (strstr(text_icon, "snow") || (strstr(text_icon, "sleet")) != NULL) {
-    return RESOURCE_ID_NEIGE_FORTE_W;
-  }
-  if (strcmp(text_icon, "fog") == 0) {
-    return RESOURCE_ID_BROUILLARD_W;
-  }
-
-  return RESOURCE_ID_BT;
+  return weather_utils_build_icon(text_icon, true);
 }
 
 // UNUSED build_number function - saves ~200 bytes of code
@@ -581,15 +495,10 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   }
 #endif
 
-  out->hours[0] = graph_h0;
-  out->hours[1] = graph_h1;
-  out->hours[2] = graph_h2;
-  out->hours[3] = graph_h3;
-
-  snprintf(out->winds[0], sizeof(out->winds[0]), "%s", graph_wind0);
-  snprintf(out->winds[1], sizeof(out->winds[1]), "%s", graph_wind1);
-  snprintf(out->winds[2], sizeof(out->winds[2]), "%s", graph_wind2);
-  snprintf(out->winds[3], sizeof(out->winds[3]), "%s", graph_wind3);
+  for (int i = 0; i < 4; i++) {
+    out->hours[i] = graph_hours[i];
+    snprintf(out->winds[i], sizeof(out->winds[i]), "%d", graph_wind_val[i]);
+  }
 
   // Build icon resource IDs for the 3-day forecast display
   // Use days_icon[0], days_icon[1], days_icon[2] for J+1, J+2, J+3 forecasts
@@ -609,17 +518,17 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
   // Day 1 (tomorrow): prefer days_icon[0], fallback to graph_icon1
   char *day1_icon_str =
       days_icon0_valid ? days_icon[0] : (icon1_valid ? graph_icon1 : NULL);
-  out->icon_ids[0] = build_icon(day1_icon_str);
+  out->icon_ids[0] = weather_utils_build_icon(day1_icon_str, true);
 
   // Day 2 (after tomorrow): prefer days_icon[1], fallback to graph_icon2
   char *day2_icon_str =
       days_icon1_valid ? days_icon[1] : (icon2_valid ? graph_icon2 : NULL);
-  out->icon_ids[1] = build_icon(day2_icon_str);
+  out->icon_ids[1] = weather_utils_build_icon(day2_icon_str, true);
 
   // Day 3: prefer days_icon[2], fallback to graph_icon3
   char *day3_icon_str =
       days_icon2_valid ? days_icon[2] : (icon3_valid ? graph_icon3 : NULL);
-  out->icon_ids[2] = build_icon(day3_icon_str);
+  out->icon_ids[2] = weather_utils_build_icon(day3_icon_str, true);
 
   // Validate all icon IDs - set to 0 if invalid to prevent crashes
   for (int i = 0; i < 3; i++) {
@@ -628,7 +537,7 @@ static void fill_weather_graph_data(WeatherGraphData *out) {
     }
   }
 
-  out->is_metric = is_metric;
+  out->is_metric = flags.is_metric;
 }
 
 // Draw weather graph screen (hourly forecast with temperature curve and rain
@@ -640,11 +549,11 @@ static WeatherGraphData s_graph_data;
 static void update_proc(Layer *layer, GContext *ctx) {
 
   // Weather screen mode: temporarily unload heavy custom font to free memory
-  if (s_whiteout_active) {
+  if (flags.s_whiteout_active) {
     // Unload heavy font if loaded to free memory for weather bitmaps
-    if (fontbig_loaded && fontbig_resource_id != 0) {
+    if (flags.fontbig_loaded && fontbig_resource_id != 0) {
       fonts_unload_custom_font(fontbig);
-      fontbig_loaded = false;
+      flags.fontbig_loaded = false;
     }
 
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
@@ -661,8 +570,8 @@ static void update_proc(Layer *layer, GContext *ctx) {
   // mode)
   ensure_fontbig_loaded();
 
-  if (!first_draw_logged) {
-    first_draw_logged = true;
+  if (!flags.first_draw_logged) {
+    flags.first_draw_logged = true;
   }
 
   // ruler_large is always true now
@@ -701,9 +610,9 @@ static void update_proc(Layer *layer, GContext *ctx) {
   int icon_id;
   int icon_id6;
   rain_ico_val = rain1_val;
-  icon_id = build_icon(icon);
+  icon_id = build_icon_with_pool_check(icon);
   rain_ico_val = rain3_val;
-  icon_id6 = build_icon(icon2);
+  icon_id6 = build_icon_with_pool_check(icon2);
   // icon_id = build_icon("01d");
   // icon_id6 = build_icon("01d");
 
@@ -716,25 +625,9 @@ static void update_proc(Layer *layer, GContext *ctx) {
   t = time(NULL);
   now = *(localtime(&t));
 
-  snprintf(week_day, sizeof(week_day), "%s", weekdayLangEn[now.tm_wday]);
-  if (strcmp(pebble_Lang, "fr_FR") == 0)
-    snprintf(week_day, sizeof(week_day), "%s", weekdayLangFr[now.tm_wday]);
-
-  if (strcmp(pebble_Lang, "de_DE") == 0)
-    snprintf(week_day, sizeof(week_day), "%s", weekdayLangGe[now.tm_wday]);
-
-  if (strcmp(pebble_Lang, "es_ES") == 0)
-    snprintf(week_day, sizeof(week_day), "%s", weekdayLangSp[now.tm_wday]);
-
-  snprintf(month, sizeof(month), "%s", MonthLangEn[now.tm_mon]);
-  if (strcmp(pebble_Lang, "fr_FR") == 0)
-    snprintf(month, sizeof(month), "%s", MonthLangFr[now.tm_mon]);
-
-  if (strcmp(pebble_Lang, "de_DE") == 0)
-    snprintf(month, sizeof(month), "%s", MonthLangGe[now.tm_mon]);
-
-  if (strcmp(pebble_Lang, "es_ES") == 0)
-    snprintf(month, sizeof(month), "%s", MonthLangSp[now.tm_mon]);
+  const char *locale = i18n_get_system_locale();
+  snprintf(week_day, sizeof(week_day), "%s", weather_utils_get_weekday_abbrev(locale, now.tm_wday));
+  snprintf(month, sizeof(month), "%s", weather_utils_get_month_abbrev(locale, now.tm_mon));
 
   snprintf(mday, sizeof(mday), "%i", now.tm_mday);
   graphics_context_set_text_color(ctx, color_temp);
@@ -758,15 +651,15 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .max_temp_text = maxTemp,
                            .weather_temp_text = weather_temp_char,
                            .has_fresh_weather = has_fresh_weather,
-                           .is_connected = is_connected,
+                           .is_connected = flags.is_connected,
                            .is_quiet_time = quiet_time_is_active(),
                            .is_bw_icon = true,
 
-                           .is_metric = is_metric,
+                           .is_metric = flags.is_metric,
                            .humidity = humidity,
                            .wind_speed_val = wind_speed_val,
                            .wind2_val = wind2_val,
-                           .met_unit = is_metric ? 20 : 25,
+                           .met_unit = flags.is_metric ? 20 : 25,
                            .icon_id = icon_id,
                            .icon_id6 = icon_id6,
                            .rect_text_day = rect_text_day,
@@ -830,7 +723,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
 static void handle_tick(struct tm *cur, TimeUnits units_changed) {
   t = time(NULL);
   now = *(localtime(&t));
-  if (is_vibration) {
+  if (flags.is_vibration) {
     if (now.tm_min == 0 && now.tm_hour >= QUIET_TIME_END &&
         now.tm_hour <= QUIET_TIME_START) {
       vibes_double_pulse();
@@ -838,8 +731,8 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
   }
 
   // Get weather update every 30 minutes
-  if ((is_connected) && (!quiet_time_is_active())) {
-    if ((((is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) ||
+  if ((flags.is_connected) && (!quiet_time_is_active())) {
+    if ((((flags.is_30mn) && (now.tm_min % 30 == 0)) || (now.tm_min % 60 == 0) ||
          ((mktime(&now) - last_refresh) > duration))) {
       // Begin dictionary
       DictionaryIterator *iter;
@@ -855,7 +748,7 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
 }
 
 static void handle_whiteout_timeout(void *context) {
-  s_whiteout_active = false;
+  flags.s_whiteout_active = false;
   s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
   timer_short = NULL;
   layer_mark_dirty(layer);
@@ -980,7 +873,7 @@ static uint16_t calculate_spritz_delay(const char *word) {
 static void rsvp_timer_callback(void *context) {
   rsvp_timer = NULL;
 
-  if (!s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
+  if (!flags.s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
     return;
   }
 
@@ -1022,7 +915,7 @@ static void news_global_timeout_callback(void *context) {
     rsvp_timer = NULL;
   }
 
-  s_whiteout_active = false;
+  flags.s_whiteout_active = false;
   s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
   s_news_splash_active = false;
   s_news_end_screen = false;
@@ -1036,7 +929,7 @@ static void news_global_timeout_callback(void *context) {
 static void news_timer_callback(void *context) {
   news_timer = NULL;
 
-  if (!s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
+  if (!flags.s_whiteout_active || s_whiteout_screen != WHITEOUT_SCREEN_NEWS) {
     news_retry_count = 0;
     return;
   }
@@ -1050,7 +943,7 @@ static void news_timer_callback(void *context) {
   // If END screen was active, now exit news mode
   if (s_news_end_screen) {
     s_news_end_screen = false;
-    s_whiteout_active = false;
+    flags.s_whiteout_active = false;
     s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
     news_display_count = 0;
     news_retry_count = 0;
@@ -1110,7 +1003,7 @@ static void start_news_sequence(void) {
   }
   last_news_activation = now_time;
 
-  s_whiteout_active = true;
+  flags.s_whiteout_active = true;
   s_whiteout_screen = WHITEOUT_SCREEN_NEWS;
   news_display_count = 0;
   news_retry_count = 0;        // Reset retry counter
@@ -1148,12 +1041,12 @@ static void start_news_sequence(void) {
 static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   const uint16_t timeout_ms = 8000;
   // Neither option enabled: do nothing
-  if (!show_weather && !show_news) {
+  if (!flags.show_weather && !flags.show_news) {
     return;
   }
 
   // Double-tap detection (only if enabled)
-  if (require_double_tap) {
+  if (flags.require_double_tap) {
     time_t now = time(NULL);
 
     if ((now - last_tap_time) > tap_interval_sec) {
@@ -1169,7 +1062,7 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
   // entirely
 
   // If already showing news, switch to weather (if enabled) or exit
-  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
+  if (flags.s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
     if (news_timer) {
       app_timer_cancel(news_timer);
       news_timer = NULL;
@@ -1178,7 +1071,7 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
       app_timer_cancel(rsvp_timer);
       rsvp_timer = NULL;
     }
-    if (show_weather) {
+    if (flags.show_weather) {
       s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
       if (timer_short) {
         app_timer_cancel(timer_short);
@@ -1187,37 +1080,37 @@ static void handle_wrist_tap(AccelAxisType axis, int32_t direction) {
           app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
       layer_mark_dirty(layer);
     } else {
-      s_whiteout_active = false;
+      flags.s_whiteout_active = false;
       layer_mark_dirty(layer);
     }
     return;
   }
 
   // If already showing weather, switch to news (if enabled) or exit
-  if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
+  if (flags.s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_GRAPH) {
     if (timer_short) {
       app_timer_cancel(timer_short);
       timer_short = NULL;
     }
-    if (show_news) {
+    if (flags.show_news) {
       start_news_sequence();
     } else {
-      s_whiteout_active = false;
+      flags.s_whiteout_active = false;
       layer_mark_dirty(layer);
     }
     return;
   }
 
   // Not showing any panel - show first available
-  if (show_weather) {
-    s_whiteout_active = true;
+  if (flags.show_weather) {
+    flags.s_whiteout_active = true;
     s_whiteout_screen = WHITEOUT_SCREEN_GRAPH;
     if (timer_short) {
       app_timer_cancel(timer_short);
     }
     timer_short = app_timer_register(timeout_ms, handle_whiteout_timeout, NULL);
     layer_mark_dirty(layer);
-  } else if (show_news) {
+  } else if (flags.show_news) {
     start_news_sequence();
   }
 }
@@ -1246,11 +1139,11 @@ static void setHourLinePoints() {
 
 void bt_handler(bool connected) {
   if (connected) {
-    is_connected = true;
+    flags.is_connected = true;
   } else {
-    is_connected = false;
+    flags.is_connected = false;
   }
-  if (is_bt) {
+  if (flags.is_bt) {
     vibes_double_pulse();
   }
   layer_mark_dirty(layer);
@@ -1268,7 +1161,7 @@ static void assign_fonts() {
   fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  fontbig_loaded = false;
+  flags.fontbig_loaded = false;
   fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
   hour_offset_x = 1;
   hour_offset_y = 9;
@@ -1284,7 +1177,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     snprintf(news_channel_title, sizeof(news_channel_title), "%s",
              news_channel_tuple->value->cstring);
     // Refresh splash screen if currently displayed
-    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS &&
+    if (flags.s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS &&
         s_news_splash_active) {
       layer_mark_dirty(layer);
     }
@@ -1304,7 +1197,7 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       news_timer = NULL;
     }
     // Start RSVP for this title
-    if (s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
+    if (flags.s_whiteout_active && s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
       start_rsvp_for_title();
     }
     return;
@@ -1313,27 +1206,27 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   // Gestion de l'option graphique météo
   Tuple *show_weather_tuple = dict_find(iterator, KEY_SHOW_WEATHER);
   if (show_weather_tuple) {
-    show_weather = show_weather_tuple->value->int32;
-    persist_write_bool(KEY_SHOW_WEATHER, show_weather);
+    flags.show_weather = show_weather_tuple->value->int32;
+    persist_write_bool(KEY_SHOW_WEATHER, flags.show_weather);
   }
 
   // Gestion de l'option news feed
   Tuple *show_news_tuple = dict_find(iterator, KEY_SHOW_NEWS);
   if (show_news_tuple) {
-    show_news = show_news_tuple->value->int32;
-    persist_write_bool(KEY_SHOW_NEWS, show_news);
+    flags.show_news = show_news_tuple->value->int32;
+    persist_write_bool(KEY_SHOW_NEWS, flags.show_news);
   }
 
   // Gestion de l'option double tap
   Tuple *double_tap_tuple = dict_find(iterator, KEY_DOUBLE_TAP);
   if (double_tap_tuple) {
-    require_double_tap = double_tap_tuple->value->int32;
-    persist_write_bool(KEY_DOUBLE_TAP, require_double_tap);
+    flags.require_double_tap = double_tap_tuple->value->int32;
+    persist_write_bool(KEY_DOUBLE_TAP, flags.require_double_tap);
   }
 
   // If both options are now disabled and whiteout was active, close it
-  if (!show_weather && !show_news && s_whiteout_active) {
-    s_whiteout_active = false;
+  if (!flags.show_weather && !flags.show_news && flags.s_whiteout_active) {
+    flags.s_whiteout_active = false;
     if (timer_short) {
       app_timer_cancel(timer_short);
       timer_short = NULL;
@@ -1494,13 +1387,13 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     // temp6-9 not used (array reduced to 5)
 
     if (h0_tuple)
-      graph_h0 = (int)h0_tuple->value->int32;
+      graph_hours[0] = (int)h0_tuple->value->int32;
     if (h1_tuple)
-      graph_h1 = (int)h1_tuple->value->int32;
+      graph_hours[1] = (int)h1_tuple->value->int32;
     if (h2_tuple)
-      graph_h2 = (int)h2_tuple->value->int32;
+      graph_hours[2] = (int)h2_tuple->value->int32;
     if (h3_tuple)
-      graph_h3 = (int)h3_tuple->value->int32;
+      graph_hours[3] = (int)h3_tuple->value->int32;
 
     // h4-h8 not used
 
@@ -1554,24 +1447,16 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 
     // Winds for graph
     if (wind0_tuple) {
-      snprintf(graph_wind0, sizeof(graph_wind0), "%s",
-               wind0_tuple->value->cstring);
-      graph_wind0_val = atoi(wind0_tuple->value->cstring);
+      graph_wind_val[0] = atoi(wind0_tuple->value->cstring);
     }
     if (wind1_tuple) {
-      snprintf(graph_wind1, sizeof(graph_wind1), "%s",
-               wind1_tuple->value->cstring);
-      graph_wind1_val = atoi(wind1_tuple->value->cstring);
+      graph_wind_val[1] = atoi(wind1_tuple->value->cstring);
     }
     if (wind2_tuple) {
-      snprintf(graph_wind2, sizeof(graph_wind2), "%s",
-               wind2_tuple->value->cstring);
-      graph_wind2_val = atoi(wind2_tuple->value->cstring);
+      graph_wind_val[2] = atoi(wind2_tuple->value->cstring);
     }
     if (wind3_tuple) {
-      snprintf(graph_wind3, sizeof(graph_wind3), "%s",
-               wind3_tuple->value->cstring);
-      graph_wind3_val = atoi(wind3_tuple->value->cstring);
+      graph_wind_val[3] = atoi(wind3_tuple->value->cstring);
     }
     // wind4-8 not used
 
@@ -1615,9 +1500,6 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 
     last_refresh = mktime(&now);
 
-    persist_write_string(KEY_FORECAST_H1, h1);
-    persist_write_string(KEY_FORECAST_H2, h2);
-    persist_write_string(KEY_FORECAST_H3, h3);
     persist_write_string(KEY_ICON, icon);
     persist_write_string(KEY_LOCATION, location);
 
@@ -1664,22 +1546,22 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_int(KEY_FORECAST_TEMP5, graph_temps[4]);
 
     // Persist all graph winds (4 blocks)
-    persist_write_int(KEY_GRAPH_WIND0, graph_wind0_val);
-    persist_write_int(KEY_GRAPH_WIND1, graph_wind1_val);
-    persist_write_int(KEY_GRAPH_WIND2, graph_wind2_val);
-    persist_write_int(KEY_GRAPH_WIND3, graph_wind3_val);
+    persist_write_int(KEY_GRAPH_WIND0, graph_wind_val[0]);
+    persist_write_int(KEY_GRAPH_WIND1, graph_wind_val[1]);
+    persist_write_int(KEY_GRAPH_WIND2, graph_wind_val[2]);
+    persist_write_int(KEY_GRAPH_WIND3, graph_wind_val[3]);
 
     // Persist graph hours (h0 already persisted above)
-    persist_write_int(KEY_GRAPH_H1, graph_h1);
-    persist_write_int(KEY_GRAPH_H2, graph_h2);
-    persist_write_int(KEY_GRAPH_H3, graph_h3);
+    persist_write_int(KEY_GRAPH_H1, graph_hours[1]);
+    persist_write_int(KEY_GRAPH_H2, graph_hours[2]);
+    persist_write_int(KEY_GRAPH_H3, graph_hours[3]);
 
     persist_write_int(KEY_POOLTEMP, npoolTemp);
     persist_write_int(KEY_POOLPH, npoolPH);
     persist_write_int(KEY_poolORP, npoolORP);
 
     // Persist extended forecast data for weather graph (minimal)
-    persist_write_int(KEY_FORECAST_H0, graph_h0);
+    persist_write_int(KEY_FORECAST_H0, graph_hours[0]);
 
     // Persist 3-day forecast data
     persist_write_string(KEY_DAY1_TEMP, days_temp[0]);
@@ -1716,11 +1598,11 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     int green;
     int blue;
 
-    is_bt = bt_tuple ? bt_tuple->value->int32 : is_bt;
-    is_metric = radio_tuple ? !(radio_tuple->value->int32) : is_metric;
-    is_30mn = refresh_tuple ? refresh_tuple->value->int32 : is_30mn;
-    is_vibration =
-        vibration_tuple ? vibration_tuple->value->int32 : is_vibration;
+    flags.is_bt = bt_tuple ? bt_tuple->value->int32 : flags.is_bt;
+    flags.is_metric = radio_tuple ? !(radio_tuple->value->int32) : flags.is_metric;
+    flags.is_30mn = refresh_tuple ? refresh_tuple->value->int32 : flags.is_30mn;
+    flags.is_vibration =
+        vibration_tuple ? vibration_tuple->value->int32 : flags.is_vibration;
 
     if (color_right_r_tuple && color_right_g_tuple && color_right_b_tuple) {
       red = color_right_r_tuple->value->int32;
@@ -1746,10 +1628,10 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     color_left = GColorBlack;
     color_right = GColorBlack;
 
-    persist_write_bool(KEY_RADIO_UNITS, is_metric);
-    persist_write_bool(KEY_RADIO_REFRESH, is_30mn);
-    persist_write_bool(KEY_TOGGLE_BT, is_bt);
-    persist_write_bool(KEY_TOGGLE_VIBRATION, is_vibration);
+    persist_write_bool(KEY_RADIO_UNITS, flags.is_metric);
+    persist_write_bool(KEY_RADIO_REFRESH, flags.is_30mn);
+    persist_write_bool(KEY_TOGGLE_BT, flags.is_bt);
+    persist_write_bool(KEY_TOGGLE_VIBRATION, flags.is_vibration);
 
     vibes_double_pulse();
 
@@ -1767,7 +1649,7 @@ static void do_send_news_request(void);
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {
   // If news request failed and we're in news mode, keep pending flag for retry
-  if (s_news_request_pending && s_whiteout_active &&
+  if (s_news_request_pending && flags.s_whiteout_active &&
       s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
     // Request will be retried in outbox_sent_callback of next successful
     // message or by the safety timer in news_timer_callback
@@ -1784,21 +1666,21 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 static void init_var() {
   // Initialisation de show_weather
   if (persist_exists(KEY_SHOW_WEATHER)) {
-    show_weather = persist_read_bool(KEY_SHOW_WEATHER);
+    flags.show_weather = persist_read_bool(KEY_SHOW_WEATHER);
   } else {
-    show_weather = true;
+    flags.show_weather = true;
   }
   // Initialisation de show_news
   if (persist_exists(KEY_SHOW_NEWS)) {
-    show_news = persist_read_bool(KEY_SHOW_NEWS);
+    flags.show_news = persist_read_bool(KEY_SHOW_NEWS);
   } else {
-    show_news = false;
+    flags.show_news = false;
   }
   // Initialisation de require_double_tap
   if (persist_exists(KEY_DOUBLE_TAP)) {
-    require_double_tap = persist_read_bool(KEY_DOUBLE_TAP);
+    flags.require_double_tap = persist_read_bool(KEY_DOUBLE_TAP);
   } else {
-    require_double_tap = true;
+    flags.require_double_tap = true;
   }
   int i;
 
@@ -1809,16 +1691,16 @@ static void init_var() {
   fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  fontbig_loaded = false;
+  flags.fontbig_loaded = false;
   fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
 
   if (persist_exists(KEY_RADIO_UNITS) && persist_exists(KEY_RADIO_REFRESH) &&
       persist_exists(KEY_TOGGLE_VIBRATION) && persist_exists(KEY_TOGGLE_BT)) {
 
-    is_metric = persist_read_bool(KEY_RADIO_UNITS);
-    is_30mn = persist_read_bool(KEY_RADIO_REFRESH);
-    is_bt = persist_read_bool(KEY_TOGGLE_BT);
-    is_vibration = persist_read_bool(KEY_TOGGLE_VIBRATION);
+    flags.is_metric = persist_read_bool(KEY_RADIO_UNITS);
+    flags.is_30mn = persist_read_bool(KEY_RADIO_REFRESH);
+    flags.is_bt = persist_read_bool(KEY_TOGGLE_BT);
+    flags.is_vibration = persist_read_bool(KEY_TOGGLE_VIBRATION);
 
     int red, green, blue;
     red = persist_read_int(KEY_COLOR_RIGHT_R);
@@ -1831,10 +1713,10 @@ static void init_var() {
     blue = persist_read_int(KEY_COLOR_LEFT_B);
     color_left = GColorFromRGB(red, green, blue);
   } else {
-    is_metric = true;
-    is_vibration = false;
-    is_bt = false;
-    is_30mn = true;
+    flags.is_metric = true;
+    flags.is_vibration = false;
+    flags.is_bt = false;
+    flags.is_30mn = true;
     color_right = GColorBlack;
     color_left = GColorBlack;
   }
@@ -1886,9 +1768,6 @@ static void init_var() {
     npoolPH = persist_read_int(KEY_POOLPH);
     npoolORP = persist_read_int(KEY_poolORP);
 
-    persist_read_string(KEY_FORECAST_H1, h1, sizeof(h1));
-    persist_read_string(KEY_FORECAST_H2, h2, sizeof(h2));
-    persist_read_string(KEY_FORECAST_H3, h3, sizeof(h3));
     persist_read_string(KEY_ICON, icon, sizeof(icon));
     persist_read_string(KEY_LOCATION, location, sizeof(location));
     persist_read_string(KEY_FORECAST_ICON1, icon1, sizeof(icon1));
@@ -1909,31 +1788,27 @@ static void init_var() {
     graph_temps[3] = persist_read_int(KEY_FORECAST_TEMP4);
     graph_temps[4] = persist_read_int(KEY_FORECAST_TEMP5);
 
-    graph_h0 = persist_read_int(KEY_FORECAST_H0);
+    graph_hours[0] = persist_read_int(KEY_FORECAST_H0);
 
     // Restore hours from persisted integers (more reliable than string
     // conversion)
     if (persist_exists(KEY_GRAPH_H1)) {
-      graph_h1 = persist_read_int(KEY_GRAPH_H1);
-      graph_h2 = persist_read_int(KEY_GRAPH_H2);
-      graph_h3 = persist_read_int(KEY_GRAPH_H3);
+      graph_hours[1] = persist_read_int(KEY_GRAPH_H1);
+      graph_hours[2] = persist_read_int(KEY_GRAPH_H2);
+      graph_hours[3] = persist_read_int(KEY_GRAPH_H3);
     } else {
-      // Fallback to old method
-      graph_h1 = atoi(h1);
-      graph_h2 = atoi(h2);
-      graph_h3 = atoi(h3);
+      // Fallback default values
+      graph_hours[1] = 3;
+      graph_hours[2] = 6;
+      graph_hours[3] = 9;
     }
 
     // Restore winds
     if (persist_exists(KEY_GRAPH_WIND0)) {
-      graph_wind0_val = persist_read_int(KEY_GRAPH_WIND0);
-      graph_wind1_val = persist_read_int(KEY_GRAPH_WIND1);
-      graph_wind2_val = persist_read_int(KEY_GRAPH_WIND2);
-      graph_wind3_val = persist_read_int(KEY_GRAPH_WIND3);
-      snprintf(graph_wind0, sizeof(graph_wind0), "%d", graph_wind0_val);
-      snprintf(graph_wind1, sizeof(graph_wind1), "%d", graph_wind1_val);
-      snprintf(graph_wind2, sizeof(graph_wind2), "%d", graph_wind2_val);
-      snprintf(graph_wind3, sizeof(graph_wind3), "%d", graph_wind3_val);
+      graph_wind_val[0] = persist_read_int(KEY_GRAPH_WIND0);
+      graph_wind_val[1] = persist_read_int(KEY_GRAPH_WIND1);
+      graph_wind_val[2] = persist_read_int(KEY_GRAPH_WIND2);
+      graph_wind_val[3] = persist_read_int(KEY_GRAPH_WIND3);
     }
 
     graph_rains[0] = rain1_val;
@@ -1985,9 +1860,6 @@ static void init_var() {
     rain4_val = 0;
     weather_temp = 0;
 
-    snprintf(h1, sizeof(h1), " ");
-    snprintf(h2, sizeof(h2), " ");
-    snprintf(h3, sizeof(h3), " ");
     snprintf(icon, sizeof(icon), " ");
     snprintf(icon1, sizeof(icon1), " ");
     snprintf(icon2, sizeof(icon2), " ");
@@ -2004,18 +1876,13 @@ static void init_var() {
     snprintf(graph_icon1, sizeof(graph_icon1), " ");
     snprintf(graph_icon2, sizeof(graph_icon2), " ");
     snprintf(graph_icon3, sizeof(graph_icon3), " ");
-    snprintf(graph_wind0, sizeof(graph_wind0), " ");
-    snprintf(graph_wind1, sizeof(graph_wind1), " ");
-    snprintf(graph_wind2, sizeof(graph_wind2), " ");
-    snprintf(graph_wind3, sizeof(graph_wind3), " ");
-    graph_wind0_val = 0;
-    graph_wind1_val = 0;
-    graph_wind2_val = 0;
-    graph_wind3_val = 0;
-    graph_h0 = 0;
-    graph_h1 = 3;
-    graph_h2 = 6;
-    graph_h3 = 9;
+    for (int i = 0; i < 4; i++) {
+      graph_wind_val[i] = 0;
+    }
+    graph_hours[0] = 0;
+    graph_hours[1] = 3;
+    graph_hours[2] = 6;
+    graph_hours[3] = 9;
 
     // Initialize days_icon to prevent crashes when accessing uninitialized data
     snprintf(days_icon[0], sizeof(days_icon[0]), " ");
@@ -2030,11 +1897,9 @@ static void init_var() {
 
   assign_fonts();
 
-  snprintf(pebble_Lang, sizeof(pebble_Lang), "%s", i18n_get_system_locale());
-
   BatteryChargeState charge_state = battery_state_service_peek();
-  is_charging = charge_state.is_charging;
-  is_connected = connection_service_peek_pebble_app_connection();
+  flags.is_charging = charge_state.is_charging;
+  flags.is_connected = connection_service_peek_pebble_app_connection();
 
   // Fixed ruler settings
   line_interval = 4;
@@ -2051,7 +1916,7 @@ static void init_var() {
   int hour_size = 12 * line_interval; // 12 marks, one every 5 minutes
   hour_part_size = 26 * hour_size;
 
-  if (is_30mn)
+  if (flags.is_30mn)
     duration = 1800;
   else
     duration = 3600;
@@ -2112,15 +1977,15 @@ static void deinit() {
     app_timer_cancel(rsvp_timer);
     rsvp_timer = NULL;
   }
-  s_whiteout_active = false;
+  flags.s_whiteout_active = false;
   app_message_deregister_callbacks();
 
   layer_destroy(layer);
   window_destroy(s_main_window);
 
-  if (fontbig_loaded && fontbig_resource_id != 0) {
+  if (flags.fontbig_loaded && fontbig_resource_id != 0) {
     fonts_unload_custom_font(fontbig);
-    fontbig_loaded = false;
+    flags.fontbig_loaded = false;
   }
 }
 
@@ -2131,8 +1996,8 @@ int main(void) {
 }
 
 static void ensure_fontbig_loaded(void) {
-  if (fontbig_resource_id != 0 && !fontbig_loaded) {
+  if (fontbig_resource_id != 0 && !flags.fontbig_loaded) {
     fontbig = fonts_load_custom_font(resource_get_handle(fontbig_resource_id));
-    fontbig_loaded = true;
+    flags.fontbig_loaded = true;
   }
 }
