@@ -249,8 +249,8 @@ static uint8_t rain3_val = 0;
 static uint8_t rain4_val = 0;
 time_t last_refresh = 0;
 int duration = 3600;
-int offline_delay = 3600 + 600; // +10 minutes pour éviter que les icônes
-                                // disparaissent pendant l'appel météo
+int offline_delay = 600; // +10 minutes pour éviter que les icônes
+                         // disparaissent pendant l'appel météo
 AppTimer *timer_short;
 
 static char icon[24] = " ";
@@ -641,6 +641,38 @@ static void update_proc(Layer *layer, GContext *ctx) {
   snprintf(minTemp, sizeof(minMax), "%i°", tmin_val);
   snprintf(maxTemp, sizeof(maxTemp), "%i°", tmax_val);
 
+  // Draw hours FIRST for instant display (only 4 small bitmaps)
+  static char heure[10];
+  time_t t = time(NULL);
+  struct tm now = *(localtime(&t));
+
+  if (clock_is_24h_style() == true) {
+    strftime(heure, sizeof(heure), "%H%M", &now);
+  } else {
+    strftime(heure, sizeof(heure), "%I%M", &now);
+  }
+
+  if (IS_HOUR_FICTIVE) {
+    snprintf(heure, sizeof(heure), "%i%i", FICTIVE_HOUR, FICTIVE_MINUTE);
+  }
+
+  int offset_x = 41;
+  int offset_y = 85;
+  int num_x = 60;
+  int num_y = 1;
+
+  GRect rect_hour_id1 = {{num_x, num_y}, {46, 81}};
+  GRect rect_hour_id2 = {{num_x + offset_x, num_y}, {46, 81}};
+  GRect rect_minute_id1 = {{num_x, num_y + offset_y}, {46, 81}};
+  GRect rect_minute_id2 = {{num_x + offset_x, num_y + offset_y}, {46, 81}};
+
+  TimeRenderData time_data = {.digit_rects = {rect_hour_id1, rect_hour_id2,
+                                              rect_minute_id1,
+                                              rect_minute_id2}};
+  snprintf(time_data.digits, sizeof(time_data.digits), "%s", heure);
+  ui_draw_time(ctx, &time_data);
+
+  // Draw icon bar AFTER time (loads many bitmaps, slower)
   IconBarData icon_data = {.fontsmall = fontsmall,
                            .fontsmallbold = fontsmallbold,
                            .fontmedium = fontmedium,
@@ -654,7 +686,6 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .is_connected = flags.is_connected,
                            .is_quiet_time = quiet_time_is_active(),
                            .is_bw_icon = true,
-
                            .is_metric = flags.is_metric,
                            .humidity = humidity,
                            .wind_speed_val = wind_speed_val,
@@ -677,47 +708,6 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .rect_screen = rect_screen};
 
   ui_draw_icon_bar(ctx, &icon_data);
-
-  // Draw hours
-  static char heure[10];
-  // static char minute[10];
-  // fontbig =
-  // fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IMPACT_80));
-  // fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  //  heure
-  time_t t = time(NULL);
-  struct tm now = *(localtime(&t));
-
-  if (clock_is_24h_style() == true) {
-    // Use 24 hour format
-    strftime(heure, sizeof(heure), "%H%M", &now);
-  } else {
-    // Use 12 hour format
-    strftime(heure, sizeof(heure), "%I%M", &now);
-    // snprintf(heure, sizeof(heure), "%s",time_buffer+(('0' ==
-    // time_buffer[0])?1:0));
-  }
-
-  if (IS_HOUR_FICTIVE) {
-    snprintf(heure, sizeof(heure), "%i%i", FICTIVE_HOUR, FICTIVE_MINUTE);
-  }
-
-  int offset_x = 41;
-  int offset_y = 85;
-
-  int num_x = 60;
-  int num_y = 1;
-
-  GRect rect_hour_id1 = {{num_x, num_y}, {46, 81}};
-  GRect rect_hour_id2 = {{num_x + offset_x, num_y}, {46, 81}};
-  GRect rect_minute_id1 = {{num_x, num_y + offset_y}, {46, 81}};
-  GRect rect_minute_id2 = {{num_x + offset_x, num_y + offset_y}, {46, 81}};
-
-  TimeRenderData time_data = {.digit_rects = {rect_hour_id1, rect_hour_id2,
-                                              rect_minute_id1,
-                                              rect_minute_id2}};
-  snprintf(time_data.digits, sizeof(time_data.digits), "%s", heure);
-  ui_draw_time(ctx, &time_data);
 }
 
 static void handle_tick(struct tm *cur, TimeUnits units_changed) {
@@ -1723,58 +1713,51 @@ static void init_var() {
     color_left = GColorBlack;
   }
 
-  if (persist_exists(KEY_WIND_SPEED) && persist_exists(KEY_TMIN) &&
-      persist_exists(KEY_TMAX) && persist_exists(KEY_FORECAST_WIND1) &&
-      persist_exists(KEY_FORECAST_WIND2) &&
-      persist_exists(KEY_FORECAST_WIND3) &&
-      persist_exists(KEY_FORECAST_TEMP1) &&
-      persist_exists(KEY_FORECAST_TEMP2) &&
-      persist_exists(KEY_FORECAST_TEMP3) &&
-      persist_exists(KEY_FORECAST_TEMP4) &&
-      persist_exists(KEY_FORECAST_TEMP5) &&
-      persist_exists(KEY_FORECAST_RAIN1) &&
-      persist_exists(KEY_FORECAST_RAIN2) &&
-      persist_exists(KEY_FORECAST_RAIN3) &&
-      persist_exists(KEY_FORECAST_RAIN4) && persist_exists(KEY_TEMPERATURE) &&
-      persist_exists(KEY_FORECAST_H1) && persist_exists(KEY_FORECAST_H2) &&
-      persist_exists(KEY_FORECAST_H3) && persist_exists(KEY_ICON) &&
-      persist_exists(KEY_LOCATION) && persist_exists(KEY_FORECAST_ICON1) &&
-      persist_exists(KEY_FORECAST_ICON2) &&
-      persist_exists(KEY_FORECAST_ICON3)) {
+  if (persist_exists(KEY_LAST_REFRESH) && persist_exists(KEY_TEMPERATURE) &&
+      persist_exists(KEY_ICON)) {
+    // Core weather data exists - load everything
 
     last_refresh = persist_read_int(KEY_LAST_REFRESH);
 
     if (FORCE_REFRESH == 1)
       last_refresh = 0;
 
-    wind_speed_val = persist_read_int(KEY_WIND_SPEED);
-    humidity = persist_read_int(KEY_HUMIDITY);
-
-    tmin_val = persist_read_int(KEY_TMIN);
-    tmax_val = persist_read_int(KEY_TMAX);
-    wind1_val = persist_read_int(KEY_FORECAST_WIND1);
-    wind2_val = persist_read_int(KEY_FORECAST_WIND2);
-    wind3_val = persist_read_int(KEY_FORECAST_WIND3);
-    temp1_val = persist_read_int(KEY_FORECAST_TEMP1);
-    temp2_val = persist_read_int(KEY_FORECAST_TEMP2);
-    temp3_val = persist_read_int(KEY_FORECAST_TEMP3);
-    temp4_val = persist_read_int(KEY_FORECAST_TEMP4);
-    temp5_val = persist_read_int(KEY_FORECAST_TEMP5);
-    rain1_val = persist_read_int(KEY_FORECAST_RAIN1);
-    rain2_val = persist_read_int(KEY_FORECAST_RAIN2);
-    rain3_val = persist_read_int(KEY_FORECAST_RAIN3);
-    rain4_val = persist_read_int(KEY_FORECAST_RAIN4);
     weather_temp = persist_read_int(KEY_TEMPERATURE);
-
-    npoolTemp = persist_read_int(KEY_POOLTEMP);
-    npoolPH = persist_read_int(KEY_POOLPH);
-    npoolORP = persist_read_int(KEY_poolORP);
-
     persist_read_string(KEY_ICON, icon, sizeof(icon));
-    persist_read_string(KEY_LOCATION, location, sizeof(location));
-    persist_read_string(KEY_FORECAST_ICON1, icon1, sizeof(icon1));
-    persist_read_string(KEY_FORECAST_ICON2, icon2, sizeof(icon2));
-    persist_read_string(KEY_FORECAST_ICON3, icon3, sizeof(icon3));
+
+    // Load optional data with defaults
+    wind_speed_val = persist_exists(KEY_WIND_SPEED) ? persist_read_int(KEY_WIND_SPEED) : 0;
+    humidity = persist_exists(KEY_HUMIDITY) ? persist_read_int(KEY_HUMIDITY) : 0;
+    tmin_val = persist_exists(KEY_TMIN) ? persist_read_int(KEY_TMIN) : 0;
+    tmax_val = persist_exists(KEY_TMAX) ? persist_read_int(KEY_TMAX) : 0;
+
+    wind1_val = persist_exists(KEY_FORECAST_WIND1) ? persist_read_int(KEY_FORECAST_WIND1) : 0;
+    wind2_val = persist_exists(KEY_FORECAST_WIND2) ? persist_read_int(KEY_FORECAST_WIND2) : 0;
+    wind3_val = persist_exists(KEY_FORECAST_WIND3) ? persist_read_int(KEY_FORECAST_WIND3) : 0;
+
+    temp1_val = persist_exists(KEY_FORECAST_TEMP1) ? persist_read_int(KEY_FORECAST_TEMP1) : 0;
+    temp2_val = persist_exists(KEY_FORECAST_TEMP2) ? persist_read_int(KEY_FORECAST_TEMP2) : 0;
+    temp3_val = persist_exists(KEY_FORECAST_TEMP3) ? persist_read_int(KEY_FORECAST_TEMP3) : 0;
+    temp4_val = persist_exists(KEY_FORECAST_TEMP4) ? persist_read_int(KEY_FORECAST_TEMP4) : 0;
+    temp5_val = persist_exists(KEY_FORECAST_TEMP5) ? persist_read_int(KEY_FORECAST_TEMP5) : 0;
+
+    rain1_val = persist_exists(KEY_FORECAST_RAIN1) ? persist_read_int(KEY_FORECAST_RAIN1) : 0;
+    rain2_val = persist_exists(KEY_FORECAST_RAIN2) ? persist_read_int(KEY_FORECAST_RAIN2) : 0;
+    rain3_val = persist_exists(KEY_FORECAST_RAIN3) ? persist_read_int(KEY_FORECAST_RAIN3) : 0;
+    rain4_val = persist_exists(KEY_FORECAST_RAIN4) ? persist_read_int(KEY_FORECAST_RAIN4) : 0;
+
+    npoolTemp = persist_exists(KEY_POOLTEMP) ? persist_read_int(KEY_POOLTEMP) : 0;
+    npoolPH = persist_exists(KEY_POOLPH) ? persist_read_int(KEY_POOLPH) : 0;
+    npoolORP = persist_exists(KEY_poolORP) ? persist_read_int(KEY_poolORP) : 0;
+
+    if (persist_exists(KEY_LOCATION))
+      persist_read_string(KEY_LOCATION, location, sizeof(location));
+    if (persist_exists(KEY_FORECAST_ICON1))
+      persist_read_string(KEY_FORECAST_ICON1, icon1, sizeof(icon1));
+    if (persist_exists(KEY_FORECAST_ICON2))
+      persist_read_string(KEY_FORECAST_ICON2, icon2, sizeof(icon2));
+    if (persist_exists(KEY_FORECAST_ICON3))
+      persist_read_string(KEY_FORECAST_ICON3, icon3, sizeof(icon3));
 
     // CRITICAL: Also initialize graph_icon from persisted icon values
     // Without this, graph_icon1/2/3 remain empty after app restart,
@@ -1953,11 +1936,15 @@ static void init() {
   app_focus_service_subscribe_handlers((AppFocusHandlers){
       .did_focus = app_focus_changed, .will_focus = app_focus_changing});
 
-  // Trigger initial weather fetch from JS
-  DictionaryIterator *iter;
-  if (app_message_outbox_begin(&iter) == APP_MSG_OK) {
-    dict_write_uint8(iter, 0, 0);
-    app_message_outbox_send();
+  // Only trigger weather fetch if cache is stale (respects 30/60 min refresh setting)
+  t = time(NULL);
+  now = *(localtime(&t));
+  if ((mktime(&now) - last_refresh) > duration) {
+    DictionaryIterator *iter;
+    if (app_message_outbox_begin(&iter) == APP_MSG_OK) {
+      dict_write_uint8(iter, 0, 0);
+      app_message_outbox_send();
+    }
   }
 }
 

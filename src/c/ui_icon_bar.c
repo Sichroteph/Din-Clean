@@ -98,10 +98,6 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   graphics_context_set_text_color(ctx, d->color_temp);
 
-  if (!d->has_fresh_weather) {
-    return;
-  }
-
   // Draw background sized to the resource to avoid stretching
   GBitmap *background = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND);
   if (background) {
@@ -114,7 +110,7 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
     gbitmap_destroy(background);
   }
 
-  // Connection / quiet time status
+  // Connection / quiet time status - always show date/day
   if (!d->is_quiet_time) {
     graphics_draw_text(ctx, d->week_day, d->fontsmall, d->rect_text_dayw,
                        GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
@@ -123,22 +119,33 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
                          GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     } else {
       GBitmap *bt = gbitmap_create_with_resource(RESOURCE_ID_BT_DISCONECT);
-      graphics_draw_bitmap_in_rect(ctx, bt, d->rect_bt_disconect);
-      gbitmap_destroy(bt);
+      if (bt) {
+        graphics_draw_bitmap_in_rect(ctx, bt, d->rect_bt_disconect);
+        gbitmap_destroy(bt);
+      }
     }
   } else {
     graphics_draw_text(ctx, d->week_day, d->fontsmall, d->rect_text_dayw,
                        GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     GBitmap *silent = gbitmap_create_with_resource(RESOURCE_ID_SILENT);
-    graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
-    gbitmap_destroy(silent);
+    if (silent) {
+      graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
+      gbitmap_destroy(silent);
+    }
+  }
+
+  // Only show weather data if we have fresh data
+  if (!d->has_fresh_weather) {
+    return;
   }
 
   draw_humidity_icons(ctx, d);
 
   GBitmap *icon = gbitmap_create_with_resource(d->icon_id);
-  graphics_draw_bitmap_in_rect(ctx, icon, d->rect_icon);
-  gbitmap_destroy(icon);
+  if (icon) {
+    graphics_draw_bitmap_in_rect(ctx, icon, d->rect_icon);
+    gbitmap_destroy(icon);
+  }
 
   draw_wind_overlays(ctx, d);
 
