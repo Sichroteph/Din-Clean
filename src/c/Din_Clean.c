@@ -249,8 +249,8 @@ static uint8_t rain3_val = 0;
 static uint8_t rain4_val = 0;
 time_t last_refresh = 0;
 int duration = 3600;
-int offline_delay = 600; // +10 minutes pour éviter que les icônes
-                         // disparaissent pendant l'appel météo
+int offline_delay = 3600; // +1h avant que les icônes disparaissent
+
 AppTimer *timer_short;
 
 static char icon[24] = " ";
@@ -1726,27 +1726,54 @@ static void init_var() {
     persist_read_string(KEY_ICON, icon, sizeof(icon));
 
     // Load optional data with defaults
-    wind_speed_val = persist_exists(KEY_WIND_SPEED) ? persist_read_int(KEY_WIND_SPEED) : 0;
-    humidity = persist_exists(KEY_HUMIDITY) ? persist_read_int(KEY_HUMIDITY) : 0;
+    wind_speed_val =
+        persist_exists(KEY_WIND_SPEED) ? persist_read_int(KEY_WIND_SPEED) : 0;
+    humidity =
+        persist_exists(KEY_HUMIDITY) ? persist_read_int(KEY_HUMIDITY) : 0;
     tmin_val = persist_exists(KEY_TMIN) ? persist_read_int(KEY_TMIN) : 0;
     tmax_val = persist_exists(KEY_TMAX) ? persist_read_int(KEY_TMAX) : 0;
 
-    wind1_val = persist_exists(KEY_FORECAST_WIND1) ? persist_read_int(KEY_FORECAST_WIND1) : 0;
-    wind2_val = persist_exists(KEY_FORECAST_WIND2) ? persist_read_int(KEY_FORECAST_WIND2) : 0;
-    wind3_val = persist_exists(KEY_FORECAST_WIND3) ? persist_read_int(KEY_FORECAST_WIND3) : 0;
+    wind1_val = persist_exists(KEY_FORECAST_WIND1)
+                    ? persist_read_int(KEY_FORECAST_WIND1)
+                    : 0;
+    wind2_val = persist_exists(KEY_FORECAST_WIND2)
+                    ? persist_read_int(KEY_FORECAST_WIND2)
+                    : 0;
+    wind3_val = persist_exists(KEY_FORECAST_WIND3)
+                    ? persist_read_int(KEY_FORECAST_WIND3)
+                    : 0;
 
-    temp1_val = persist_exists(KEY_FORECAST_TEMP1) ? persist_read_int(KEY_FORECAST_TEMP1) : 0;
-    temp2_val = persist_exists(KEY_FORECAST_TEMP2) ? persist_read_int(KEY_FORECAST_TEMP2) : 0;
-    temp3_val = persist_exists(KEY_FORECAST_TEMP3) ? persist_read_int(KEY_FORECAST_TEMP3) : 0;
-    temp4_val = persist_exists(KEY_FORECAST_TEMP4) ? persist_read_int(KEY_FORECAST_TEMP4) : 0;
-    temp5_val = persist_exists(KEY_FORECAST_TEMP5) ? persist_read_int(KEY_FORECAST_TEMP5) : 0;
+    temp1_val = persist_exists(KEY_FORECAST_TEMP1)
+                    ? persist_read_int(KEY_FORECAST_TEMP1)
+                    : 0;
+    temp2_val = persist_exists(KEY_FORECAST_TEMP2)
+                    ? persist_read_int(KEY_FORECAST_TEMP2)
+                    : 0;
+    temp3_val = persist_exists(KEY_FORECAST_TEMP3)
+                    ? persist_read_int(KEY_FORECAST_TEMP3)
+                    : 0;
+    temp4_val = persist_exists(KEY_FORECAST_TEMP4)
+                    ? persist_read_int(KEY_FORECAST_TEMP4)
+                    : 0;
+    temp5_val = persist_exists(KEY_FORECAST_TEMP5)
+                    ? persist_read_int(KEY_FORECAST_TEMP5)
+                    : 0;
 
-    rain1_val = persist_exists(KEY_FORECAST_RAIN1) ? persist_read_int(KEY_FORECAST_RAIN1) : 0;
-    rain2_val = persist_exists(KEY_FORECAST_RAIN2) ? persist_read_int(KEY_FORECAST_RAIN2) : 0;
-    rain3_val = persist_exists(KEY_FORECAST_RAIN3) ? persist_read_int(KEY_FORECAST_RAIN3) : 0;
-    rain4_val = persist_exists(KEY_FORECAST_RAIN4) ? persist_read_int(KEY_FORECAST_RAIN4) : 0;
+    rain1_val = persist_exists(KEY_FORECAST_RAIN1)
+                    ? persist_read_int(KEY_FORECAST_RAIN1)
+                    : 0;
+    rain2_val = persist_exists(KEY_FORECAST_RAIN2)
+                    ? persist_read_int(KEY_FORECAST_RAIN2)
+                    : 0;
+    rain3_val = persist_exists(KEY_FORECAST_RAIN3)
+                    ? persist_read_int(KEY_FORECAST_RAIN3)
+                    : 0;
+    rain4_val = persist_exists(KEY_FORECAST_RAIN4)
+                    ? persist_read_int(KEY_FORECAST_RAIN4)
+                    : 0;
 
-    npoolTemp = persist_exists(KEY_POOLTEMP) ? persist_read_int(KEY_POOLTEMP) : 0;
+    npoolTemp =
+        persist_exists(KEY_POOLTEMP) ? persist_read_int(KEY_POOLTEMP) : 0;
     npoolPH = persist_exists(KEY_POOLPH) ? persist_read_int(KEY_POOLPH) : 0;
     npoolORP = persist_exists(KEY_poolORP) ? persist_read_int(KEY_poolORP) : 0;
 
@@ -1936,7 +1963,8 @@ static void init() {
   app_focus_service_subscribe_handlers((AppFocusHandlers){
       .did_focus = app_focus_changed, .will_focus = app_focus_changing});
 
-  // Only trigger weather fetch if cache is stale (respects 30/60 min refresh setting)
+  // Only trigger weather fetch if cache is stale (respects 30/60 min refresh
+  // setting)
   t = time(NULL);
   now = *(localtime(&t));
   if ((mktime(&now) - last_refresh) > duration) {

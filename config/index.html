@@ -154,25 +154,11 @@
       <div class='item-container-content'>
         <label class='item'>
           Imperial
-          <input type='radio' class='item-radio' name='radio1' input id='radio_units_imperial' value='a'>
+          <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='a'>
         </label>
         <label class='item'>
           Metric
-          <input type='radio' class='item-radio' name='radio1' input id='radio_units_metric' value='b' checked>
-        </label>
-      </div>
-    </div>
-
-    <div class='item-container' id='wind_speed_unit_container' style='display: block;'>
-      <div class='item-container-header'>Wind speed unit (metric)</div>
-      <div class='item-container-content'>
-        <label class='item'>
-          km/h
-          <input type='radio' class='item-radio' name='radio_wind' id='wind_unit_kmh' value='kmh' checked>
-        </label>
-        <label class='item'>
-          m/s
-          <input type='radio' class='item-radio' name='radio_wind' id='wind_unit_ms' value='ms'>
+          <input type='radio' class='item-radio' name='radio1' input id='radio_units' value='b' checked>
         </label>
       </div>
     </div>
@@ -277,7 +263,7 @@
   function getConfigData() {
     var input_iopool_token = document.getElementById('input_iopool_token');
     var input_news_feed_url = document.getElementById('input_news_feed_url');
-    var radio_units_imperial = document.getElementById('radio_units_imperial');
+    var radio_units = document.getElementById('radio_units');
     var radio_refresh = document.getElementById('radio_refresh');
     var toggle_vibration = document.getElementById('toggle_vibration');
     var toggle_bt = document.getElementById('toggle_bt');
@@ -287,12 +273,11 @@
     var show_news = document.getElementById('show_news');
     var double_tap = document.getElementById('double_tap');
     var weather_api_openmeteo = document.getElementById('weather_api_openmeteo');
-    var wind_unit_kmh = document.getElementById('wind_unit_kmh');
 
     var options = {
       'input_iopool_token': input_iopool_token.value,
       'input_news_feed_url': input_news_feed_url.value,
-      'radio_units': radio_units_imperial.checked,
+      'radio_units': radio_units.checked,
       'radio_refresh': radio_refresh.checked,
       'toggle_vibration': toggle_vibration.checked,
       'toggle_bt': toggle_bt.checked,
@@ -301,8 +286,7 @@
       'show_weather': show_weather.checked,
       'show_news': show_news.checked,
       'double_tap': double_tap.checked,
-      'weather_api': weather_api_openmeteo.checked ? 'openmeteo' : 'metno',
-      'wind_speed_unit': wind_unit_kmh.checked ? 'kmh' : 'ms'
+      'weather_api': weather_api_openmeteo.checked ? 'openmeteo' : 'metno'
     };
 
     // Save for next launch
@@ -318,7 +302,6 @@
     localStorage['show_news'] = options['show_news'];
     localStorage['double_tap'] = options['double_tap'];
     localStorage['weather_api'] = options['weather_api'];
-    localStorage['wind_speed_unit'] = options['wind_speed_unit'];
 
     console.log('Got options: ' + JSON.stringify(options));
     return options;
@@ -348,8 +331,7 @@
   (function () {
     var input_iopool_token = document.getElementById('input_iopool_token');
     var input_news_feed_url = document.getElementById('input_news_feed_url');
-    var radio_units_imperial = document.getElementById('radio_units_imperial');
-    var radio_units_metric = document.getElementById('radio_units_metric');
+    var radio_units = document.getElementById('radio_units');
     var radio_refresh = document.getElementById('radio_refresh');
     var toggle_vibration = document.getElementById('toggle_vibration');
     var toggle_bt = document.getElementById('toggle_bt');
@@ -360,17 +342,10 @@
     var double_tap = document.getElementById('double_tap');
     var weather_api_openmeteo = document.getElementById('weather_api_openmeteo');
     var weather_api_metno = document.getElementById('weather_api_metno');
-    var wind_unit_kmh = document.getElementById('wind_unit_kmh');
-    var wind_unit_ms = document.getElementById('wind_unit_ms');
-    var wind_speed_unit_container = document.getElementById('wind_speed_unit_container');
 
     input_iopool_token.value = localStorage['input_iopool_token'] || '';
     input_news_feed_url.value = localStorage['input_news_feed_url'] || 'https://rss.app/feeds/SdI37Q5uDrVQuAOr.xml';
-
-    var isImperial = JSON.parse(localStorage['radio_units'] || 'false');
-    radio_units_imperial.checked = isImperial;
-    radio_units_metric.checked = !isImperial;
-
+    radio_units.checked = JSON.parse(localStorage['radio_units'] || 'false');
     radio_refresh.checked = JSON.parse(localStorage['radio_refresh'] || 'false');
     toggle_vibration.checked = JSON.parse(localStorage['toggle_vibration'] || 'false');
     toggle_bt.checked = JSON.parse(localStorage['toggle_bt'] || 'false');
@@ -383,22 +358,6 @@
     var savedApi = localStorage['weather_api'] || 'openmeteo';
     weather_api_openmeteo.checked = (savedApi === 'openmeteo');
     weather_api_metno.checked = (savedApi === 'metno');
-
-    // Wind speed unit
-    var savedWindUnit = localStorage['wind_speed_unit'] || 'kmh';
-    wind_unit_kmh.checked = (savedWindUnit === 'kmh');
-    wind_unit_ms.checked = (savedWindUnit === 'ms');
-
-    // Show/hide wind speed unit container based on metric/imperial selection
-    wind_speed_unit_container.style.display = isImperial ? 'none' : 'block';
-
-    // Add event listeners to toggle wind speed unit visibility
-    radio_units_imperial.addEventListener('change', function () {
-      wind_speed_unit_container.style.display = 'none';
-    });
-    radio_units_metric.addEventListener('change', function () {
-      wind_speed_unit_container.style.display = 'block';
-    });
   })();
 </script>
 

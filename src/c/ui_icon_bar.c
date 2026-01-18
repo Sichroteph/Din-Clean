@@ -96,25 +96,25 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
   }
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
+  graphics_context_set_text_color(ctx, d->color_temp);
 
-  // Draw background FIRST if we have fresh weather data
-  if (d->has_fresh_weather) {
-    GBitmap *background = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND);
-    if (background) {
-      GRect bounds = gbitmap_get_bounds(background);
-      GRect draw_rect = {
-          .origin = d->rect_screen.origin,
-          .size = bounds.size,
-      };
-      graphics_draw_bitmap_in_rect(ctx, background, draw_rect);
-      gbitmap_destroy(background);
-    }
+  if (!d->has_fresh_weather) {
+    return;
   }
 
-  // Connection / quiet time status - always show date/day AFTER background
-  GColor text_color = d->has_fresh_weather ? d->color_temp : GColorBlack;
-  graphics_context_set_text_color(ctx, text_color);
+  // Draw background sized to the resource to avoid stretching
+  GBitmap *background = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND);
+  if (background) {
+    GRect bounds = gbitmap_get_bounds(background);
+    GRect draw_rect = {
+        .origin = d->rect_screen.origin,
+        .size = bounds.size,
+    };
+    graphics_draw_bitmap_in_rect(ctx, background, draw_rect);
+    gbitmap_destroy(background);
+  }
 
+  // Connection / quiet time status
   if (!d->is_quiet_time) {
     graphics_draw_text(ctx, d->week_day, d->fontsmall, d->rect_text_dayw,
                        GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
@@ -123,33 +123,22 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
                          GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     } else {
       GBitmap *bt = gbitmap_create_with_resource(RESOURCE_ID_BT_DISCONECT);
-      if (bt) {
-        graphics_draw_bitmap_in_rect(ctx, bt, d->rect_bt_disconect);
-        gbitmap_destroy(bt);
-      }
+      graphics_draw_bitmap_in_rect(ctx, bt, d->rect_bt_disconect);
+      gbitmap_destroy(bt);
     }
   } else {
     graphics_draw_text(ctx, d->week_day, d->fontsmall, d->rect_text_dayw,
                        GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     GBitmap *silent = gbitmap_create_with_resource(RESOURCE_ID_SILENT);
-    if (silent) {
-      graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
-      gbitmap_destroy(silent);
-    }
-  }
-
-  // Only show weather icons/data if we have fresh data
-  if (!d->has_fresh_weather) {
-    return;
+    graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
+    gbitmap_destroy(silent);
   }
 
   draw_humidity_icons(ctx, d);
 
   GBitmap *icon = gbitmap_create_with_resource(d->icon_id);
-  if (icon) {
-    graphics_draw_bitmap_in_rect(ctx, icon, d->rect_icon);
-    gbitmap_destroy(icon);
-  }
+  graphics_draw_bitmap_in_rect(ctx, icon, d->rect_icon);
+  gbitmap_destroy(icon);
 
   draw_wind_overlays(ctx, d);
 
