@@ -317,6 +317,13 @@ static uint8_t news_retry_count = 0;
 static uint8_t news_max_retries = 3;         // Max retries before giving up
 static AppTimer *news_global_timeout = NULL; // Global timeout to exit news mode
 
+// Weather retry protection
+static bool s_weather_request_pending = false; // Flag for pending weather request
+static AppTimer *s_weather_retry_timer = NULL; // Timer for weather retry
+static uint8_t s_weather_retry_count = 0;      // Current retry count
+#define WEATHER_RETRY_DELAY_MS 5000            // 5 seconds between retries
+#define WEATHER_MAX_RETRIES 12                 // Max retries (1 minute total)
+
 // Whiteout screen mode (0=graph, 1=news)
 typedef enum {
   WHITEOUT_SCREEN_GRAPH = 0,
@@ -727,11 +734,23 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
          ((mktime(&now) - last_refresh) > duration))) {
       // Begin dictionary
       DictionaryIterator *iter;
-      app_message_outbox_begin(&iter);
-      // Add a key-value pair
-      dict_write_uint8(iter, 0, 0);
-      // Send the message!
-      app_message_outbox_send();
+      AppMessageResult result = app_message_outbox_begin(&iter);
+      if (result == APP_MSG_OK) {
+        // Add a key-value pair
+        dict_write_uint8(iter, 0, 0);
+        // Send the message!
+        result = app_message_outbox_send();
+        if (result == APP_MSG_OK) {
+          s_weather_request_pending = false;
+          s_weather_retry_count = 0;
+        } else {
+          // Send failed, mark as pending for retry
+          s_weather_request_pending = true;
+        }
+      } else {
+        // Outbox busy, mark as pending for retry
+        s_weather_request_pending = true;
+      }
     }
   }
 
@@ -1638,8 +1657,48 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 // Forward declaration for news request
 static void do_send_news_request(void);
 
+// Forward declaration for weather retry
+static void do_send_weather_request(void);
+
+static void weather_retry_timer_callback(void *context) {
+  s_weather_retry_timer = NULL;
+  if (s_weather_request_pending && flags.is_connected) {
+    do_send_weather_request();
+  }
+}
+
+static void do_send_weather_request(void) {
+  DictionaryIterator *iter;
+  AppMessageResult result = app_message_outbox_begin(&iter);
+  if (result == APP_MSG_OK) {
+    dict_write_uint8(iter, 0, 0);
+    result = app_message_outbox_send();
+    if (result == APP_MSG_OK) {
+      s_weather_request_pending = false;
+      s_weather_retry_count = 0;
+      if (s_weather_retry_timer) {
+        app_timer_cancel(s_weather_retry_timer);
+        s_weather_retry_timer = NULL;
+      }
+      return;
+    }
+  }
+  // Failed - schedule retry if under max retries
+  s_weather_retry_count++;
+  if (s_weather_retry_count < WEATHER_MAX_RETRIES && !s_weather_retry_timer) {
+    s_weather_retry_timer = app_timer_register(WEATHER_RETRY_DELAY_MS, 
+                                                weather_retry_timer_callback, NULL);
+  }
+}
+
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {
+  // If weather request failed, schedule a retry
+  if (s_weather_request_pending && flags.is_connected && 
+      s_weather_retry_count < WEATHER_MAX_RETRIES && !s_weather_retry_timer) {
+    s_weather_retry_timer = app_timer_register(WEATHER_RETRY_DELAY_MS,
+                                                weather_retry_timer_callback, NULL);
+  }
   // If news request failed and we're in news mode, keep pending flag for retry
   if (s_news_request_pending && flags.s_whiteout_active &&
       s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
@@ -1649,6 +1708,11 @@ static void outbox_failed_callback(DictionaryIterator *iterator,
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  // If there's a pending weather request, send it now
+  if (s_weather_request_pending) {
+    do_send_weather_request();
+    return; // Don't send news request in same callback to avoid overwhelming outbox
+  }
   // If there's a pending news request, send it now
   if (s_news_request_pending) {
     do_send_news_request();
@@ -1993,6 +2057,10 @@ static void deinit() {
   if (rsvp_timer) {
     app_timer_cancel(rsvp_timer);
     rsvp_timer = NULL;
+  }
+  if (s_weather_retry_timer) {
+    app_timer_cancel(s_weather_retry_timer);
+    s_weather_retry_timer = NULL;
   }
   flags.s_whiteout_active = false;
   app_message_deregister_callbacks();
