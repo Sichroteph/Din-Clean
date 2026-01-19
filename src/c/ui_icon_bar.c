@@ -123,22 +123,31 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
                          GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     } else {
       GBitmap *bt = gbitmap_create_with_resource(RESOURCE_ID_BT_DISCONECT);
-      graphics_draw_bitmap_in_rect(ctx, bt, d->rect_bt_disconect);
-      gbitmap_destroy(bt);
+      if (bt) {
+        graphics_draw_bitmap_in_rect(ctx, bt, d->rect_bt_disconect);
+        gbitmap_destroy(bt);
+      }
     }
   } else {
     graphics_draw_text(ctx, d->week_day, d->fontsmall, d->rect_text_dayw,
                        GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     GBitmap *silent = gbitmap_create_with_resource(RESOURCE_ID_SILENT);
-    graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
-    gbitmap_destroy(silent);
+    if (silent) {
+      graphics_draw_bitmap_in_rect(ctx, silent, d->rect_bt_disconect);
+      gbitmap_destroy(silent);
+    }
   }
 
   draw_humidity_icons(ctx, d);
 
-  GBitmap *icon = gbitmap_create_with_resource(d->icon_id);
-  graphics_draw_bitmap_in_rect(ctx, icon, d->rect_icon);
-  gbitmap_destroy(icon);
+  // Validate icon_id before loading to prevent crashes from invalid resource IDs
+  if (d->icon_id > 0 && d->icon_id < 500) {
+    GBitmap *icon = gbitmap_create_with_resource(d->icon_id);
+    if (icon) {
+      graphics_draw_bitmap_in_rect(ctx, icon, d->rect_icon);
+      gbitmap_destroy(icon);
+    }
+  }
 
   draw_wind_overlays(ctx, d);
 
