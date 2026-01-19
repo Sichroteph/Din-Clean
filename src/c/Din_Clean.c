@@ -320,9 +320,7 @@ static AppTimer *news_global_timeout = NULL; // Global timeout to exit news mode
 // Weather retry protection
 static bool s_weather_request_pending = false; // Flag for pending weather request
 static AppTimer *s_weather_retry_timer = NULL; // Timer for weather retry
-static uint8_t s_weather_retry_count = 0;      // Current retry count
 #define WEATHER_RETRY_DELAY_MS 5000            // 5 seconds between retries
-#define WEATHER_MAX_RETRIES 12                 // Max retries (1 minute total)
 
 // Whiteout screen mode (0=graph, 1=news)
 typedef enum {
@@ -402,6 +400,23 @@ static void app_focus_changed(bool focused) {
   if (focused) {
     layer_set_hidden(layer, false);
     layer_mark_dirty(layer);
+    
+    // Check if weather data is stale and request refresh
+    t = time(NULL);
+    now = *(localtime(&t));
+    if ((flags.is_connected) && ((mktime(&now) - last_refresh) > duration)) {
+      s_weather_request_pending = true;
+      
+      DictionaryIterator *iter;
+      AppMessageResult result = app_message_outbox_begin(&iter);
+      if (result == APP_MSG_OK) {
+        dict_write_uint8(iter, 0, 0);
+        result = app_message_outbox_send();
+        if (result == APP_MSG_OK) {
+          s_weather_request_pending = false;
+        }
+      }
+    }
   }
 }
 
@@ -727,8 +742,8 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
     }
   }
 
-  // Get weather update every 30 minutes
-  if ((flags.is_connected) && (!quiet_time_is_active())) {
+  // Get weather update every 30 minutes (even during quiet time)
+  if (flags.is_connected) {
     if ((((flags.is_30mn) && (now.tm_min % 30 == 0)) ||
          (now.tm_min % 60 == 0) ||
          ((mktime(&now) - last_refresh) > duration))) {
@@ -742,7 +757,6 @@ static void handle_tick(struct tm *cur, TimeUnits units_changed) {
         result = app_message_outbox_send();
         if (result == APP_MSG_OK) {
           s_weather_request_pending = false;
-          s_weather_retry_count = 0;
         } else {
           // Send failed, mark as pending for retry
           s_weather_request_pending = true;
@@ -1675,7 +1689,6 @@ static void do_send_weather_request(void) {
     result = app_message_outbox_send();
     if (result == APP_MSG_OK) {
       s_weather_request_pending = false;
-      s_weather_retry_count = 0;
       if (s_weather_retry_timer) {
         app_timer_cancel(s_weather_retry_timer);
         s_weather_retry_timer = NULL;
@@ -1683,9 +1696,8 @@ static void do_send_weather_request(void) {
       return;
     }
   }
-  // Failed - schedule retry if under max retries
-  s_weather_retry_count++;
-  if (s_weather_retry_count < WEATHER_MAX_RETRIES && !s_weather_retry_timer) {
+  // Failed - schedule retry
+  if (!s_weather_retry_timer) {
     s_weather_retry_timer = app_timer_register(WEATHER_RETRY_DELAY_MS, 
                                                 weather_retry_timer_callback, NULL);
   }
@@ -1694,8 +1706,7 @@ static void do_send_weather_request(void) {
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {
   // If weather request failed, schedule a retry
-  if (s_weather_request_pending && flags.is_connected && 
-      s_weather_retry_count < WEATHER_MAX_RETRIES && !s_weather_retry_timer) {
+  if (s_weather_request_pending && flags.is_connected && !s_weather_retry_timer) {
     s_weather_retry_timer = app_timer_register(WEATHER_RETRY_DELAY_MS,
                                                 weather_retry_timer_callback, NULL);
   }
