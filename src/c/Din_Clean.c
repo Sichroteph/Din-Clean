@@ -205,21 +205,21 @@ static Layer *layer;
 static int hour_part_size = 0;
 
 static char week_day[4] = " ";
-static char month[4] = " ";
+// static char month removed - was written but never displayed
 static char mday[4] = " ";
 // static char tmin[10] = " ";  // UNUSED - use tmin_val instead
 // static char tmax[10] = " ";  // UNUSED - use tmax_val instead
-static char weather_temp_char[10] = " ";
+static char weather_temp_char[8] = " "; // Reduced from 10 - "-XX°" max 5 chars
 // static char weather_hum_char[10] = " ";  // UNUSED - saves 10 bytes
-static char minMax[16] = " "; // Reduced from 120 - saves 104 bytes
-static char minTemp[8] = " "; // Reduced from 12 - saves 4 bytes
-static char maxTemp[8] = " "; // Reduced from 12 - saves 4 bytes
+// static char minMax removed - was never read
+static char minTemp[6] = " "; // Reduced from 8 - "-XX°" max 5 chars
+static char maxTemp[6] = " "; // Reduced from 8
 
 // POOL DATA
 
-char poolTemp[10];
-char poolPH[10];
-char poolORP[10];
+char poolTemp[8];
+char poolPH[8];
+char poolORP[6];
 int npoolTemp;
 int npoolPH;
 int npoolORP;
@@ -235,30 +235,21 @@ static int8_t tmin_val = 0;
 static int8_t tmax_val = 0;
 static uint8_t wind_speed_val = 0;
 static uint8_t humidity = 0;
-static uint8_t wind1_val = 0;
-static uint8_t wind2_val = 0;
-static uint8_t wind3_val = 0;
-static int8_t temp1_val = 0;
-static int8_t temp2_val = 0;
-static int8_t temp3_val = 0;
-static int8_t temp4_val = 0;
-static int8_t temp5_val = 0;
-static uint8_t rain1_val = 0;
-static uint8_t rain2_val = 0;
-static uint8_t rain3_val = 0;
-static uint8_t rain4_val = 0;
+// wind1_val, wind2_val, wind3_val removed - using graph_wind_val[4] instead
+// temp1-5_val removed - using graph_temps[5] instead
+// rain1-4_val removed - using graph_rains[0,3,6,9] instead
 time_t last_refresh = 0;
 int duration = 3600;
 int offline_delay = 3600; // +1h avant que les icônes disparaissent
 
 AppTimer *timer_short;
 
-static char icon[24] = " ";
-static char icon1[24] = " ";
-static char icon2[24] = " ";
-static char icon3[24] = " ";
+static char icon[20] = " ";
+static char icon1[20] = " ";
+static char icon2[20] = " ";
+static char icon3[20] = " ";
 
-static char location[20] = " "; // Reduced from 100 - saves 80 bytes
+static char location[16] = " "; // Reduced from 20 - saves 4 more bytes
 // UNUSED wind/temp/rain char arrays - we use _val int versions - saves 120
 // bytes static char wind1[10] = " "; static char wind2[10] = " "; static char
 // wind3[10] = " "; static char temp1[10] = " "; static char temp2[10] = " ";
@@ -274,22 +265,22 @@ static char rain_ico_val;
 // Extended hourly forecast data for weather graph (minimized for memory)
 static int8_t graph_temps[5] = {10, 10, 10, 10, 10};
 static uint8_t graph_rains[12] = {0};
-static char graph_icon1[24] = "";
-static char graph_icon2[24] = "";
-static char graph_icon3[24] = "";
+static char graph_icon1[20] = "";
+static char graph_icon2[20] = "";
+static char graph_icon3[20] = "";
 static uint8_t graph_wind_val[4] = {0, 0, 0, 0};
 static uint8_t graph_hours[4] = {0, 3, 6, 9};
 
 // 3-day forecast data for ui_weather_days
-static char days_temp[3][12] = {"--", "--", "--"};
-static char days_icon[3][24] = {"", "", ""};
-static char days_rain[3][6] = {"0mm", "0mm", "0mm"};
-static char days_wind[3][6] = {"0km/h", "0km/h", "0km/h"};
+static char days_temp[3][8] = {"--", "--", "--"};
+static char days_icon[3][20] = {"", "", ""};
+static char days_rain[3][5] = {"0mm", "0mm", "0mm"};
+static char days_wind[3][5] = {"0km", "0km", "0km"};
 
 // News feed data
-static char news_title[80] = "";
-static char news_channel_title[32] =
-    "News Feed"; // Title of the RSS channel/journal
+static char news_title[64] = "";
+static char news_channel_title[24] =
+    "News"; // Title of the RSS channel/journal
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
 static uint16_t news_interval_ms = 1000; // Pause between titles
@@ -297,7 +288,7 @@ static AppTimer *news_timer = NULL;
 static bool s_news_request_pending = false; // Flag for pending news request
 
 // RSVP (Rapid Serial Visual Presentation)
-static char rsvp_word[24] = "";     // Current word being displayed
+static char rsvp_word[20] = "";     // Current word being displayed
 static uint8_t rsvp_word_index = 0; // Current word position in title
 static uint16_t rsvp_wpm_ms =
     160; // 110ms per word (~545 WPM) - Variable de vitesse
@@ -387,12 +378,8 @@ static void ensure_fontbig_loaded(void);
 static uint8_t line_interval = 4;
 static uint8_t segment_thickness = 2;
 
-// UNUSED markWidth array - saves 48 bytes
-static int8_t labels_12h[28] = {10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8,  9,  10, 11,
-                                12, 1,  2,  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
-static int8_t labels[28] = {22, 23, 0,  1,  2,  3,  4,  5,  6,  7,
-                            8,  9,  10, 11, 12, 13, 14, 15, 16, 17,
-                            18, 19, 20, 21, 22, 23, 0,  1};
+// labels_12h and labels arrays removed - they were never read, only copied
+// This saves 56 bytes of static memory
 
 static uint8_t battery_level = 0;
 
@@ -629,9 +616,9 @@ static void update_proc(Layer *layer, GContext *ctx) {
 
   int icon_id;
   int icon_id6;
-  rain_ico_val = rain1_val;
+  rain_ico_val = graph_rains[0];
   icon_id = build_icon_with_pool_check(icon);
-  rain_ico_val = rain3_val;
+  rain_ico_val = graph_rains[6];
   icon_id6 = build_icon_with_pool_check(icon2);
   // icon_id = build_icon("01d");
   // icon_id6 = build_icon("01d");
@@ -648,8 +635,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
   const char *locale = i18n_get_system_locale();
   snprintf(week_day, sizeof(week_day), "%s",
            weather_utils_get_weekday_abbrev(locale, now.tm_wday));
-  snprintf(month, sizeof(month), "%s",
-           weather_utils_get_month_abbrev(locale, now.tm_mon));
+  // month variable removed - was written but never displayed
 
   snprintf(mday, sizeof(mday), "%i", now.tm_mday);
   graphics_context_set_text_color(ctx, color_temp);
@@ -659,8 +645,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
       ((mktime(&now) - last_refresh) < duration + offline_delay);
 
   snprintf(weather_temp_char, sizeof(weather_temp_char), "%i°", weather_temp);
-  snprintf(minMax, sizeof(minMax), "%i %i", tmin_val, tmax_val);
-  snprintf(minTemp, sizeof(minMax), "%i°", tmin_val);
+  snprintf(minTemp, sizeof(minTemp), "%i°", tmin_val);
   snprintf(maxTemp, sizeof(maxTemp), "%i°", tmax_val);
 
   // Draw hours FIRST for instant display (only 4 small bitmaps)
@@ -711,7 +696,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
                            .is_metric = flags.is_metric,
                            .humidity = humidity,
                            .wind_speed_val = wind_speed_val,
-                           .wind2_val = wind2_val,
+                           .wind2_val = graph_wind_val[2],
                            .met_unit = flags.is_metric ? 20 : 25,
                            .icon_id = icon_id,
                            .icon_id6 = icon_id6,
@@ -1538,27 +1523,19 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_int(KEY_TMIN, tmin_val);
     persist_write_int(KEY_TMAX, tmax_val);
 
-    persist_write_int(KEY_FORECAST_WIND1, wind1_val);
-    persist_write_int(KEY_FORECAST_WIND2, wind2_val);
-    persist_write_int(KEY_FORECAST_WIND3, wind3_val);
+    // wind1-3_val, temp1-5_val, rain1-4_val removed - using graph arrays directly
 
-    persist_write_int(KEY_FORECAST_TEMP1, temp1_val);
-    persist_write_int(KEY_FORECAST_TEMP2, temp2_val);
-    persist_write_int(KEY_FORECAST_TEMP3, temp3_val);
-    persist_write_int(KEY_FORECAST_TEMP4, temp4_val);
-    persist_write_int(KEY_FORECAST_TEMP5, temp5_val);
-
-    persist_write_int(KEY_FORECAST_RAIN1, rain1_val);
-    persist_write_int(KEY_FORECAST_RAIN2, rain2_val);
-    persist_write_int(KEY_FORECAST_RAIN3, rain3_val);
-    persist_write_int(KEY_FORECAST_RAIN4, rain4_val);
-    // Persist detailed rain bars for the weather graph so they survive restarts
+    // Persist rain bars for the weather graph so they survive restarts
+    persist_write_int(KEY_FORECAST_RAIN1, graph_rains[0]);
     persist_write_int(KEY_FORECAST_RAIN11, graph_rains[1]);
     persist_write_int(KEY_FORECAST_RAIN12, graph_rains[2]);
+    persist_write_int(KEY_FORECAST_RAIN2, graph_rains[3]);
     persist_write_int(KEY_FORECAST_RAIN21, graph_rains[4]);
     persist_write_int(KEY_FORECAST_RAIN22, graph_rains[5]);
+    persist_write_int(KEY_FORECAST_RAIN3, graph_rains[6]);
     persist_write_int(KEY_FORECAST_RAIN31, graph_rains[7]);
     persist_write_int(KEY_FORECAST_RAIN32, graph_rains[8]);
+    persist_write_int(KEY_FORECAST_RAIN4, graph_rains[9]);;
     persist_write_int(KEY_FORECAST_RAIN41, graph_rains[10]);
     persist_write_int(KEY_FORECAST_RAIN42, graph_rains[11]);
 
@@ -1749,7 +1726,6 @@ static void init_var() {
   } else {
     flags.require_double_tap = true;
   }
-  int i;
 
   t = time(NULL);
   now = *(localtime(&t));
@@ -1808,44 +1784,7 @@ static void init_var() {
     tmin_val = persist_exists(KEY_TMIN) ? persist_read_int(KEY_TMIN) : 0;
     tmax_val = persist_exists(KEY_TMAX) ? persist_read_int(KEY_TMAX) : 0;
 
-    wind1_val = persist_exists(KEY_FORECAST_WIND1)
-                    ? persist_read_int(KEY_FORECAST_WIND1)
-                    : 0;
-    wind2_val = persist_exists(KEY_FORECAST_WIND2)
-                    ? persist_read_int(KEY_FORECAST_WIND2)
-                    : 0;
-    wind3_val = persist_exists(KEY_FORECAST_WIND3)
-                    ? persist_read_int(KEY_FORECAST_WIND3)
-                    : 0;
-
-    temp1_val = persist_exists(KEY_FORECAST_TEMP1)
-                    ? persist_read_int(KEY_FORECAST_TEMP1)
-                    : 0;
-    temp2_val = persist_exists(KEY_FORECAST_TEMP2)
-                    ? persist_read_int(KEY_FORECAST_TEMP2)
-                    : 0;
-    temp3_val = persist_exists(KEY_FORECAST_TEMP3)
-                    ? persist_read_int(KEY_FORECAST_TEMP3)
-                    : 0;
-    temp4_val = persist_exists(KEY_FORECAST_TEMP4)
-                    ? persist_read_int(KEY_FORECAST_TEMP4)
-                    : 0;
-    temp5_val = persist_exists(KEY_FORECAST_TEMP5)
-                    ? persist_read_int(KEY_FORECAST_TEMP5)
-                    : 0;
-
-    rain1_val = persist_exists(KEY_FORECAST_RAIN1)
-                    ? persist_read_int(KEY_FORECAST_RAIN1)
-                    : 0;
-    rain2_val = persist_exists(KEY_FORECAST_RAIN2)
-                    ? persist_read_int(KEY_FORECAST_RAIN2)
-                    : 0;
-    rain3_val = persist_exists(KEY_FORECAST_RAIN3)
-                    ? persist_read_int(KEY_FORECAST_RAIN3)
-                    : 0;
-    rain4_val = persist_exists(KEY_FORECAST_RAIN4)
-                    ? persist_read_int(KEY_FORECAST_RAIN4)
-                    : 0;
+    // wind1-3_val, temp1-5_val, rain1-4_val removed - loaded directly into graph arrays below
 
     npoolTemp =
         persist_exists(KEY_POOLTEMP) ? persist_read_int(KEY_POOLTEMP) : 0;
@@ -1898,16 +1837,17 @@ static void init_var() {
       graph_wind_val[3] = persist_read_int(KEY_GRAPH_WIND3);
     }
 
-    graph_rains[0] = rain1_val;
+    // Load rain values directly into graph_rains array
+    graph_rains[0] = persist_exists(KEY_FORECAST_RAIN1) ? persist_read_int(KEY_FORECAST_RAIN1) : 0;
     graph_rains[1] = persist_read_int(KEY_FORECAST_RAIN11);
     graph_rains[2] = persist_read_int(KEY_FORECAST_RAIN12);
-    graph_rains[3] = rain2_val;
+    graph_rains[3] = persist_exists(KEY_FORECAST_RAIN2) ? persist_read_int(KEY_FORECAST_RAIN2) : 0;
     graph_rains[4] = persist_read_int(KEY_FORECAST_RAIN21);
     graph_rains[5] = persist_read_int(KEY_FORECAST_RAIN22);
-    graph_rains[6] = rain3_val;
+    graph_rains[6] = persist_exists(KEY_FORECAST_RAIN3) ? persist_read_int(KEY_FORECAST_RAIN3) : 0;
     graph_rains[7] = persist_read_int(KEY_FORECAST_RAIN31);
     graph_rains[8] = persist_read_int(KEY_FORECAST_RAIN32);
-    graph_rains[9] = rain4_val;
+    graph_rains[9] = persist_exists(KEY_FORECAST_RAIN4) ? persist_read_int(KEY_FORECAST_RAIN4) : 0;
     graph_rains[10] = persist_read_int(KEY_FORECAST_RAIN41);
     graph_rains[11] = persist_read_int(KEY_FORECAST_RAIN42);
 
@@ -1933,18 +1873,6 @@ static void init_var() {
     tmin_val = 0;
     humidity = 0;
     tmax_val = 0;
-    wind1_val = 0;
-    wind2_val = 0;
-    wind3_val = 0;
-    temp1_val = 0;
-    temp2_val = 0;
-    temp3_val = 0;
-    temp4_val = 0;
-    temp5_val = 0;
-    rain1_val = 0;
-    rain2_val = 0;
-    rain3_val = 0;
-    rain4_val = 0;
     weather_temp = 0;
 
     snprintf(icon, sizeof(icon), " ");
@@ -1992,11 +1920,8 @@ static void init_var() {
   line_interval = 4;
   segment_thickness = 2;
 
-  if (!clock_is_24h_style()) {
-    for (i = 0; i < 28; i++) {
-      labels[i] = labels_12h[i];
-    }
-  }
+  // labels copy code removed - arrays were never read
+  
   setHourLinePoints();
   initBatteryLevel();
 

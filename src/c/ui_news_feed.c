@@ -144,14 +144,14 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   // Y position for text
   int text_y = SPRITZ_WORD_Y - 16; // Adjust for font baseline
 
-  // Create buffers for the three parts of the word
-  char pre_pivot[32] = "";
+  // Create buffers for the three parts of the word (reduced from 32 to 20 to save heap)
+  char pre_pivot[20] = "";
   char pivot_char[2] = "";
-  char post_pivot[32] = "";
+  char post_pivot[20] = "";
 
   // Split the word into parts
   if (pivot_idx > 0) {
-    int copy_len = (pivot_idx < 31) ? pivot_idx : 31;
+    int copy_len = (pivot_idx < 19) ? pivot_idx : 19;
     memcpy(pre_pivot, word, copy_len);
     pre_pivot[copy_len] = '\0';
   }
@@ -161,7 +161,7 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
 
   if (pivot_idx + 1 < word_length) {
     int remaining = word_length - pivot_idx - 1;
-    int copy_len = (remaining < 31) ? remaining : 31;
+    int copy_len = (remaining < 19) ? remaining : 19;
     memcpy(post_pivot, &word[pivot_idx + 1], copy_len);
     post_pivot[copy_len] = '\0';
   }

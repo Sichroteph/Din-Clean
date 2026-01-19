@@ -140,7 +140,8 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
 
   draw_humidity_icons(ctx, d);
 
-  // Validate icon_id before loading to prevent crashes from invalid resource IDs
+  // Validate icon_id before loading to prevent crashes from invalid resource
+  // IDs
   if (d->icon_id > 0 && d->icon_id < 500) {
     GBitmap *icon = gbitmap_create_with_resource(d->icon_id);
     if (icon) {
