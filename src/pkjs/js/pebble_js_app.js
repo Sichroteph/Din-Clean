@@ -299,7 +299,7 @@ function processOpenMeteoResponse(responseText) {
   // Current conditions (first hour)
   var currentTemp = hourly.temperature_2m[0];
   var currentHumidity = Math.round(hourly.relative_humidity_2m[0]);
-  var currentWindSpeed = hourly.wind_speed_10m[0]; // Already in km/h from API
+  var currentWindSpeed = hourly.wind_gusts_10m[0]; // Wind gusts in km/h from API
   var currentWmoCode = hourly.weather_code[0];
 
   // Get current hour to determine day/night for icon
@@ -392,7 +392,7 @@ function processOpenMeteoResponse(responseText) {
       }
       hourlyTemperatures['hour' + j] = Math.round(tempI);
 
-      var windSpeedKmh = hourly.wind_speed_10m[apiIndex];
+      var windSpeedKmh = hourly.wind_gusts_10m[apiIndex]; // Use wind gusts
       var windValue;
       if (units_setting == 1) {
         windValue = Math.round(windSpeedKmh * 0.621371);
@@ -453,8 +453,8 @@ function processOpenMeteoResponse(responseText) {
 
         day_rains[d] = Math.round(rainSum) + "mm";
 
-        // Wind max for the day
-        var dayWindKmh = daily.wind_speed_10m_max[dayIdx];
+        // Wind gusts max for the day
+        var dayWindKmh = daily.wind_gusts_10m_max[dayIdx];
         var dayWind;
         if (units == 1) {
           dayWind = Math.round(dayWindKmh * 0.621371);
@@ -1046,8 +1046,8 @@ function getForecast() {
     // Open-Meteo API with Météo-France AROME model (1.5km resolution, excellent for France)
     var urlOpenMeteo = 'https://api.open-meteo.com/v1/meteofrance?' +
       'latitude=' + current_Latitude + '&longitude=' + current_Longitude +
-      '&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m' +
-      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max' +
+      '&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_gusts_10m' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_gusts_10m_max' +
       '&forecast_days=4&timezone=auto';
 
     console.log(urlOpenMeteo);

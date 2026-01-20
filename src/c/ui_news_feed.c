@@ -144,7 +144,8 @@ static void draw_rsvp_word(GContext *ctx, const char *word) {
   // Y position for text
   int text_y = SPRITZ_WORD_Y - 16; // Adjust for font baseline
 
-  // Create buffers for the three parts of the word (reduced from 32 to 20 to save heap)
+  // Create buffers for the three parts of the word (reduced from 32 to 20 to
+  // save heap)
   char pre_pivot[20] = "";
   char pivot_char[2] = "";
   char post_pivot[20] = "";

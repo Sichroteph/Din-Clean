@@ -279,8 +279,7 @@ static char days_wind[3][5] = {"0km", "0km", "0km"};
 
 // News feed data
 static char news_title[64] = "";
-static char news_channel_title[24] =
-    "News"; // Title of the RSS channel/journal
+static char news_channel_title[24] = "News"; // Title of the RSS channel/journal
 static uint8_t news_display_count = 0;
 static uint8_t news_max_count = 5;
 static uint16_t news_interval_ms = 1000; // Pause between titles
@@ -309,7 +308,8 @@ static uint8_t news_max_retries = 3;         // Max retries before giving up
 static AppTimer *news_global_timeout = NULL; // Global timeout to exit news mode
 
 // Weather retry protection
-static bool s_weather_request_pending = false; // Flag for pending weather request
+static bool s_weather_request_pending =
+    false; // Flag for pending weather request
 static AppTimer *s_weather_retry_timer = NULL; // Timer for weather retry
 #define WEATHER_RETRY_DELAY_MS 5000            // 5 seconds between retries
 
@@ -387,13 +387,13 @@ static void app_focus_changed(bool focused) {
   if (focused) {
     layer_set_hidden(layer, false);
     layer_mark_dirty(layer);
-    
+
     // Check if weather data is stale and request refresh
     t = time(NULL);
     now = *(localtime(&t));
     if ((flags.is_connected) && ((mktime(&now) - last_refresh) > duration)) {
       s_weather_request_pending = true;
-      
+
       DictionaryIterator *iter;
       AppMessageResult result = app_message_outbox_begin(&iter);
       if (result == APP_MSG_OK) {
@@ -1523,7 +1523,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_int(KEY_TMIN, tmin_val);
     persist_write_int(KEY_TMAX, tmax_val);
 
-    // wind1-3_val, temp1-5_val, rain1-4_val removed - using graph arrays directly
+    // wind1-3_val, temp1-5_val, rain1-4_val removed - using graph arrays
+    // directly
 
     // Persist rain bars for the weather graph so they survive restarts
     persist_write_int(KEY_FORECAST_RAIN1, graph_rains[0]);
@@ -1535,7 +1536,8 @@ static void inbox_received_callback(DictionaryIterator *iterator,
     persist_write_int(KEY_FORECAST_RAIN3, graph_rains[6]);
     persist_write_int(KEY_FORECAST_RAIN31, graph_rains[7]);
     persist_write_int(KEY_FORECAST_RAIN32, graph_rains[8]);
-    persist_write_int(KEY_FORECAST_RAIN4, graph_rains[9]);;
+    persist_write_int(KEY_FORECAST_RAIN4, graph_rains[9]);
+    ;
     persist_write_int(KEY_FORECAST_RAIN41, graph_rains[10]);
     persist_write_int(KEY_FORECAST_RAIN42, graph_rains[11]);
 
@@ -1675,17 +1677,18 @@ static void do_send_weather_request(void) {
   }
   // Failed - schedule retry
   if (!s_weather_retry_timer) {
-    s_weather_retry_timer = app_timer_register(WEATHER_RETRY_DELAY_MS, 
-                                                weather_retry_timer_callback, NULL);
+    s_weather_retry_timer = app_timer_register(
+        WEATHER_RETRY_DELAY_MS, weather_retry_timer_callback, NULL);
   }
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator,
                                    AppMessageResult reason, void *context) {
   // If weather request failed, schedule a retry
-  if (s_weather_request_pending && flags.is_connected && !s_weather_retry_timer) {
-    s_weather_retry_timer = app_timer_register(WEATHER_RETRY_DELAY_MS,
-                                                weather_retry_timer_callback, NULL);
+  if (s_weather_request_pending && flags.is_connected &&
+      !s_weather_retry_timer) {
+    s_weather_retry_timer = app_timer_register(
+        WEATHER_RETRY_DELAY_MS, weather_retry_timer_callback, NULL);
   }
   // If news request failed and we're in news mode, keep pending flag for retry
   if (s_news_request_pending && flags.s_whiteout_active &&
@@ -1699,7 +1702,8 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   // If there's a pending weather request, send it now
   if (s_weather_request_pending) {
     do_send_weather_request();
-    return; // Don't send news request in same callback to avoid overwhelming outbox
+    return; // Don't send news request in same callback to avoid overwhelming
+            // outbox
   }
   // If there's a pending news request, send it now
   if (s_news_request_pending) {
@@ -1784,7 +1788,8 @@ static void init_var() {
     tmin_val = persist_exists(KEY_TMIN) ? persist_read_int(KEY_TMIN) : 0;
     tmax_val = persist_exists(KEY_TMAX) ? persist_read_int(KEY_TMAX) : 0;
 
-    // wind1-3_val, temp1-5_val, rain1-4_val removed - loaded directly into graph arrays below
+    // wind1-3_val, temp1-5_val, rain1-4_val removed - loaded directly into
+    // graph arrays below
 
     npoolTemp =
         persist_exists(KEY_POOLTEMP) ? persist_read_int(KEY_POOLTEMP) : 0;
@@ -1838,16 +1843,24 @@ static void init_var() {
     }
 
     // Load rain values directly into graph_rains array
-    graph_rains[0] = persist_exists(KEY_FORECAST_RAIN1) ? persist_read_int(KEY_FORECAST_RAIN1) : 0;
+    graph_rains[0] = persist_exists(KEY_FORECAST_RAIN1)
+                         ? persist_read_int(KEY_FORECAST_RAIN1)
+                         : 0;
     graph_rains[1] = persist_read_int(KEY_FORECAST_RAIN11);
     graph_rains[2] = persist_read_int(KEY_FORECAST_RAIN12);
-    graph_rains[3] = persist_exists(KEY_FORECAST_RAIN2) ? persist_read_int(KEY_FORECAST_RAIN2) : 0;
+    graph_rains[3] = persist_exists(KEY_FORECAST_RAIN2)
+                         ? persist_read_int(KEY_FORECAST_RAIN2)
+                         : 0;
     graph_rains[4] = persist_read_int(KEY_FORECAST_RAIN21);
     graph_rains[5] = persist_read_int(KEY_FORECAST_RAIN22);
-    graph_rains[6] = persist_exists(KEY_FORECAST_RAIN3) ? persist_read_int(KEY_FORECAST_RAIN3) : 0;
+    graph_rains[6] = persist_exists(KEY_FORECAST_RAIN3)
+                         ? persist_read_int(KEY_FORECAST_RAIN3)
+                         : 0;
     graph_rains[7] = persist_read_int(KEY_FORECAST_RAIN31);
     graph_rains[8] = persist_read_int(KEY_FORECAST_RAIN32);
-    graph_rains[9] = persist_exists(KEY_FORECAST_RAIN4) ? persist_read_int(KEY_FORECAST_RAIN4) : 0;
+    graph_rains[9] = persist_exists(KEY_FORECAST_RAIN4)
+                         ? persist_read_int(KEY_FORECAST_RAIN4)
+                         : 0;
     graph_rains[10] = persist_read_int(KEY_FORECAST_RAIN41);
     graph_rains[11] = persist_read_int(KEY_FORECAST_RAIN42);
 
@@ -1921,7 +1934,7 @@ static void init_var() {
   segment_thickness = 2;
 
   // labels copy code removed - arrays were never read
-  
+
   setHourLinePoints();
   initBatteryLevel();
 
