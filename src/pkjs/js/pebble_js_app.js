@@ -201,8 +201,18 @@ function SendStatus(status) {
   });
 }
 
-var xhrRequest = function (url, type, callback) {
+// Weather fetch retry configuration
+var weatherRetryCount = 0;
+var weatherMaxRetries = 3;
+var weatherRetryDelayMs = 10000; // 10 seconds between retries (3 retries in ~30s max)
+var weatherRetryTimer = null;
+var weatherXhrPending = false;
+
+var xhrRequest = function (url, type, callback, errorCallback) {
   var xhr = new XMLHttpRequest();
+
+  // Timeout after 15 seconds
+  xhr.timeout = 15000;
 
   xhr.onload = function () {
     callback(this.responseText);
@@ -210,6 +220,12 @@ var xhrRequest = function (url, type, callback) {
 
   xhr.onerror = function (err) {
     console.error('XHR failed', err);
+    if (errorCallback) errorCallback('network_error');
+  };
+
+  xhr.ontimeout = function () {
+    console.error('XHR timeout after 15s');
+    if (errorCallback) errorCallback('timeout');
   };
 
   xhr.open(type, url);
@@ -1028,15 +1044,53 @@ function getIOPoolData() {
 }
 
 
+// Called when weather fetch succeeds - reset retry state
+function onWeatherFetchSuccess() {
+  weatherRetryCount = 0;
+  weatherXhrPending = false;
+  if (weatherRetryTimer) {
+    clearTimeout(weatherRetryTimer);
+    weatherRetryTimer = null;
+  }
+  console.log("Weather fetch successful, retry count reset");
+}
+
+// Called when weather fetch fails - schedule retry if under limit
+function onWeatherFetchError(reason) {
+  weatherXhrPending = false;
+  weatherRetryCount++;
+  console.log("Weather fetch failed (" + reason + "), retry " + weatherRetryCount + "/" + weatherMaxRetries);
+
+  if (weatherRetryCount < weatherMaxRetries) {
+    console.log("Scheduling retry in " + weatherRetryDelayMs + "ms");
+    weatherRetryTimer = setTimeout(function () {
+      weatherRetryTimer = null;
+      getForecast();
+    }, weatherRetryDelayMs);
+  } else {
+    console.log("Max retries reached, giving up until next scheduled refresh");
+    weatherRetryCount = 0; // Reset for next scheduled attempt
+  }
+}
+
 function getForecast() {
 
   console.log("getForecast");
 
+  // Prevent concurrent requests
+  if (weatherXhrPending) {
+    console.log("Weather XHR already pending, skipping");
+    return;
+  }
+
   if (bFakeData == 1) {
     console.log("Using offline fake weather sample");
     processWeatherResponse(buildFakeResponse());
+    onWeatherFetchSuccess();
     return;
   }
+
+  weatherXhrPending = true;
 
   // Check which API to use (default to Open-Meteo with AROME model for France)
   var weatherApi = localStorage.getItem(180) || 'openmeteo';
@@ -1054,8 +1108,15 @@ function getForecast() {
 
     xhrRequest(urlOpenMeteo, 'GET',
       function (responseText) {
-        processOpenMeteoResponse(responseText);
-      }
+        try {
+          processOpenMeteoResponse(responseText);
+          onWeatherFetchSuccess();
+        } catch (e) {
+          console.error("Error processing Open-Meteo response: " + e);
+          onWeatherFetchError('parse_error');
+        }
+      },
+      onWeatherFetchError
     );
   } else {
     // MET Norway API (fallback)
@@ -1066,8 +1127,15 @@ function getForecast() {
 
     xhrRequest(urlWeatherRequest, 'GET',
       function (responseText) {
-        processWeatherResponse(responseText);
-      }
+        try {
+          processWeatherResponse(responseText);
+          onWeatherFetchSuccess();
+        } catch (e) {
+          console.error("Error processing MET Norway response: " + e);
+          onWeatherFetchError('parse_error');
+        }
+      },
+      onWeatherFetchError
     );
   }
 }
