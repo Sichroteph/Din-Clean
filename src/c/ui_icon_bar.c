@@ -152,9 +152,6 @@ void ui_draw_icon_bar(GContext *ctx, const IconBarData *d) {
 
   draw_wind_overlays(ctx, d);
 
-  // Wind indicators for second icon (wind2)
-  draw_wind_overlays_for_rect(ctx, d->wind2_val, d->met_unit, d->rect_icon6);
-
   graphics_draw_text(ctx, d->weather_temp_text, d->fontmedium, d->rect_temp,
                      GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
   graphics_draw_text(ctx, d->min_temp_text, d->fontsmallbold, d->rect_tmin,
