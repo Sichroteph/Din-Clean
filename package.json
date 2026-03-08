@@ -139,13 +139,6 @@
                     "memoryFormat": "1BitPalette"
                 },
                 {
-                    "characterRegex": "[0-9:]",
-                    "file": "fonts/Clearview_45.ttf",
-                    "name": "FONT_CLEARVIEW_45",
-                    "targetPlatforms": null,
-                    "type": "font"
-                },
-                {
                     "file": "images/0",
                     "name": "0",
                     "targetPlatforms": null,
@@ -361,5 +354,5 @@
             "watchface": true
         }
     },
-    "version": "1.59.0"
+    "version": "1.60.0"
 }

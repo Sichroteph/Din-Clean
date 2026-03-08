@@ -327,7 +327,6 @@ typedef struct {
   uint16_t is_bt : 1;
   uint16_t is_vibration : 1;
   uint16_t s_whiteout_active : 1;
-  uint16_t fontbig_loaded : 1;
   uint16_t first_draw_logged : 1;
   uint16_t is_charging : 1;
   uint16_t is_connected : 1;
@@ -340,7 +339,6 @@ static AppFlags flags = {.is_metric = 1,
                          .is_bt = 0,
                          .is_vibration = 0,
                          .s_whiteout_active = 0,
-                         .fontbig_loaded = 0,
                          .first_draw_logged = 0,
                          .is_charging = 0,
                          .is_connected = 0,
@@ -370,11 +368,6 @@ static GFont fontsmall;
 static GFont fontsmallbold;
 // Dates and temp
 static GFont fontmedium;
-// Hour display
-static GFont fontbig;
-static uint16_t fontbig_resource_id = 0;
-static void ensure_fontbig_loaded(void);
-
 static uint8_t line_interval = 4;
 static uint8_t segment_thickness = 2;
 
@@ -555,14 +548,7 @@ static WeatherGraphData s_graph_data;
 
 static void update_proc(Layer *layer, GContext *ctx) {
 
-  // Weather screen mode: temporarily unload heavy custom font to free memory
   if (flags.s_whiteout_active) {
-    // Unload heavy font if loaded to free memory for weather bitmaps
-    if (flags.fontbig_loaded && fontbig_resource_id != 0) {
-      fonts_unload_custom_font(fontbig);
-      flags.fontbig_loaded = false;
-    }
-
     if (s_whiteout_screen == WHITEOUT_SCREEN_NEWS) {
       ui_draw_news_feed(ctx, rsvp_word, s_news_splash_active, s_news_end_screen,
                         news_channel_title);
@@ -572,10 +558,6 @@ static void update_proc(Layer *layer, GContext *ctx) {
     }
     return;
   }
-
-  // Ensure heavy custom font is loaded only when needed (not in weather graph
-  // mode)
-  ensure_fontbig_loaded();
 
   if (!flags.first_draw_logged) {
     flags.first_draw_logged = true;
@@ -1169,9 +1151,6 @@ static void assign_fonts() {
   fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  flags.fontbig_loaded = false;
-  fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
   hour_offset_x = 1;
   hour_offset_y = 9;
   status_offset_x = 1;
@@ -1737,9 +1716,6 @@ static void init_var() {
   fontsmall = fonts_get_system_font(FONT_KEY_GOTHIC_14);
   fontsmallbold = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
   fontmedium = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  fontbig = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  flags.fontbig_loaded = false;
-  fontbig_resource_id = RESOURCE_ID_FONT_CLEARVIEW_45;
 
   if (persist_exists(KEY_RADIO_UNITS) && persist_exists(KEY_RADIO_REFRESH) &&
       persist_exists(KEY_TOGGLE_VIBRATION) && persist_exists(KEY_TOGGLE_BT)) {
@@ -2017,10 +1993,6 @@ static void deinit() {
   layer_destroy(layer);
   window_destroy(s_main_window);
 
-  if (flags.fontbig_loaded && fontbig_resource_id != 0) {
-    fonts_unload_custom_font(fontbig);
-    flags.fontbig_loaded = false;
-  }
 }
 
 int main(void) {
@@ -2029,9 +2001,3 @@ int main(void) {
   deinit();
 }
 
-static void ensure_fontbig_loaded(void) {
-  if (fontbig_resource_id != 0 && !flags.fontbig_loaded) {
-    fontbig = fonts_load_custom_font(resource_get_handle(fontbig_resource_id));
-    flags.fontbig_loaded = true;
-  }
-}
