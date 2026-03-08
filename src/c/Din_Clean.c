@@ -1992,6 +1992,7 @@ static void deinit() {
 
   layer_destroy(layer);
   window_destroy(s_main_window);
+
 }
 
 int main(void) {
@@ -1999,3 +2000,4 @@ int main(void) {
   app_event_loop();
   deinit();
 }
+
